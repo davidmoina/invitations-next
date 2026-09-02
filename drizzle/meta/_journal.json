@@ -1,0 +1,62 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1787524300524,
+      "tag": "0000_bored_the_twelve",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787525113266,
+      "tag": "0001_loving_ares",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787525479314,
+      "tag": "0002_audit_app_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787525567804,
+      "tag": "0003_audit_app_sequence",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787525685027,
+      "tag": "0004_audit_public_revoke",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1787527440272,
+      "tag": "0005_mushy_white_tiger",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787772321186,
+      "tag": "0006_thankful_pepper_potts",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788048071507,
+      "tag": "0007_magenta_stark_industries",
+      "breakpoints": true
+    }
+  ]
+}
