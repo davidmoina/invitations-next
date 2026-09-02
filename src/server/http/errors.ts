@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { AccessError } from "#/server/access-error";
 import type { AccessErrorCode } from "#/server/contracts/errors";
+import { CompanionCapError } from "#/server/domain-error";
 
 const accessErrorSchema = z.object({
 	code: z.enum(["unauthorized", "forbidden", "not_found", "conflict"]),
@@ -34,6 +35,11 @@ export async function decodeAccessError(
 
 export function errorResponse(error: unknown): Response {
 	if (error instanceof AccessError) return accessErrorResponse(error);
+	if (error instanceof CompanionCapError)
+		return Response.json(
+			{ code: error.code, maxCompanions: error.maxCompanions },
+			{ status: 422 },
+		);
 	if (error instanceof z.ZodError)
 		return Response.json({ code: "invalid_request" }, { status: 400 });
 	return Response.json({ code: "internal_error" }, { status: 500 });
