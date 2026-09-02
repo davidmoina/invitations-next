@@ -1,11 +1,28 @@
 import { Pool } from "@neondatabase/serverless";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { createElement } from "react";
+import { renderToReadableStream } from "react-dom/server";
+import {
+	afterAll,
+	afterEach,
+	beforeAll,
+	describe,
+	expect,
+	test,
+	vi,
+} from "vitest";
 import {
 	createOrganizerSession,
 	destroyFixture,
 	type EventFixture,
 } from "#/test/auth-fixture";
 import { GET } from "../../app/api/events/route";
+
+let documentCookie = "";
+
+vi.mock("next/headers", () => ({
+	cookies: async () => ({ toString: () => documentCookie }),
+	headers: async () => new Headers({ cookie: documentCookie }),
+}));
 
 const databaseUrl = process.env.DATABASE_URL_TEST;
 if (!databaseUrl)
@@ -18,24 +35,41 @@ beforeAll(async () => {
 	organizer = await createOrganizerSession(pool);
 }, 30_000);
 
+afterEach(() => vi.unstubAllGlobals());
+
 afterAll(async () => {
 	await destroyFixture(pool, organizer);
 	await pool.end();
 });
 
 describe("authenticated SSR HTTP boundary", () => {
-	test("forwards the document cookie into the real organizer handler", async () => {
-		const response = await GET(
-			new Request("https://app.test/api/events", {
-				headers: { cookie: organizer.cookie },
-			}),
+	test("renders a Server Component through the SSR client and real organizer handler", async () => {
+		documentCookie = organizer.cookie;
+		const requests: Request[] = [];
+		vi.stubGlobal(
+			"fetch",
+			async (input: string | URL | Request, init?: RequestInit) => {
+				const request = new Request(input, init);
+				requests.push(request);
+				return GET(request);
+			},
 		);
+		const { getOrganizerEvents } = await import("./server");
 
-		expect(response.status).toBe(200);
-		await expect(response.json()).resolves.toEqual(
-			expect.arrayContaining([
-				expect.objectContaining({ id: organizer.eventId }),
-			]),
+		async function OrganizerDashboard() {
+			const events = await getOrganizerEvents();
+			return createElement("main", null, events[0]?.id ?? "missing");
+		}
+
+		const stream = await renderToReadableStream(
+			createElement(OrganizerDashboard),
 		);
+		const markup = await new Response(stream).text();
+
+		expect(markup).toContain(organizer.eventId);
+		expect(requests).toHaveLength(1);
+		expect(requests[0]?.url).toBe(`${process.env.APP_ORIGIN}/api/events`);
+		expect(requests[0]?.headers.get("cookie")).toBe(organizer.cookie);
+		expect(requests[0]?.cache).toBe("no-store");
 	});
 });
