@@ -9,7 +9,7 @@ export function SignUpWrapper() {
 	return (
 		<SignUpForm
 			onSignUp={async (input) => {
-				const result = await signUp({ data: input });
+				const result = await signUp(input);
 				if (result.ok) {
 					router.push("/admin");
 					router.refresh();

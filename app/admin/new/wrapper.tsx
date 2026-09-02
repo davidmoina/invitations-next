@@ -9,7 +9,7 @@ export function NewEventWrapper() {
 	return (
 		<CreateEventForm
 			onCreateEvent={async (input) => {
-				const created = await createEvent({ data: input });
+				const created = await createEvent(input);
 				router.push(`/admin/${created.id}`);
 				router.refresh();
 				return created;

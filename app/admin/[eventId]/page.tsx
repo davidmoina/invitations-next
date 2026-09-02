@@ -15,8 +15,8 @@ export default async function AdminEventPage({
 
 	try {
 		const [data, audit] = await Promise.all([
-			getAdminEvent({ data: scope }),
-			listAdminAudit({ data: scope }),
+			getAdminEvent(scope),
+			listAdminAudit(scope),
 		]);
 		return <AdminEventWrapper data={data} audit={audit} eventId={p.eventId} />;
 	} catch (error) {

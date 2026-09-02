@@ -29,13 +29,14 @@ export function PublicEventPageWrapper({
 	return (
 		<PublicEventPage
 			{...data}
-			onSubmitRsvp={(input) => submitRsvp({ data: input })}
-			onReserveGift={(input) => reserveGift({ data: input })}
-			onCancelReservation={(input) => cancelReservation({ data: input })}
-			onSubmitMessage={(input) => submitMessage({ data: input })}
+			onSubmitRsvp={(input) => submitRsvp(input)}
+			onReserveGift={(input) => reserveGift(input)}
+			onCancelReservation={(input) => cancelReservation(input)}
+			onSubmitMessage={(input) => submitMessage(input)}
 			onRegisterGuest={async (input) => {
 				const result = await registerGuest({
-					data: { slug, ...input },
+					slug,
+					...input,
 				});
 				if (!result.ok) return result;
 				// The secure cookie is now set. Refresh the route loader.

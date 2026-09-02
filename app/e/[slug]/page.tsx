@@ -18,12 +18,16 @@ export default async function PublicEventRoute({
 	const deps = searchSchema.parse(s);
 
 	if (deps.token) {
-		redirect(`/api/guest-link?slug=${p.slug}&token=${deps.token}`);
+		const query = new URLSearchParams({
+			slug: p.slug,
+			token: deps.token,
+		});
+		redirect(`/api/guest-link?${query.toString()}`);
 	}
 
 	try {
 		const data = await getPublicEvent({
-			data: { slug: p.slug },
+			slug: p.slug,
 		});
 		return <PublicEventPageWrapper data={data} slug={p.slug} />;
 	} catch (error) {

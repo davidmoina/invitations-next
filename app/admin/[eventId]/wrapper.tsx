@@ -30,15 +30,16 @@ export function AdminEventWrapper({
 		<AdminEventShell
 			data={data}
 			audit={audit}
-			onAddGuests={(guests) => addGuests({ data: { eventId, guests } })}
-			onCreateGift={(input) => createGift({ data: { ...input, eventId } })}
-			onUpdateEvent={(input) => updateEvent({ data: { ...input, eventId } })}
-			onInvite={(email) => inviteCollaborator({ data: { eventId, email } })}
-			onRemove={(userId) => removeCollaborator({ data: { eventId, userId } })}
+			onAddGuests={(guests) => addGuests({ eventId, guests })}
+			onCreateGift={(input) => createGift({ ...input, eventId })}
+			onUpdateEvent={(input) => updateEvent({ ...input, eventId })}
+			onInvite={(email) => inviteCollaborator({ eventId, email })}
+			onRemove={(userId) => removeCollaborator({ eventId, userId })}
 			onTransfer={(nextOwnerId) =>
-				transferOwnershipAdmin({ data: { eventId, nextOwnerId } })
+				transferOwnershipAdmin({ eventId, nextOwnerId })
 			}
 			onSignOut={async () => {
+				// TODO: switch to signOut() from #/api-client once it lands
 				await fetch("/api/auth/sign-out", {
 					method: "POST",
 					headers: { "content-type": "application/json" },
@@ -48,15 +49,15 @@ export function AdminEventWrapper({
 				router.refresh();
 			}}
 			onCancelReservation={(giftId) =>
-				cancelReservationAdmin({ data: { eventId, giftId } })
+				cancelReservationAdmin({ eventId, giftId })
 			}
 			onDeleteEvent={async () => {
-				await deleteEvent({ data: { eventId } });
+				await deleteEvent({ eventId });
 				router.push("/admin");
 				router.refresh();
 			}}
-			onEditGift={(input) => editGift({ data: { ...input, eventId } })}
-			onEditGuest={(input) => editGuest({ data: { ...input, eventId } })}
+			onEditGift={(input) => editGift({ ...input, eventId })}
+			onEditGuest={(input) => editGuest({ ...input, eventId })}
 			onRefresh={() => router.refresh()}
 		/>
 	);

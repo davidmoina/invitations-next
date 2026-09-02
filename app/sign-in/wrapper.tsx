@@ -9,7 +9,7 @@ export function SignInWrapper() {
 	return (
 		<SignInForm
 			onSignIn={async (input) => {
-				const result = await signIn({ data: input });
+				const result = await signIn(input);
 				if (result.ok) {
 					router.push("/admin");
 					router.refresh();

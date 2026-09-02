@@ -17,6 +17,7 @@ export function AdminHomeWrapper({
 			newEventHref="/admin/new"
 			homeHref="/admin"
 			onSignOut={async () => {
+				// TODO: switch to signOut() from #/api-client once it lands
 				await fetch("/api/auth/sign-out", {
 					method: "POST",
 					headers: { "content-type": "application/json" },
