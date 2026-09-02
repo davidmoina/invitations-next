@@ -13,37 +13,58 @@ const url = process.env.DATABASE_URL_TEST;
 if (!url)
 	throw new Error("DATABASE_URL_TEST is required for integration tests.");
 const pool = new Pool({ connectionString: url });
-let f: EventFixture;
+let fixture: EventFixture;
 beforeAll(async () => {
-	f = await createOrganizerSession(pool);
+	fixture = await createOrganizerSession(pool, { role: "editor" });
 }, 30000);
 afterAll(async () => {
-	await destroyFixture(pool, f);
+	await destroyFixture(pool, fixture);
 	await pool.end();
 });
-test("creates gifts through an organizer endpoint and rejects a guest", async () => {
-	const input = {
-		title: "HTTP gift",
-		description: null,
-		url: null,
-		imagePublicId: null,
-		position: 0,
-	};
-	const ok = await callParameterizedJsonRoute(POST, {
+const input = {
+	title: "Cena en Florencia",
+	description: "Una cena para dos",
+	url: "https://example.test/gifts/dinner",
+	imagePublicId: "gifts/florence-dinner",
+	position: 3,
+};
+
+test("an editor creates a gift scoped to their event", async () => {
+	const response = await callParameterizedJsonRoute(POST, {
 		path: "/api",
 		method: "POST",
-		headers: { cookie: f.cookie },
+		headers: { cookie: fixture.cookie },
 		body: input,
-		params: { eventId: f.eventId },
+		params: { eventId: fixture.eventId },
 	});
-	expect(ok.status).toBe(200);
-	const guest = await createGuestSession(pool, f);
-	const denied = await callParameterizedJsonRoute(POST, {
+	expect(response.status).toBe(200);
+	const created = (await response.json()) as { id: string };
+	const rows = await pool.query(
+		"select event_id, title, position from gifts where id=$1",
+		[created.id],
+	);
+	expect(rows.rows).toEqual([
+		{ event_id: fixture.eventId, title: input.title, position: 3 },
+	]);
+});
+
+test("a guest is rejected before a gift row is inserted", async () => {
+	const guest = await createGuestSession(pool, fixture);
+	const before = await pool.query(
+		"select count(*)::int count from gifts where event_id=$1",
+		[fixture.eventId],
+	);
+	const response = await callParameterizedJsonRoute(POST, {
 		path: "/api",
 		method: "POST",
 		headers: { cookie: guest.cookie },
 		body: input,
-		params: { eventId: f.eventId },
+		params: { eventId: fixture.eventId },
 	});
-	expect(denied.status).toBe(403);
+	expect(response.status).toBe(403);
+	const after = await pool.query(
+		"select count(*)::int count from gifts where event_id=$1",
+		[fixture.eventId],
+	);
+	expect(after.rows).toEqual(before.rows);
 });
