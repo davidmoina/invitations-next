@@ -14,7 +14,6 @@
 			"**/next.config.ts",
 			"**/vitest.config.ts",
 			"**/drizzle.config.ts",
-			"!**/src/app/globals.css",
 			"!**/src/platform/db/schema/auth.ts"
 		]
 	},
@@ -42,6 +41,11 @@
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
 		}
 	}
 }
