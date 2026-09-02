@@ -41,6 +41,7 @@ export async function DELETE(
 ): Promise<Response> {
 	return handleRoute(request, async () => {
 		const organizer = await requireOrganizer(await eventId(context));
-		return Response.json(await deleteEvent(organizer));
+		await deleteEvent(organizer);
+		return new Response(null, { status: 204 });
 	});
 }
