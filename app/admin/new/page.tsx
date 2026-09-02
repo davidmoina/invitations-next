@@ -1,15 +1,17 @@
 import { redirect } from "next/navigation";
 import { requireSession } from "#/api-client";
 import { accessErrorCode } from "#/server/access-error";
-import { LandingPage } from "#/ui/landing-page";
+import { NewEventWrapper } from "./wrapper";
 
-export default async function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function NewEventPage() {
 	try {
 		await requireSession();
-		redirect("/admin");
-	} catch (error: unknown) {
+		return <NewEventWrapper />;
+	} catch (error) {
 		if (accessErrorCode(error) === "unauthorized") {
-			return <LandingPage signUpHref="/sign-up" signInHref="/sign-in" />;
+			redirect("/sign-in");
 		}
 		throw error;
 	}

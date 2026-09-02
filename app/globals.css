@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
-:root {
-	--background: #ffffff;
-	--foreground: #171717;
+@theme {
+	--color-primary: #725b38;
+	--color-primary-container: #c5a880;
+	--color-primary-fixed: #fedeb2;
+	--color-primary-fixed-dim: #e0c298;
+	--color-surface: #fff8f3;
+	--color-surface-dim: #e0d9d4;
+	--color-surface-bright: #fff8f3;
+	--color-surface-container: #f4ede7;
+	--color-surface-container-high: #eee7e2;
+	--color-surface-container-highest: #e8e1dc;
+	--color-surface-container-low: #faf2ed;
+	--color-surface-container-lowest: #ffffff;
+	--color-surface-variant: #e8e1dc;
+	--color-on-surface: #1e1b18;
+	--color-on-surface-variant: #4d463c;
+	--color-secondary: #625e59;
+	--color-secondary-container: #e5ded8;
+	--color-champagne-50: #fdfbf7;
+	--color-champagne-100: #f7f2e7;
+	--color-champagne-700: #8c6d40;
+	--color-stone-50: #fafaf9;
+	--color-stone-100: #f5f5f4;
+	--color-stone-200: #e7e5e4;
+	--color-stone-300: #d6d3d1;
+	--color-stone-900: #1c1917;
+	--color-success-green: #15803d;
+	--color-success-bg: #dcfce7;
+	--color-warning-amber: #b45309;
+	--color-warning-bg: #fef3c7;
+	--color-error: #ba1a1a;
+	--color-error-container: #ffdad6;
+
+	--font-serif:
+		"Playfair Display", Georgia, Cambria, "Times New Roman", Times, serif;
+	--font-sans:
+		"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		sans-serif;
 }
 
-@theme inline {
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+* {
+	box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
-	}
+html,
+body,
+#app {
+	min-height: 100%;
 }
 
 body {
-	background: var(--background);
-	color: var(--foreground);
-	font-family: Arial, Helvetica, sans-serif;
+	margin: 0;
+	font-family: var(--font-sans);
+	background-color: var(--color-stone-50);
+	color: var(--color-on-surface);
 }
