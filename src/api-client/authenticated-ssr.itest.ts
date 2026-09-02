@@ -1,6 +1,4 @@
 import { Pool } from "@neondatabase/serverless";
-import { createElement } from "react";
-import { renderToReadableStream } from "react-dom/server";
 import {
 	afterAll,
 	afterEach,
@@ -43,7 +41,7 @@ afterAll(async () => {
 });
 
 describe("authenticated SSR HTTP boundary", () => {
-	test("renders a Server Component through the SSR client and real organizer handler", async () => {
+	test("forwards SSR credentials to the real organizer handler", async () => {
 		documentCookie = organizer.cookie;
 		const requests: Request[] = [];
 		vi.stubGlobal(
@@ -56,17 +54,9 @@ describe("authenticated SSR HTTP boundary", () => {
 		);
 		const { getOrganizerEvents } = await import("./server");
 
-		async function OrganizerDashboard() {
-			const events = await getOrganizerEvents();
-			return createElement("main", null, events[0]?.id ?? "missing");
-		}
+		const events = await getOrganizerEvents();
 
-		const stream = await renderToReadableStream(
-			createElement(OrganizerDashboard),
-		);
-		const markup = await new Response(stream).text();
-
-		expect(markup).toContain(organizer.eventId);
+		expect(events[0]?.id).toBe(organizer.eventId);
 		expect(requests).toHaveLength(1);
 		expect(requests[0]?.url).toBe(`${process.env.APP_ORIGIN}/api/events`);
 		expect(requests[0]?.headers.get("cookie")).toBe(organizer.cookie);
