@@ -12,11 +12,11 @@ import {
 	callRoute,
 	responseCookies,
 } from "#/test/route-handler";
-import { GET as guestLink } from "../../app/api/guest-link/route";
 import { GET as event } from "../../app/api/events/[eventId]/route";
 import { GET as events } from "../../app/api/events/route";
-import { GET as session } from "../../app/api/session/route";
+import { GET as guestLink } from "../../app/api/guest-link/route";
 import { GET as publicEvent } from "../../app/api/public/[slug]/route";
+import { GET as session } from "../../app/api/session/route";
 
 const databaseUrl = process.env.DATABASE_URL_TEST;
 if (!databaseUrl)
