@@ -33,7 +33,7 @@ describe("guest link handshake", () => {
 		);
 
 		expect(calls).toEqual(["slug:event", "hash", "token"]);
-		expect(response.status).toBe(307);
+		expect(response.status).toBe(302);
 		expect(response.headers.get("location")).toBe("https://app.test/e/event");
 		expect(response.headers.get("set-cookie")).toContain("__Host-guest_token=");
 	});
@@ -55,7 +55,7 @@ describe("guest link handshake", () => {
 			},
 		);
 
-		expect(response.status).toBe(307);
+		expect(response.status).toBe(302);
 		expect(response.headers.get("set-cookie")).toBeNull();
 	});
 });
