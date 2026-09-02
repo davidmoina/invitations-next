@@ -29,10 +29,10 @@ export function PublicEventPageWrapper({
 	return (
 		<PublicEventPage
 			{...data}
-			onSubmitRsvp={(input) => submitRsvp(input)}
-			onReserveGift={(input) => reserveGift(input)}
-			onCancelReservation={(input) => cancelReservation(input)}
-			onSubmitMessage={(input) => submitMessage(input)}
+			onSubmitRsvp={(input) => submitRsvp({ slug, ...input })}
+			onReserveGift={(input) => reserveGift({ slug, ...input })}
+			onCancelReservation={(input) => cancelReservation({ slug, ...input })}
+			onSubmitMessage={(input) => submitMessage({ slug, ...input })}
 			onRegisterGuest={async (input) => {
 				const result = await registerGuest({
 					slug,

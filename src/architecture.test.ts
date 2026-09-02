@@ -192,3 +192,69 @@ describe("seam guard (b): only src/platform/db/** may import drizzle-orm or the 
 		expect(violations).toEqual([]);
 	});
 });
+
+describe("seam guard (c): only app/api/** may hold domain or platform imports", () => {
+	// STACK.md §7.0. The API is meant to be extractable into its own service
+	// later, and an extraction boundary you only *intend* to honour behaves
+	// exactly like the "the UI shouldn't import the database" promise that
+	// guard (a) exists to replace. On extraction day the files that move out
+	// are precisely the ones this guard permits to hold these imports; without
+	// it that set is discovered by grep, months later, and is always larger
+	// than expected.
+	it("flags a page reaching past the API client (pure matcher)", () => {
+		const files: SourceFile[] = [
+			{
+				path: "app/admin/page.tsx",
+				content: 'import { listEvents } from "#/platform/db/admin-queries";\n',
+			},
+		];
+
+		const violations = findForbiddenImports(files, (resolved) =>
+			resolved.startsWith("src/platform"),
+		);
+
+		expect(violations).toEqual([
+			{
+				file: "app/admin/page.tsx",
+				specifier: "#/platform/db/admin-queries",
+			},
+		]);
+	});
+
+	it("does not flag a page going through the API client (triangulation)", () => {
+		const files: SourceFile[] = [
+			{
+				path: "app/admin/page.tsx",
+				content: 'import { getOrganizerEvents } from "#/api-client";\n',
+			},
+		];
+
+		const violations = findForbiddenImports(files, (resolved) =>
+			resolved.startsWith("src/platform"),
+		);
+
+		expect(violations).toEqual([]);
+	});
+
+	it("finds zero violations in the real repository", () => {
+		const appFiles = collectSourceFiles("app", "app/api");
+		const forbiddenPrefixes = [
+			"src/accounts",
+			"src/audit",
+			"src/events",
+			"src/gifts",
+			"src/guests",
+			"src/media",
+			"src/messages",
+			"src/platform",
+		];
+
+		const violations = findForbiddenImports(appFiles, (resolved) =>
+			forbiddenPrefixes.some(
+				(prefix) => resolved === prefix || resolved.startsWith(`${prefix}/`),
+			),
+		);
+
+		expect(violations).toEqual([]);
+	});
+});
