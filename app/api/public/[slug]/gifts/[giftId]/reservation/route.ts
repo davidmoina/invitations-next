@@ -1,43 +1,46 @@
 import { z } from "zod";
+
 import { cancelReservation, reserveGift } from "#/gifts/use-cases";
-import { requireGuest } from "#/server/http/guest-actor";
+import { requireGuestForSlug } from "#/server/http/guest-actor";
 import { handleRoute } from "#/server/http/handler";
-import { resolveRequestActor } from "#/server/middleware/resolve-actor";
 
 export const runtime = "nodejs";
 
 const giftIdSchema = z.string().uuid();
+const slugSchema = z.string().min(1);
+type Context = { params: Promise<{ slug: string; giftId: string }> };
 
-function giftId(context: {
-	params: Promise<{ giftId: string }>;
-}): Promise<string> {
-	return context.params.then((params) => giftIdSchema.parse(params.giftId));
+async function guestActor(request: Request, context: Context) {
+	const params = await context.params;
+	return requireGuestForSlug(request, slugSchema.parse(params.slug));
 }
 
 export async function POST(
 	request: Request,
-	context: { params: Promise<{ giftId: string }> },
+	context: Context,
 ): Promise<Response> {
-	return handleRoute(request, async () =>
-		Response.json(
+	return handleRoute(request, async () => {
+		const params = await context.params;
+		return Response.json(
 			await reserveGift(
-				requireGuest(await resolveRequestActor(request)),
-				await giftId(context),
+				await guestActor(request, context),
+				giftIdSchema.parse(params.giftId),
 			),
-		),
-	);
+		);
+	});
 }
 
 export async function DELETE(
 	request: Request,
-	context: { params: Promise<{ giftId: string }> },
+	context: Context,
 ): Promise<Response> {
-	return handleRoute(request, async () =>
-		Response.json(
+	return handleRoute(request, async () => {
+		const params = await context.params;
+		return Response.json(
 			await cancelReservation(
-				requireGuest(await resolveRequestActor(request)),
-				await giftId(context),
+				await guestActor(request, context),
+				giftIdSchema.parse(params.giftId),
 			),
-		),
-	);
+		);
+	});
 }

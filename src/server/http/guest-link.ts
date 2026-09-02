@@ -21,6 +21,7 @@ export type GuestLinkDependencies = {
 function redirectFor(request: Request, slug: string): NextResponse {
 	return NextResponse.redirect(
 		new URL(`/e/${encodeURIComponent(slug)}`, request.url),
+		302,
 	);
 }
 
