@@ -2,30 +2,44 @@ import { can } from "#/accounts/authorization";
 import type { Actor, AuditedTx, EventId, GuestId } from "#/audit/actor";
 import { evaluateCompanionCap } from "#/events/rules";
 import { findEventStatus, updateGuestRow } from "#/platform/db/admin-mutations";
-
 import {
+	findGuestByContact,
 	findGuestByIdentity,
 	getEventCap,
+	getEventSlug,
 	getEventStartsAt,
 	insertGuests,
 	insertGuestTokenRow,
 	insertPublicGuest,
+	revokeGuestTokensFor,
 	runMutation,
 	upsertGuestRsvp,
 } from "#/platform/db/domain-mutations";
+import { serverEnv } from "#/platform/env";
 import { AccessError } from "#/server/access-error";
 import type { RsvpResult } from "#/server/contracts/public";
 import { CompanionCapError } from "#/server/domain-error";
 
 import { guestTokenExpiresAt } from "./constants";
-import { normalizeEmail, normalizeName } from "./rules";
+import { sendGuestLinkEmail } from "./delivery";
+import {
+	classifyContact,
+	normalizeEmail,
+	normalizeName,
+	normalizePhone,
+} from "./rules";
 import { generateGuestToken, hashToken } from "./tokens";
 
-export type NewGuest = { displayName: string; email: string | null };
+export type NewGuest = {
+	displayName: string;
+	email: string | null;
+	phone?: string | null;
+};
 
 export type EditGuestInput = Partial<{
 	displayName: string;
 	email: string | null;
+	phone: string | null;
 	attending: boolean | null;
 	companions: number;
 }>;
@@ -45,6 +59,8 @@ export async function addGuests(
 				nameNormalized: normalizeName(guest.displayName),
 				email: guest.email?.trim() ?? null,
 				emailNormalized: guest.email ? normalizeEmail(guest.email) : null,
+				phone: guest.phone?.trim() ?? null,
+				phoneNormalized: guest.phone ? normalizePhone(guest.phone) : null,
 				source: "preloaded" as const,
 			})),
 		);
@@ -240,6 +256,10 @@ export async function editGuest(
 			set.email = input.email?.trim() ?? null;
 			set.emailNormalized = input.email ? normalizeEmail(input.email) : null;
 		}
+		if (input.phone !== undefined) {
+			set.phone = input.phone?.trim() ?? null;
+			set.phoneNormalized = input.phone ? normalizePhone(input.phone) : null;
+		}
 		if (input.attending !== undefined) {
 			set.attending = input.attending;
 			set.respondedAt = input.attending === null ? null : new Date();
@@ -266,4 +286,124 @@ export async function editGuest(
 			],
 		};
 	});
+}
+
+/**
+ * Re-sends a guest their personal link after they identify themselves at the
+ * access gate.
+ *
+ * A match never grants access: it only triggers delivery to the address the
+ * organizer already holds. Knowing someone else's email or phone therefore
+ * buys nothing — the link lands in their inbox, not the requester's browser.
+ * For the same reason every outcome is silent and indistinguishable here;
+ * the caller answers identically whether or not a row matched.
+ *
+ * Existing tokens are deliberately left alive. Revoking on request would let
+ * anyone who guesses a contact repeatedly invalidate that guest's working
+ * link without ever being able to use one.
+ */
+export async function requestGuestLink(
+	eventId: EventId,
+	contactInput: string,
+): Promise<void> {
+	const contact = classifyContact(contactInput);
+	if (contact.kind === "invalid") return;
+
+	const actor = {
+		kind: "system" as const,
+		reason: "guest_link_request" as never,
+	};
+	const delivery = await runMutation<{ email: string; token: string } | null>(
+		actor,
+		async (tx) => {
+			const guest = await findGuestByContact(tx, eventId, contact);
+			const startsAt = guest?.email
+				? await getEventStartsAt(tx, eventId)
+				: null;
+			if (!guest || !guest.email || !startsAt)
+				return {
+					value: null,
+					events: [
+						{
+							action: "guest_link.requested",
+							entityType: "guest",
+							entityId: guest?.id ?? "unmatched",
+							eventId,
+							summary: { delivered: false },
+						},
+					],
+				};
+			const token = await issueGuestTokenFor(tx, eventId, guest.id, startsAt);
+			return {
+				value: { email: guest.email, token },
+				events: [
+					{
+						action: "guest_link.requested",
+						entityType: "guest",
+						entityId: guest.id,
+						eventId,
+						summary: { delivered: true },
+					},
+				],
+			};
+		},
+	);
+	if (!delivery) return;
+
+	const eventSlug = await getEventSlug(eventId);
+	if (!eventSlug) return;
+	await sendGuestLinkEmail(actor, {
+		eventId,
+		email: delivery.email,
+		eventSlug,
+		token: delivery.token,
+	});
+}
+
+/**
+ * Mints a fresh link for one guest so the organizer can hand it over out of
+ * band — the tokens are stored hashed, so the plaintext issued at intake
+ * cannot be read back and has to be replaced to be shown again.
+ *
+ * Previous tokens are revoked here: this is a deliberate organizer action,
+ * and leaving the old copies alive would grow an unbounded set of working
+ * credentials every time the button is pressed.
+ */
+export async function issueGuestLinkFor(
+	actor: Extract<Actor, { kind: "organizer" }>,
+	guestId: string,
+): Promise<{ url: string }> {
+	if (!can(actor.role, "editGuest")) throw new AccessError("forbidden");
+	const eventSlug = await getEventSlug(actor.eventId);
+	if (!eventSlug) throw new AccessError("not_found");
+
+	const token = await runMutation<string>(actor, async (tx) => {
+		const startsAt = await getEventStartsAt(tx, actor.eventId);
+		if (!startsAt) throw new AccessError("not_found");
+		await revokeGuestTokensFor(tx, actor.eventId, guestId, new Date());
+		const issued = await issueGuestTokenFor(
+			tx,
+			actor.eventId,
+			guestId,
+			startsAt,
+		);
+		return {
+			value: issued,
+			events: [
+				{
+					action: "guest_token.reissued",
+					entityType: "guest_token",
+					entityId: guestId,
+					eventId: actor.eventId,
+				},
+			],
+		};
+	});
+
+	const url = new URL(
+		`/e/${encodeURIComponent(eventSlug)}`,
+		serverEnv().APP_ORIGIN,
+	);
+	url.searchParams.set("token", token);
+	return { url: url.toString() };
 }

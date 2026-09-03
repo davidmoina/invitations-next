@@ -45,6 +45,8 @@ export async function updateGuestRow(
 		nameNormalized: string;
 		email: string | null;
 		emailNormalized: string | null;
+		phone: string | null;
+		phoneNormalized: string | null;
 		source: "public_link" | "preloaded";
 		attending: boolean | null;
 		companions: number;

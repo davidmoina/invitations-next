@@ -67,6 +67,8 @@ export async function insertGuests(
 		nameNormalized: string;
 		email: string | null;
 		emailNormalized: string | null;
+		phone: string | null;
+		phoneNormalized: string | null;
 		source: "public_link" | "preloaded";
 	}>,
 ) {
@@ -159,6 +161,49 @@ export async function findGuestByIdentity(
 		)
 		.limit(1);
 	return guest ?? null;
+}
+
+/**
+ * Resolves a guest from the contact they typed at the access gate. The row
+ * never leaves this module: callers receive the delivery address alone, so
+ * a lookup can drive an email without exposing whether it matched.
+ */
+export async function findGuestByContact(
+	tx: AuditedTx,
+	eventId: string,
+	contact: { kind: "email" | "phone"; value: string },
+) {
+	const column =
+		contact.kind === "email" ? guests.emailNormalized : guests.phoneNormalized;
+	const [guest] = await tx
+		.select({ id: guests.id, email: guests.email })
+		.from(guests)
+		.where(and(eq(guests.eventId, eventId), eq(column, contact.value)))
+		.limit(1);
+	return guest ?? null;
+}
+
+/**
+ * Retires every live credential for one guest. Tokens are stored hashed and
+ * the plaintext is shown once, so re-issuing a link must invalidate the
+ * previous one rather than leave two working copies in circulation.
+ */
+export async function revokeGuestTokensFor(
+	tx: AuditedTx,
+	eventId: string,
+	guestId: string,
+	revokedAt: Date,
+) {
+	await tx
+		.update(guestTokens)
+		.set({ revokedAt })
+		.where(
+			and(
+				eq(guestTokens.eventId, eventId),
+				eq(guestTokens.guestId, guestId),
+				isNull(guestTokens.revokedAt),
+			),
+		);
 }
 
 export async function reserveGiftRow(

@@ -30,6 +30,7 @@ export async function POST(
 				guest.email
 					? [
 							sendGuestLinkEmail(organizer, {
+								eventId: organizer.eventId,
 								email: guest.email,
 								eventSlug,
 								token: guest.token,

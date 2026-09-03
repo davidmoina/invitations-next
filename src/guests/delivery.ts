@@ -1,13 +1,26 @@
-import type { Actor } from "#/audit/actor";
+import type { Actor, EventId } from "#/audit/actor";
 import { recordEmailDeliveryFailure } from "#/platform/db/domain-mutations";
 import type { Mailer } from "#/platform/email/mailer";
 import { resendMailer } from "#/platform/email/resend";
 import { serverEnv } from "#/platform/env";
 
-/** Best-effort delivery runs after guest intake commits. */
+export type GuestLinkDelivery = {
+	eventId: EventId;
+	email: string;
+	eventSlug: string;
+	token: string;
+};
+
+/**
+ * Best-effort delivery runs after guest intake commits.
+ *
+ * The event scope arrives in the payload rather than off the actor: the
+ * self-service access gate sends the same link under a system actor, which
+ * carries no event of its own.
+ */
 export async function sendGuestLinkEmail(
-	actor: Extract<Actor, { kind: "organizer" }>,
-	input: { email: string; eventSlug: string; token: string },
+	actor: Actor,
+	input: GuestLinkDelivery,
 	mailer: Mailer = resendMailer,
 ): Promise<void> {
 	try {
@@ -21,7 +34,7 @@ export async function sendGuestLinkEmail(
 	} catch {
 		await recordEmailDeliveryFailure(
 			actor,
-			`guest_link:${actor.eventId}:${input.email}`,
+			`guest_link:${input.eventId}:${input.email}`,
 		);
 	}
 }

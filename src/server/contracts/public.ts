@@ -84,6 +84,20 @@ export type RegisterGuestInput = {
 	email: string | null;
 };
 
+/** What the guest types at the access gate: one field holding either an
+ *  email address or a phone number. The server decides which it is. */
+export type RequestGuestLinkInput = { contact: string };
+
+/**
+ * Deliberately has no failure branch and carries no data.
+ *
+ * A match sends the guest their personal link by email; it never grants
+ * access in the browser. Reporting whether the contact matched — or that
+ * delivery happened at all — would turn this endpoint into an enumeration
+ * oracle for the guest list, so every outcome is the same value.
+ */
+export type RequestGuestLinkResult = { ok: true };
+
 /** A registration response is content-identical whether the email was
  *  already known or not — the same shape, the same fields, no oracle.
  *  The success branch intentionally carries no guest identity; the caller
@@ -105,4 +119,9 @@ export type PublicEventPageProps = PublicEventPageData & {
 		giftId: string;
 	}) => Promise<ReserveGiftResult>;
 	onSubmitMessage: (input: { body: string }) => Promise<{ ok: boolean }>;
+	/** Optional so existing render sites keep compiling; the public route
+	 *  always supplies it. */
+	onRequestGuestLink?: (
+		input: RequestGuestLinkInput,
+	) => Promise<RequestGuestLinkResult>;
 };

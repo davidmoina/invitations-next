@@ -40,6 +40,9 @@ export type AdminGuest = {
 	id: string;
 	displayName: string;
 	email: string | null;
+	/** Optional under the additive freeze protocol: rows written before the
+	 *  contact column existed have no phone. */
+	phone?: string | null;
 	source: GuestSource;
 	attending: boolean | null;
 	companions: number;
@@ -208,6 +211,9 @@ export type AdminResult<T> =
 	| { ok: false; error: AdminError };
 
 export type AddGuestsResult = AdminResult<{ added: AdminGuest[] }>;
+/** Guest tokens are stored hashed, so the plaintext issued at intake cannot
+ *  be read back: showing a link again means minting a new one. */
+export type IssueGuestLinkResult = AdminResult<{ url: string }>;
 export type TransferOwnershipResult = AdminResult<{
 	memberships: AdminMembership[];
 }>;

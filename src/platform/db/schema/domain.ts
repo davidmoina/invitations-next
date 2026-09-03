@@ -126,6 +126,8 @@ export const guests = pgTable(
 		nameNormalized: text("name_normalized").notNull(),
 		email: text("email"),
 		emailNormalized: text("email_normalized"),
+		phone: text("phone"),
+		phoneNormalized: text("phone_normalized"),
 		source: text("source").notNull(),
 		attending: boolean("attending"),
 		companions: integer("companions").notNull().default(0),
@@ -142,6 +144,7 @@ export const guests = pgTable(
 		),
 		index("guests_event_id_idx").on(table.eventId),
 		index("guests_event_email_idx").on(table.eventId, table.emailNormalized),
+		index("guests_event_phone_idx").on(table.eventId, table.phoneNormalized),
 	],
 );
 
