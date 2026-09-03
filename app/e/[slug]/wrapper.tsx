@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import {
 	cancelReservation,
 	registerGuest,
+	requestGuestLink,
 	reserveGift,
 	submitMessage,
 	submitRsvp,
@@ -22,6 +23,7 @@ export function PublicEventPageWrapper({
 		| "onReserveGift"
 		| "onCancelReservation"
 		| "onSubmitMessage"
+		| "onRequestGuestLink"
 	>;
 	slug: string;
 }) {
@@ -33,6 +35,7 @@ export function PublicEventPageWrapper({
 			onReserveGift={(input) => reserveGift({ slug, ...input })}
 			onCancelReservation={(input) => cancelReservation({ slug, ...input })}
 			onSubmitMessage={(input) => submitMessage({ slug, ...input })}
+			onRequestGuestLink={(input) => requestGuestLink({ slug, ...input })}
 			onRegisterGuest={async (input) => {
 				const result = await registerGuest({
 					slug,

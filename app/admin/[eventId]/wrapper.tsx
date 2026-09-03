@@ -10,6 +10,7 @@ import {
 	editGift,
 	editGuest,
 	inviteCollaborator,
+	issueGuestLink,
 	removeCollaborator,
 	transferOwnershipAdmin,
 	updateEvent,
@@ -58,6 +59,7 @@ export function AdminEventWrapper({
 			}}
 			onEditGift={(input) => editGift({ ...input, eventId })}
 			onEditGuest={(input) => editGuest({ ...input, eventId })}
+			onIssueGuestLink={(guestId) => issueGuestLink({ eventId, guestId })}
 			onRefresh={() => router.refresh()}
 		/>
 	);

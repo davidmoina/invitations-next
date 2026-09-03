@@ -9,6 +9,7 @@ import type {
 	AdminGuest,
 	AdminMembership,
 	CreatedEvent,
+	IssueGuestLinkResult,
 	NewEventInput,
 	RemoveMediaResult,
 	TransferOwnershipResult,
@@ -17,6 +18,8 @@ import type {
 	PublicEventPageData,
 	RegisterGuestInput,
 	RegisterGuestResult,
+	RequestGuestLinkInput,
+	RequestGuestLinkResult,
 	ReserveGiftResult,
 	RsvpResult,
 } from "#/server/contracts/public";
@@ -35,16 +38,20 @@ export type ApiRequest = <T>(
 ) => Promise<T>;
 
 export type EventScope = { eventId: AdminEvent["id"] };
-export type GuestInput = Pick<AdminGuest, "displayName" | "email">;
+export type GuestInput = Pick<AdminGuest, "displayName" | "email" | "phone">;
 export type GiftInput = Pick<
 	AdminGift,
 	"title" | "description" | "imagePublicId" | "url"
 > & { position: number };
 export type GuestUpdate = Partial<
-	Pick<AdminGuest, "displayName" | "email" | "attending" | "companions">
+	Pick<
+		AdminGuest,
+		"displayName" | "email" | "phone" | "attending" | "companions"
+	>
 >;
 export type GiftUpdate = Partial<GiftInput>;
 type AddedGuests = Extract<AddGuestsResult, { ok: true }>["value"]["added"];
+type IssuedGuestLink = Extract<IssueGuestLinkResult, { ok: true }>["value"];
 
 export type ApiClient = {
 	signUp(input: {
@@ -76,6 +83,9 @@ export type ApiClient = {
 	editGuest(
 		input: EventScope & { guestId: string } & GuestUpdate,
 	): Promise<AdminGuest>;
+	issueGuestLink(
+		input: EventScope & { guestId: string },
+	): Promise<IssuedGuestLink>;
 	createGift(input: EventScope & GiftInput): Promise<AdminGift>;
 	editGift(
 		input: EventScope & { giftId: string } & GiftUpdate,
@@ -90,6 +100,9 @@ export type ApiClient = {
 		input: EventScope & { mediaId: string },
 	): Promise<RemoveMediaResult>;
 	getPublicEvent(input: { slug: string }): Promise<PublicEventPageData>;
+	requestGuestLink(
+		input: { slug: string } & RequestGuestLinkInput,
+	): Promise<RequestGuestLinkResult>;
 	registerGuest(
 		input: { slug: string } & RegisterGuestInput,
 	): Promise<RegisterGuestResult>;
@@ -190,6 +203,13 @@ export function createApiClient(request: ApiRequest): ApiClient {
 				method: "PATCH",
 				...json(input),
 			}),
+		issueGuestLink: ({ eventId, guestId }) =>
+			request(
+				`${eventPath(eventId)}/guests/${encodeURIComponent(guestId)}/link`,
+				{
+					method: "POST",
+				},
+			),
 		createGift: ({ eventId, ...input }) =>
 			request(`${eventPath(eventId)}/gifts`, {
 				method: "POST",
@@ -222,6 +242,11 @@ export function createApiClient(request: ApiRequest): ApiClient {
 				method: "DELETE",
 			}),
 		getPublicEvent: ({ slug }) => request(publicPath(slug)),
+		requestGuestLink: ({ slug, ...input }) =>
+			request(`${publicPath(slug)}/access`, {
+				method: "POST",
+				...json(input),
+			}),
 		registerGuest: ({ slug, ...input }) =>
 			request(`${publicPath(slug)}/guests`, { method: "POST", ...json(input) }),
 		submitRsvp: ({ slug, ...input }) =>

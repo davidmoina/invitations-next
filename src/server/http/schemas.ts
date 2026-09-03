@@ -60,6 +60,7 @@ export const guestsSchema = z
 				z.object({
 					displayName: z.string().trim().min(1),
 					email: z.string().email().nullable(),
+					phone: z.string().trim().nullable().optional(),
 				}),
 			)
 			.min(1),
@@ -82,6 +83,7 @@ export const editGuestSchema = z
 	.object({
 		displayName: z.string().trim().min(1).optional(),
 		email: z.string().trim().email().nullable().optional(),
+		phone: z.string().trim().nullable().optional(),
 		attending: z.boolean().nullable().optional(),
 		companions: z.number().int().min(0).optional(),
 	})

@@ -59,6 +59,7 @@ export function toAdminGuest(row: {
 	id: string;
 	displayName: string;
 	email: string | null;
+	phone?: string | null;
 	source: "public_link" | "preloaded";
 	attending: boolean | null;
 	companions: number;
@@ -226,6 +227,7 @@ export async function getAdminEventPageData(
 					id: guests.id,
 					displayName: guests.displayName,
 					email: guests.email,
+					phone: guests.phone,
 					source: guests.source,
 					attending: guests.attending,
 					companions: guests.companions,
