@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getAdminEvent, listAdminAudit } from "#/api-client";
+import { getAdminEvent, listAdminAudit } from "#/api-client/server";
 import { accessErrorCode } from "#/server/access-error";
 import { AdminEventWrapper } from "./wrapper";
 

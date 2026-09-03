@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getOrganizerEvents, requireSession } from "#/api-client";
+import { getOrganizerEvents, requireSession } from "#/api-client/server";
 import { accessErrorCode } from "#/server/access-error";
 import { AdminHomeWrapper } from "./wrapper";
 

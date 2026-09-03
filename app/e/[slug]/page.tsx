@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
-import { getPublicEvent } from "#/api-client";
+import { getPublicEvent } from "#/api-client/server";
 import { accessErrorCode } from "#/server/access-error";
 import { PublicEventPageWrapper } from "./wrapper";
 

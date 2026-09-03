@@ -258,3 +258,80 @@ describe("seam guard (c): only app/api/** may hold domain or platform imports", 
 		expect(violations).toEqual([]);
 	});
 });
+
+describe("seam guard (d): Server Components use the SSR api-client, not the browser one", () => {
+	// `#/api-client` is the browser client: it fetches a relative path and
+	// relies on the browser for cookies. Imported from a Server Component it
+	// throws `ERR_INVALID_URL` during SSR, because a server fetch has no
+	// origin. `#/api-client/server` is the variant that resolves an absolute
+	// URL from APP_ORIGIN and forwards the request's `Cookie` header.
+	//
+	// This shipped broken: every data-fetching page 500'd until the imports
+	// were rewired. Unit and UI tests cannot see it — neither renders through
+	// SSR — which is exactly why the guard is mechanical instead of a note.
+	const isServerComponent = (file: SourceFile) =>
+		!/^\s*["']use client["']/.test(file.content);
+
+	it("flags a Server Component importing the browser client (pure matcher)", () => {
+		const files: SourceFile[] = [
+			{
+				path: "app/admin/page.tsx",
+				content: 'import { getOrganizerEvents } from "#/api-client";\n',
+			},
+		];
+
+		const violations = findForbiddenImports(
+			files.filter(isServerComponent),
+			(resolved) => resolved === "src/api-client",
+		);
+
+		expect(violations).toEqual([
+			{ file: "app/admin/page.tsx", specifier: "#/api-client" },
+		]);
+	});
+
+	it("does not flag a Client Component using the browser client (triangulation)", () => {
+		const files: SourceFile[] = [
+			{
+				path: "app/admin/wrapper.tsx",
+				content: '"use client";\nimport { createEvent } from "#/api-client";\n',
+			},
+		];
+
+		const violations = findForbiddenImports(
+			files.filter(isServerComponent),
+			(resolved) => resolved === "src/api-client",
+		);
+
+		expect(violations).toEqual([]);
+	});
+
+	it("does not flag a Server Component using the SSR client (triangulation)", () => {
+		const files: SourceFile[] = [
+			{
+				path: "app/admin/page.tsx",
+				content: 'import { getOrganizerEvents } from "#/api-client/server";\n',
+			},
+		];
+
+		const violations = findForbiddenImports(
+			files.filter(isServerComponent),
+			(resolved) => resolved === "src/api-client",
+		);
+
+		expect(violations).toEqual([]);
+	});
+
+	it("finds zero violations in the real repository", () => {
+		const serverComponents = collectSourceFiles("app", "app/api").filter(
+			isServerComponent,
+		);
+
+		const violations = findForbiddenImports(
+			serverComponents,
+			(resolved) => resolved === "src/api-client",
+		);
+
+		expect(violations).toEqual([]);
+	});
+});

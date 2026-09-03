@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { requireSession } from "#/api-client";
+import { requireSession } from "#/api-client/server";
 import { accessErrorCode } from "#/server/access-error";
 import { LandingPage } from "#/ui/landing-page";
 
