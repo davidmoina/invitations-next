@@ -275,4 +275,84 @@ describe("GuestList", () => {
 
 		expect(screen.getByText(/mostrando.*de.*invitados/i)).toBeInTheDocument();
 	});
+
+	it("calls onIssueGuestLink callback with guestId, copies URL to clipboard, and displays confirmation", async () => {
+		const user = userEvent.setup();
+		const writeText = vi.fn().mockResolvedValue(undefined);
+		Object.defineProperty(navigator, "clipboard", {
+			value: { writeText },
+			writable: true,
+			configurable: true,
+		});
+
+		const onIssueGuestLink = vi
+			.fn()
+			.mockResolvedValue({ url: "https://example.com/magic/guest-1" });
+		renderGuestList({ onIssueGuestLink });
+
+		const [firstCopyButton] = screen.getAllByRole("button", {
+			name: /copiar enlace/i,
+		});
+		if (!firstCopyButton) {
+			throw new Error("Missing copy button");
+		}
+		await user.click(firstCopyButton);
+
+		await waitFor(() => {
+			expect(onIssueGuestLink).toHaveBeenCalledWith("guest-1");
+		});
+		expect(writeText).toHaveBeenCalledWith("https://example.com/magic/guest-1");
+		expect(
+			await screen.findByText(/enlace copiado al portapapeles/i),
+		).toBeInTheDocument();
+	});
+
+	it("renders a readable error state when onIssueGuestLink rejects", async () => {
+		const user = userEvent.setup();
+		const writeText = vi.fn().mockResolvedValue(undefined);
+		Object.defineProperty(navigator, "clipboard", {
+			value: { writeText },
+			writable: true,
+			configurable: true,
+		});
+
+		const onIssueGuestLink = vi
+			.fn()
+			.mockRejectedValue(new Error("Token generation failed"));
+		renderGuestList({ onIssueGuestLink });
+
+		const [firstCopyButton] = screen.getAllByRole("button", {
+			name: /copiar enlace/i,
+		});
+		if (!firstCopyButton) {
+			throw new Error("Missing copy button");
+		}
+		await user.click(firstCopyButton);
+
+		const alert = await screen.findByRole("alert");
+		expect(alert).toBeInTheDocument();
+		expect(alert).toHaveTextContent(/no hemos podido generar el enlace/i);
+	});
+
+	it("warns the organizer in the UI copy that generating a new link invalidates previous ones", () => {
+		renderGuestList();
+
+		expect(screen.getByText(/invalida.*enlace anterior/i)).toBeInTheDocument();
+	});
+
+	it("displays guest phone alongside email when present", () => {
+		const [firstGuest, secondGuest] = guests;
+		if (!firstGuest || !secondGuest) {
+			throw new Error("Missing fixtures");
+		}
+		const guestsWithPhone: AdminGuest[] = [
+			{ ...firstGuest, phone: "+34 600 123 456" },
+			{ ...secondGuest, phone: "+34 611 222 333" },
+		];
+
+		renderGuestList({ guests: guestsWithPhone });
+
+		expect(screen.getByText(/\+34 600 123 456/)).toBeInTheDocument();
+		expect(screen.getByText(/\+34 611 222 333/)).toBeInTheDocument();
+	});
 });

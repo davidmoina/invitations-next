@@ -49,6 +49,7 @@ export type AdminEventShellProps = {
 	onDeleteEvent?: () => Promise<void>;
 	onEditGift?: (input: EditGiftInput) => Promise<{ id: string }>;
 	onEditGuest?: (input: EditGuestInput) => Promise<{ id: string }>;
+	onIssueGuestLink?: (guestId: string) => Promise<{ url: string }>;
 	onRefresh?: () => Promise<void> | void;
 	homeHref?: string;
 };
@@ -99,6 +100,7 @@ export function AdminEventShell({
 	onDeleteEvent,
 	onEditGift,
 	onEditGuest,
+	onIssueGuestLink,
 	onRefresh,
 	homeHref = "/admin",
 }: AdminEventShellProps) {
@@ -306,6 +308,7 @@ export function AdminEventShell({
 					guests={data.guests}
 					onEditGuest={onEditGuest}
 					onRefresh={onRefresh}
+					onIssueGuestLink={onIssueGuestLink}
 				/>
 
 				<GuestIntakeForm onAddGuests={onAddGuests} />

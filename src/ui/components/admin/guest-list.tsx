@@ -17,6 +17,7 @@ export type GuestListProps = {
 	guests: AdminGuest[];
 	onEditGuest?: (input: EditGuestInput) => Promise<{ id: string }>;
 	onRefresh?: () => Promise<void> | void;
+	onIssueGuestLink?: (guestId: string) => Promise<{ url: string }>;
 };
 
 type StatusFilter = "all" | "attending" | "declined" | "unanswered";
@@ -44,7 +45,12 @@ function parseGuestError(error: unknown): string {
 
 const PAGE_SIZE = 10;
 
-export function GuestList({ guests, onEditGuest, onRefresh }: GuestListProps) {
+export function GuestList({
+	guests,
+	onEditGuest,
+	onRefresh,
+	onIssueGuestLink,
+}: GuestListProps) {
 	const [guestOverrides, setGuestOverrides] = useState<
 		Record<string, Partial<AdminGuest>>
 	>({});
@@ -69,6 +75,13 @@ export function GuestList({ guests, onEditGuest, onRefresh }: GuestListProps) {
 	const [editError, setEditError] = useState<string | null>(null);
 	const [savedGuestId, setSavedGuestId] = useState<string | null>(null);
 
+	const [issuingGuestId, setIssuingGuestId] = useState<string | null>(null);
+	const [copiedGuestId, setCopiedGuestId] = useState<string | null>(null);
+	const [issueError, setIssueError] = useState<{
+		guestId: string;
+		message: string;
+	} | null>(null);
+
 	const mergedGuests = useMemo(() => {
 		return guests.map((g) => ({
 			...g,
@@ -82,7 +95,8 @@ export function GuestList({ guests, onEditGuest, onRefresh }: GuestListProps) {
 			const matchesSearch =
 				q === "" ||
 				g.displayName.toLowerCase().includes(q) ||
-				Boolean(g.email?.toLowerCase().includes(q));
+				Boolean(g.email?.toLowerCase().includes(q)) ||
+				Boolean(g.phone?.toLowerCase().includes(q));
 
 			if (!matchesSearch) return false;
 
@@ -181,6 +195,27 @@ export function GuestList({ guests, onEditGuest, onRefresh }: GuestListProps) {
 		}
 	};
 
+	const handleIssueGuestLink = async (guestId: string) => {
+		if (!onIssueGuestLink || issuingGuestId) return;
+		setIssuingGuestId(guestId);
+		setIssueError(null);
+		setCopiedGuestId(null);
+		try {
+			const { url } = await onIssueGuestLink(guestId);
+			if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+				await navigator.clipboard.writeText(url);
+			}
+			setCopiedGuestId(guestId);
+		} catch {
+			setIssueError({
+				guestId,
+				message: "No hemos podido generar el enlace. Inténtalo de nuevo.",
+			});
+		} finally {
+			setIssuingGuestId(null);
+		}
+	};
+
 	return (
 		<section
 			aria-label="Invitados"
@@ -195,6 +230,10 @@ export function GuestList({ guests, onEditGuest, onRefresh }: GuestListProps) {
 						Supervisa el estado de confirmaciones y datos de contacto en tiempo
 						real.
 					</p>
+					<div className="mt-2 text-xs text-amber-800 bg-amber-50 border border-amber-200/80 rounded-lg px-3 py-1.5 inline-block">
+						Aviso: Generar un nuevo enlace para un invitado invalida cualquier
+						enlace anterior que se le haya emitido.
+					</div>
 				</div>
 			</div>
 
@@ -311,6 +350,9 @@ export function GuestList({ guests, onEditGuest, onRefresh }: GuestListProps) {
 								const isEditing = editingGuestId === guest.id;
 								const isSaving = savingGuestId === guest.id;
 								const isSaved = savedGuestId === guest.id;
+								const isIssuing = issuingGuestId === guest.id;
+								const isCopied = copiedGuestId === guest.id;
+								const hasIssueError = issueError?.guestId === guest.id;
 
 								if (isEditing) {
 									return (
@@ -456,7 +498,8 @@ export function GuestList({ guests, onEditGuest, onRefresh }: GuestListProps) {
 												{guest.displayName}
 											</div>
 											<div className="text-xs text-secondary mt-0.5">
-												{guest.email ?? "Sin correo"}
+												<span>{guest.email ?? "Sin correo"}</span>
+												{guest.phone ? <span> · {guest.phone}</span> : null}
 											</div>
 											{isSaved && (
 												<output className="mt-1 text-xs text-primary font-medium block">
@@ -485,14 +528,40 @@ export function GuestList({ guests, onEditGuest, onRefresh }: GuestListProps) {
 											{answerLabel(guest)}
 										</td>
 										<td className="px-6 py-4 text-right">
-											<button
-												type="button"
-												aria-label={`Editar ${guest.displayName}`}
-												onClick={() => startEdit(guest)}
-												className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-on-surface hover:bg-stone-100 transition-colors focus-visible:ring-2 focus-visible:ring-primary"
-											>
-												Editar
-											</button>
+											<div className="flex flex-col items-end gap-1">
+												<div className="flex items-center justify-end gap-2">
+													<button
+														type="button"
+														onClick={() => handleIssueGuestLink(guest.id)}
+														disabled={isIssuing}
+														title="Generar un nuevo enlace invalida el enlace anterior del invitado"
+														className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-on-surface hover:bg-stone-100 transition-colors focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-40"
+													>
+														{isIssuing ? "Copiando…" : "Copiar enlace"}
+													</button>
+													<button
+														type="button"
+														aria-label={`Editar ${guest.displayName}`}
+														onClick={() => startEdit(guest)}
+														className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-on-surface hover:bg-stone-100 transition-colors focus-visible:ring-2 focus-visible:ring-primary"
+													>
+														Editar
+													</button>
+												</div>
+												{isCopied && (
+													<output className="text-xs text-success-green font-medium block">
+														Enlace copiado al portapapeles.
+													</output>
+												)}
+												{hasIssueError && (
+													<p
+														role="alert"
+														className="text-xs text-error font-medium block"
+													>
+														{issueError.message}
+													</p>
+												)}
+											</div>
 										</td>
 									</tr>
 								);

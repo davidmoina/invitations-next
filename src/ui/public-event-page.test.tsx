@@ -6,6 +6,7 @@ import type {
 	PublicEventPageProps,
 	RsvpResult,
 } from "#/server/contracts/public";
+import { GUEST_ACCESS_CONFIRMATION_MESSAGE } from "./components/guest-access-gate";
 import { PublicEventPage } from "./public-event-page";
 
 describe("PublicEventPage", () => {
@@ -71,6 +72,7 @@ describe("PublicEventPage", () => {
 		onReserveGift: vi.fn(),
 		onCancelReservation: vi.fn(),
 		onSubmitMessage: vi.fn(),
+		onRequestGuestLink: vi.fn().mockResolvedValue({ ok: true }),
 	};
 
 	it("renders all public sections when registry and media are enabled", () => {
@@ -128,23 +130,24 @@ describe("PublicEventPage", () => {
 		).not.toBeInTheDocument();
 	});
 
-	it("renders the registration form for an anonymous guest and keeps RSVP flow hidden", () => {
+	it("renders the guest access gate for an anonymous guest and keeps RSVP flow hidden", () => {
 		const anonymousProps = {
 			...mockProps,
 			guest: null,
-			onRegisterGuest: vi.fn(),
+			onRequestGuestLink: vi.fn(),
 		};
 
 		render(<PublicEventPage {...anonymousProps} />);
 
-		// Registration form renders
+		// Guest access gate renders
 		expect(
-			screen.getByRole("heading", { name: /join the celebration/i }),
+			screen.getByRole("heading", { name: /acceso al evento/i }),
 		).toBeInTheDocument();
-		expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
-		expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: /continue to rsvp/i }),
+			screen.getByLabelText(/correo o número telefónico/i),
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: /solicitar enlace/i }),
 		).toBeInTheDocument();
 
 		// RSVP flow is NOT rendered
@@ -154,151 +157,120 @@ describe("PublicEventPage", () => {
 		).not.toBeInTheDocument();
 	});
 
-	it("calls injected onRegisterGuest callback with normalized data on valid input", async () => {
+	it("calls injected onRequestGuestLink callback with normalized data on valid input", async () => {
 		const user = userEvent.setup();
-		const onRegisterGuest = vi.fn().mockResolvedValue({ ok: true });
+		const onRequestGuestLink = vi.fn().mockResolvedValue({ ok: true });
 		const anonymousProps = {
 			...mockProps,
 			guest: null,
-			onRegisterGuest,
+			onRequestGuestLink,
 		};
 
 		render(<PublicEventPage {...anonymousProps} />);
 
-		await user.type(screen.getByLabelText(/full name/i), "  Elena Rodriguez  ");
 		await user.type(
-			screen.getByLabelText(/email address/i),
-			"  Elena@Example.Com  ",
+			screen.getByLabelText(/correo o número telefónico/i),
+			"  elena@example.com  ",
 		);
-		await user.click(screen.getByRole("button", { name: /continue to rsvp/i }));
+		await user.click(screen.getByRole("button", { name: /solicitar enlace/i }));
 
-		await waitFor(() => expect(onRegisterGuest).toHaveBeenCalledOnce());
-		expect(onRegisterGuest).toHaveBeenCalledWith({
-			displayName: "Elena Rodriguez",
-			email: "elena@example.com",
+		await waitFor(() => expect(onRequestGuestLink).toHaveBeenCalledOnce());
+		expect(onRequestGuestLink).toHaveBeenCalledWith({
+			contact: "elena@example.com",
 		});
 	});
 
-	it("reveals the RSVP flow only after onRegisterGuest resolves with { ok: true }", async () => {
+	it("keeps RSVP flow hidden and renders confirmation message after access gate submission", async () => {
 		const user = userEvent.setup();
-		let resolveRegistration: (value: {
-			ok: true;
-			guest?: {
-				id: string;
-				displayName: string;
-				attending: boolean | null;
-				companions: number;
-			};
-		}) => void = () => {};
-		const registrationPromise = new Promise<{
-			ok: true;
-			guest?: {
-				id: string;
-				displayName: string;
-				attending: boolean | null;
-				companions: number;
-			};
-		}>((resolve) => {
-			resolveRegistration = resolve;
-		});
-		const onRegisterGuest = vi.fn().mockReturnValue(registrationPromise);
-
+		const onRequestGuestLink = vi.fn().mockResolvedValue({ ok: true });
 		const anonymousProps = {
 			...mockProps,
 			guest: null,
-			onRegisterGuest,
+			onRequestGuestLink,
 		};
 
 		render(<PublicEventPage {...anonymousProps} />);
 
-		await user.type(screen.getByLabelText(/full name/i), "Sofia Morales");
-		await user.click(screen.getByRole("button", { name: /continue to rsvp/i }));
+		await user.type(
+			screen.getByLabelText(/correo o número telefónico/i),
+			"sofia@example.com",
+		);
+		await user.click(screen.getByRole("button", { name: /solicitar enlace/i }));
 
-		// While in flight, RSVP flow is still not visible
-		expect(screen.queryByText("¿Nos acompañas?")).not.toBeInTheDocument();
-
-		// Resolve with { ok: true }
-		resolveRegistration({
-			ok: true,
-			guest: {
-				id: "gst-registered-1",
-				displayName: "Sofia Morales",
-				attending: null,
-				companions: 0,
-			},
-		});
-
-		// Now the RSVP flow appears
-		expect(await screen.findByText("¿Nos acompañas?")).toBeInTheDocument();
-		expect(screen.getByText(/hola,/i)).toHaveTextContent("Sofia Morales");
 		expect(
-			screen.getByRole("button", { name: /^asistiré/i }),
+			await screen.findByText(GUEST_ACCESS_CONFIRMATION_MESSAGE),
 		).toBeInTheDocument();
-
-		// Registration form is replaced by the RSVP flow
+		// RSVP flow never reveals directly
+		expect(screen.queryByText("¿Nos acompañas?")).not.toBeInTheDocument();
 		expect(
-			screen.queryByRole("heading", { name: /join the celebration/i }),
+			screen.queryByRole("heading", { name: /acceso al evento/i }),
 		).not.toBeInTheDocument();
 	});
 
-	it("shows pending state while registration is in flight and error state on failure", async () => {
+	it("shows pending state while submission is in flight and still displays confirmation on error", async () => {
 		const user = userEvent.setup();
-		let rejectRegistration: (error: Error) => void = () => {};
+		let rejectSubmission: (error: Error) => void = () => {};
 		const failingPromise = new Promise<never>((_, reject) => {
-			rejectRegistration = reject;
+			rejectSubmission = reject;
 		});
-		const onRegisterGuest = vi.fn().mockReturnValue(failingPromise);
+		const onRequestGuestLink = vi.fn().mockReturnValue(failingPromise);
 
 		const anonymousProps = {
 			...mockProps,
 			guest: null,
-			onRegisterGuest,
+			onRequestGuestLink,
 		};
 
 		render(<PublicEventPage {...anonymousProps} />);
 
-		await user.type(screen.getByLabelText(/full name/i), "Elena Rodriguez");
-		await user.click(screen.getByRole("button", { name: /continue to rsvp/i }));
+		await user.type(
+			screen.getByLabelText(/correo o número telefónico/i),
+			"elena@example.com",
+		);
+		await user.click(screen.getByRole("button", { name: /solicitar enlace/i }));
 
 		// Pending state visible
-		expect(screen.getByText(/preparing your invitation/i)).toBeInTheDocument();
+		expect(screen.getByText(/enviando enlace/i)).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: /preparing your invitation/i }),
+			screen.getByRole("button", { name: /enviando enlace/i }),
 		).toBeDisabled();
 
-		// Reject the registration
-		rejectRegistration(new Error("Registration failed"));
+		// Reject the request
+		rejectSubmission(new Error("Network error"));
 
-		// Error state visible and RSVP still hidden
-		expect(await screen.findByRole("alert")).toBeInTheDocument();
+		// Confirmation message is still shown honestly and RSVP remains hidden
+		expect(
+			await screen.findByText(GUEST_ACCESS_CONFIRMATION_MESSAGE),
+		).toBeInTheDocument();
 		expect(screen.queryByText("¿Nos acompañas?")).not.toBeInTheDocument();
 	});
 
-	it("does not fabricate guest identity after a generic { ok: true } response", async () => {
+	it("does not fabricate guest identity and always shows uniform confirmation without leaking guest list state", async () => {
 		const user = userEvent.setup();
-		const onRegisterGuest = vi.fn().mockResolvedValue({ ok: true });
+		const onRequestGuestLink = vi.fn().mockResolvedValue({ ok: true });
 
 		const anonymousProps = {
 			...mockProps,
 			guest: null,
-			onRegisterGuest,
+			onRequestGuestLink,
 		};
 
 		render(<PublicEventPage {...anonymousProps} />);
 
-		await user.type(screen.getByLabelText(/full name/i), "Elena Rodriguez");
-		await user.click(screen.getByRole("button", { name: /continue to rsvp/i }));
+		await user.type(
+			screen.getByLabelText(/correo o número telefónico/i),
+			"stranger@example.com",
+		);
+		await user.click(screen.getByRole("button", { name: /solicitar enlace/i }));
 
-		// Success state is shown truthfully while the loader has not yet supplied
-		// cookie-resolved guest data, and no synthetic identity leaks into the UI.
 		await waitFor(() => {
 			expect(
-				screen.getByRole("heading", { name: /registration complete/i }),
+				screen.getByRole("heading", { name: /enlace solicitado/i }),
 			).toBeInTheDocument();
 		});
 		expect(screen.queryByText("¿Nos acompañas?")).not.toBeInTheDocument();
 		expect(
-			screen.queryByText(/invitación para elena rodriguez/i),
+			screen.queryByText(/invitación para stranger/i),
 		).not.toBeInTheDocument();
 	});
 

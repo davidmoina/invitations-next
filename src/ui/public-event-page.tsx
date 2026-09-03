@@ -4,17 +4,26 @@ import type { PublicEventPageProps as ContractPublicEventPageProps } from "#/ser
 import { BottomNav } from "./components/bottom-nav";
 import { EventDetailsSection } from "./components/event-details-section";
 import { GiftRegistry } from "./components/gift-registry";
-import { GuestMessageForm } from "./components/guest-message-form";
 import {
-	GuestRegistrationForm,
-	type RegisterGuestInput,
-	type RegisterGuestResult,
+	GuestAccessGate,
+	type RequestGuestLinkInput,
+	type RequestGuestLinkResult,
+} from "./components/guest-access-gate";
+import { GuestMessageForm } from "./components/guest-message-form";
+import type {
+	RegisterGuestInput,
+	RegisterGuestResult,
 } from "./components/guest-registration-form";
 import { HeroSection } from "./components/hero-section";
 import { MediaGallery } from "./components/media-gallery";
 import { RsvpForm } from "./components/rsvp-form";
 
-export type { RegisterGuestInput, RegisterGuestResult };
+export type {
+	RegisterGuestInput,
+	RegisterGuestResult,
+	RequestGuestLinkInput,
+	RequestGuestLinkResult,
+};
 
 export type PublicEventPageProps = ContractPublicEventPageProps & {
 	onRegisterGuest?: (input: RegisterGuestInput) => Promise<RegisterGuestResult>;
@@ -29,7 +38,7 @@ export function PublicEventPage({
 	onReserveGift,
 	onCancelReservation,
 	onSubmitMessage,
-	onRegisterGuest,
+	onRequestGuestLink,
 }: PublicEventPageProps) {
 	const coverImage = media && media.length > 0 ? media[0]?.urls.full : null;
 	const [currentGuest, setCurrentGuest] = useState(guest);
@@ -37,22 +46,6 @@ export function PublicEventPage({
 	useEffect(() => {
 		setCurrentGuest(guest);
 	}, [guest]);
-
-	const handleRegisterGuest = async (
-		input: RegisterGuestInput,
-	): Promise<RegisterGuestResult> => {
-		if (!onRegisterGuest) {
-			return { ok: false, error: "Registration is not available" };
-		}
-		const result = await onRegisterGuest(input);
-		if (result.ok && result.guest) {
-			// An explicit guest identity is only supplied in tests or isolated
-			// wiring. In production the server returns a generic { ok: true } and
-			// the authenticated guest arrives through the route loader.
-			setCurrentGuest(result.guest);
-		}
-		return result;
-	};
 
 	return (
 		<div className="min-h-screen bg-stone-50 text-on-surface font-sans antialiased pb-20 sm:pb-12 selection:bg-primary-container/40 selection:text-primary">
@@ -67,7 +60,7 @@ export function PublicEventPage({
 				{/* Event Details section */}
 				<EventDetailsSection event={event} />
 
-				{/* RSVP or Guest Registration section */}
+				{/* RSVP or Guest Access Gate section */}
 				<div className="px-4 py-6">
 					{currentGuest ? (
 						<RsvpForm
@@ -77,12 +70,7 @@ export function PublicEventPage({
 							onSubmitRsvp={onSubmitRsvp}
 						/>
 					) : (
-						<GuestRegistrationForm
-							onRegisterGuest={handleRegisterGuest}
-							onSuccess={(newGuest) => {
-								setCurrentGuest(newGuest);
-							}}
-						/>
+						<GuestAccessGate onRequestGuestLink={onRequestGuestLink} />
 					)}
 				</div>
 
