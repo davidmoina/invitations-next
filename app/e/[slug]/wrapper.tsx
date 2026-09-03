@@ -1,9 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import {
 	cancelReservation,
-	registerGuest,
 	requestGuestLink,
 	reserveGift,
 	submitMessage,
@@ -27,7 +25,6 @@ export function PublicEventPageWrapper({
 	>;
 	slug: string;
 }) {
-	const router = useRouter();
 	return (
 		<PublicEventPage
 			{...data}
@@ -36,16 +33,6 @@ export function PublicEventPageWrapper({
 			onCancelReservation={(input) => cancelReservation({ slug, ...input })}
 			onSubmitMessage={(input) => submitMessage({ slug, ...input })}
 			onRequestGuestLink={(input) => requestGuestLink({ slug, ...input })}
-			onRegisterGuest={async (input) => {
-				const result = await registerGuest({
-					slug,
-					...input,
-				});
-				if (!result.ok) return result;
-				// The secure cookie is now set. Refresh the route loader.
-				router.refresh();
-				return { ok: true };
-			}}
 		/>
 	);
 }
