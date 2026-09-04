@@ -2,3 +2,5 @@ allowBuilds:
   esbuild: true
   sharp: false
   unrs-resolver: false
+minimumReleaseAgeExclude:
+  - resend@6.26.0
