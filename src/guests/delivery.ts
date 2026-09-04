@@ -31,7 +31,8 @@ export async function sendGuestLinkEmail(
 			subject: "Your event invitation",
 			text: `Your personal event link: ${link.toString()}`,
 		});
-	} catch {
+	} catch (err) {
+		console.error("Failed to send guest link email", err);
 		await recordEmailDeliveryFailure(
 			actor,
 			`guest_link:${input.eventId}:${input.email}`,

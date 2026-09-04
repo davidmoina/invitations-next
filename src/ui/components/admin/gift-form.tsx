@@ -129,9 +129,15 @@ export function GiftForm({ onCreateGift }: GiftFormProps) {
 						{error}
 					</p>
 				) : null}
-				<button type="submit" disabled={submitting}>
-					{submitting ? "Añadiendo…" : "Añadir regalo"}
-				</button>
+				<div className="pt-2">
+					<button
+						type="submit"
+						disabled={submitting}
+						className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+					>
+						{submitting ? "Añadiendo…" : "Añadir regalo"}
+					</button>
+				</div>
 			</form>
 		</section>
 	);
