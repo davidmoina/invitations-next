@@ -16,6 +16,7 @@ import type {
 } from "#/server/contracts/admin";
 import type {
 	PublicEventPageData,
+	PublicEventPreview,
 	RegisterGuestInput,
 	RegisterGuestResult,
 	RequestGuestLinkInput,
@@ -100,6 +101,7 @@ export type ApiClient = {
 		input: EventScope & { mediaId: string },
 	): Promise<RemoveMediaResult>;
 	getPublicEvent(input: { slug: string }): Promise<PublicEventPageData>;
+	getPublicEventPreview(input: { slug: string }): Promise<PublicEventPreview>;
 	requestGuestLink(
 		input: { slug: string } & RequestGuestLinkInput,
 	): Promise<RequestGuestLinkResult>;
@@ -242,6 +244,7 @@ export function createApiClient(request: ApiRequest): ApiClient {
 				method: "DELETE",
 			}),
 		getPublicEvent: ({ slug }) => request(publicPath(slug)),
+		getPublicEventPreview: ({ slug }) => request(`${publicPath(slug)}/preview`),
 		requestGuestLink: ({ slug, ...input }) =>
 			request(`${publicPath(slug)}/access`, {
 				method: "POST",

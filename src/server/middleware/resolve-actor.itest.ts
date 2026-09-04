@@ -89,10 +89,9 @@ describe("actor resolution through HTTP routes", () => {
 			headers: { cookie: guest.cookie },
 			params: { slug: first.slug },
 		});
-		expect(response.status).toBe(200);
-		expect((await response.json()) as { guest: null }).toMatchObject({
-			guest: null,
-		});
+		// Revoked tokens previously still returned the full invitation payload.
+		expect(response.status).toBe(401);
+		expect(await response.json()).toEqual({ code: "unauthorized" });
 	});
 
 	test("an unsigned session token is denied", async () => {

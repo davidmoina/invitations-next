@@ -1,8 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
-import { getPublicEvent } from "#/api-client/server";
+import { getPublicEvent, getPublicEventPreview } from "#/api-client/server";
 import { accessErrorCode } from "#/server/access-error";
-import { PublicEventPageWrapper } from "./wrapper";
+import { PublicEventPageWrapper, PublicEventPreviewWrapper } from "./wrapper";
 
 const searchSchema = z.object({ token: z.string().optional() });
 
@@ -32,6 +32,10 @@ export default async function PublicEventRoute({
 		return <PublicEventPageWrapper data={data} slug={p.slug} />;
 	} catch (error) {
 		if (accessErrorCode(error) === "not_found") notFound();
+		if (accessErrorCode(error) === "unauthorized") {
+			const event = await getPublicEventPreview({ slug: p.slug });
+			return <PublicEventPreviewWrapper event={event} slug={p.slug} />;
+		}
 		throw error;
 	}
 }

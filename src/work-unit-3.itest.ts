@@ -15,6 +15,7 @@ import {
 import { GET as listAudit } from "../app/api/events/[eventId]/audit/route";
 import { POST as reserveGift } from "../app/api/public/[slug]/gifts/[giftId]/reservation/route";
 import { POST as submitMessage } from "../app/api/public/[slug]/messages/route";
+import { GET as publicEventPreview } from "../app/api/public/[slug]/preview/route";
 import { GET as publicEvent } from "../app/api/public/[slug]/route";
 import { POST as submitRsvp } from "../app/api/public/[slug]/rsvp/route";
 
@@ -225,8 +226,10 @@ test("media mutations persist public IDs and public data strips reserver identit
 		headers: { cookie: guest.cookie },
 		params: { slug: f.slug, giftId },
 	});
+	const reader = await createGuestSession(pool, f);
 	const response = await callParameterizedRoute(publicEvent, {
 		path: "/api",
+		headers: { cookie: reader.cookie },
 		params: { slug: f.slug },
 	});
 	const payload = await response.json();
@@ -242,7 +245,23 @@ test("an anonymous visitor loads the public page without any guest identity", as
 		path: "/api",
 		params: { slug: f.slug },
 	});
-	const payload = await response.json();
-	expect(payload.event.slug).toBe(f.slug);
-	expect(payload.guest).toBeNull();
+	const payload = (await response.json()) as Record<string, unknown>;
+	expect(response.status).toBe(401);
+	expect(payload).not.toHaveProperty("event");
+	expect(payload).not.toHaveProperty("guest");
+	expect(payload).not.toHaveProperty("gifts");
+});
+
+test("an uninvited visitor loads only the public event preview", async () => {
+	const response = await callParameterizedRoute(publicEventPreview, {
+		path: `/api/public/${f.slug}/preview`,
+		params: { slug: f.slug },
+	});
+	expect(response.status).toBe(200);
+	expect(await response.json()).toEqual({
+		slug: f.slug,
+		title: "Fixture event",
+		eventType: "other",
+		honoreeNames: [],
+	});
 });

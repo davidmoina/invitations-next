@@ -53,6 +53,7 @@ export const {
 	addEventMedia,
 	removeEventMedia,
 	getPublicEvent,
+	getPublicEventPreview,
 	requestGuestLink,
 	registerGuest,
 	submitRsvp,

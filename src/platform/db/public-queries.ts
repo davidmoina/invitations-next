@@ -16,7 +16,10 @@ import {
 } from "#/platform/db/schema/domain";
 import { AccessError } from "#/server/access-error";
 import { EVENT_TYPES } from "#/server/contracts/event-types";
-import type { PublicEventPageData } from "#/server/contracts/public";
+import type {
+	PublicEventPageData,
+	PublicEventPreview,
+} from "#/server/contracts/public";
 
 function isEventType(
 	value: string,
@@ -48,12 +51,33 @@ export function toPublicEventDetails(row: {
 	}
 }
 
-/**
- * Builds the guest-facing page for a slug. `actor` is nullable because the
- * public invitation is readable by anyone holding the link: an anonymous
- * visitor simply has no guest identity to project, so no guest row is read
- * and every gift renders as `reservedByMe: false`.
- */
+/** Returns the deliberately minimal identity disclosure for an event slug. */
+export async function getPublicEventPreview(
+	slug: string,
+): Promise<PublicEventPreview> {
+	const [event] = await readOnly()
+		.select({
+			slug: events.slug,
+			title: events.title,
+			eventType: events.eventType,
+			honoreeNames: events.honoreeNames,
+		})
+		.from(events)
+		.where(eq(events.slug, slug))
+		.limit(1);
+	if (!event) throw new AccessError("not_found");
+	if (!isEventType(event.eventType)) {
+		throw new Error(`Invalid event type in event row: ${event.eventType}`);
+	}
+	return {
+		slug: event.slug,
+		title: event.title,
+		eventType: event.eventType,
+		honoreeNames: event.honoreeNames,
+	};
+}
+
+/** Builds the full guest-facing page only for a guest of the requested event. */
 export async function getPublicEventData(
 	slug: string,
 	actor: Actor | null,
@@ -80,26 +104,24 @@ export async function getPublicEventData(
 		.where(eq(events.slug, slug))
 		.limit(1);
 	if (!event) throw new AccessError("not_found");
+	if (actor?.kind !== "guest" || actor.eventId !== event.id) {
+		throw new AccessError("unauthorized");
+	}
 	const details = toPublicEventDetails({
 		eventType: event.eventType,
 		dueDate: event.dueDate,
 	});
-	const guestId =
-		actor?.kind === "guest" && actor.eventId === event.id
-			? actor.guestId
-			: null;
-	const [guest] = guestId
-		? await readOnly()
-				.select({
-					id: guests.id,
-					displayName: guests.displayName,
-					attending: guests.attending,
-					companions: guests.companions,
-				})
-				.from(guests)
-				.where(and(eq(guests.id, guestId), eq(guests.eventId, event.id)))
-				.limit(1)
-		: [];
+	const guestId = actor.guestId;
+	const [guest] = await readOnly()
+		.select({
+			id: guests.id,
+			displayName: guests.displayName,
+			attending: guests.attending,
+			companions: guests.companions,
+		})
+		.from(guests)
+		.where(and(eq(guests.id, guestId), eq(guests.eventId, event.id)))
+		.limit(1);
 	const giftRows = event.giftRegistryEnabled
 		? await readOnly()
 				.select({

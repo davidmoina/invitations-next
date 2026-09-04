@@ -1,12 +1,10 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type {
 	PublicEventPageProps,
 	RsvpResult,
 } from "#/server/contracts/public";
-import { GUEST_ACCESS_CONFIRMATION_MESSAGE } from "./components/guest-access-gate";
 import { PublicEventPage } from "./public-event-page";
 
 describe("PublicEventPage", () => {
@@ -130,148 +128,32 @@ describe("PublicEventPage", () => {
 		).not.toBeInTheDocument();
 	});
 
-	it("renders the guest access gate for an anonymous guest and keeps RSVP flow hidden", () => {
-		const anonymousProps = {
-			...mockProps,
-			guest: null,
-			onRequestGuestLink: vi.fn(),
-		};
+	it("renders RsvpForm with rsvp anchor working when an authenticated guest is present", () => {
+		const { container } = render(<PublicEventPage {...mockProps} />);
 
-		render(<PublicEventPage {...anonymousProps} />);
-
-		// Guest access gate renders
+		expect(screen.getByText("¿Nos acompañas?")).toBeInTheDocument();
 		expect(
-			screen.getByRole("heading", { name: /acceso al evento/i }),
+			screen.getByRole("button", { name: /^asistiré/i }),
 		).toBeInTheDocument();
-		expect(
-			screen.getByLabelText(/correo o número telefónico/i),
-		).toBeInTheDocument();
-		expect(
-			screen.getByRole("button", { name: /solicitar enlace/i }),
-		).toBeInTheDocument();
-
-		// RSVP flow is NOT rendered
-		expect(screen.queryByText("¿Nos acompañas?")).not.toBeInTheDocument();
-		expect(
-			screen.queryByRole("button", { name: /^asistiré/i }),
-		).not.toBeInTheDocument();
+		expect(container.querySelector("#rsvp")).toBeInTheDocument();
 	});
 
-	it("calls injected onRequestGuestLink callback with normalized data on valid input", async () => {
-		const user = userEvent.setup();
-		const onRequestGuestLink = vi.fn().mockResolvedValue({ ok: true });
+	it("does not render RsvpForm or GuestAccessGate when guest is not present while keeping rsvp anchor", () => {
 		const anonymousProps = {
 			...mockProps,
 			guest: null,
-			onRequestGuestLink,
 		};
 
-		render(<PublicEventPage {...anonymousProps} />);
+		const { container } = render(<PublicEventPage {...anonymousProps} />);
 
-		await user.type(
-			screen.getByLabelText(/correo o número telefónico/i),
-			"  elena@example.com  ",
-		);
-		await user.click(screen.getByRole("button", { name: /solicitar enlace/i }));
-
-		await waitFor(() => expect(onRequestGuestLink).toHaveBeenCalledOnce());
-		expect(onRequestGuestLink).toHaveBeenCalledWith({
-			contact: "elena@example.com",
-		});
-	});
-
-	it("keeps RSVP flow hidden and renders confirmation message after access gate submission", async () => {
-		const user = userEvent.setup();
-		const onRequestGuestLink = vi.fn().mockResolvedValue({ ok: true });
-		const anonymousProps = {
-			...mockProps,
-			guest: null,
-			onRequestGuestLink,
-		};
-
-		render(<PublicEventPage {...anonymousProps} />);
-
-		await user.type(
-			screen.getByLabelText(/correo o número telefónico/i),
-			"sofia@example.com",
-		);
-		await user.click(screen.getByRole("button", { name: /solicitar enlace/i }));
-
-		expect(
-			await screen.findByText(GUEST_ACCESS_CONFIRMATION_MESSAGE),
-		).toBeInTheDocument();
-		// RSVP flow never reveals directly
 		expect(screen.queryByText("¿Nos acompañas?")).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole("heading", { name: /acceso al evento/i }),
 		).not.toBeInTheDocument();
-	});
-
-	it("shows pending state while submission is in flight and still displays confirmation on error", async () => {
-		const user = userEvent.setup();
-		let rejectSubmission: (error: Error) => void = () => {};
-		const failingPromise = new Promise<never>((_, reject) => {
-			rejectSubmission = reject;
-		});
-		const onRequestGuestLink = vi.fn().mockReturnValue(failingPromise);
-
-		const anonymousProps = {
-			...mockProps,
-			guest: null,
-			onRequestGuestLink,
-		};
-
-		render(<PublicEventPage {...anonymousProps} />);
-
-		await user.type(
-			screen.getByLabelText(/correo o número telefónico/i),
-			"elena@example.com",
-		);
-		await user.click(screen.getByRole("button", { name: /solicitar enlace/i }));
-
-		// Pending state visible
-		expect(screen.getByText(/enviando enlace/i)).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: /enviando enlace/i }),
-		).toBeDisabled();
-
-		// Reject the request
-		rejectSubmission(new Error("Network error"));
-
-		// Confirmation message is still shown honestly and RSVP remains hidden
-		expect(
-			await screen.findByText(GUEST_ACCESS_CONFIRMATION_MESSAGE),
-		).toBeInTheDocument();
-		expect(screen.queryByText("¿Nos acompañas?")).not.toBeInTheDocument();
-	});
-
-	it("does not fabricate guest identity and always shows uniform confirmation without leaking guest list state", async () => {
-		const user = userEvent.setup();
-		const onRequestGuestLink = vi.fn().mockResolvedValue({ ok: true });
-
-		const anonymousProps = {
-			...mockProps,
-			guest: null,
-			onRequestGuestLink,
-		};
-
-		render(<PublicEventPage {...anonymousProps} />);
-
-		await user.type(
-			screen.getByLabelText(/correo o número telefónico/i),
-			"stranger@example.com",
-		);
-		await user.click(screen.getByRole("button", { name: /solicitar enlace/i }));
-
-		await waitFor(() => {
-			expect(
-				screen.getByRole("heading", { name: /enlace solicitado/i }),
-			).toBeInTheDocument();
-		});
-		expect(screen.queryByText("¿Nos acompañas?")).not.toBeInTheDocument();
-		expect(
-			screen.queryByText(/invitación para stranger/i),
+			screen.queryByLabelText(/correo o número telefónico/i),
 		).not.toBeInTheDocument();
+		expect(container.querySelector("#rsvp")).toBeInTheDocument();
 	});
 
 	it("renders honoree names in the hero section", () => {

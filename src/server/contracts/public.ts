@@ -84,6 +84,21 @@ export type RegisterGuestInput = {
 	email: string | null;
 };
 
+/**
+ * Everything an UNINVITED visitor is allowed to learn from a slug.
+ *
+ * The access screen has to name who is inviting them, so identity is the
+ * whole of it. Date, venue, description, gifts and media are structurally
+ * absent — the key does not exist on this type — because a slug alone must
+ * not disclose when or where an event happens, or what was asked for.
+ */
+export type PublicEventPreview = {
+	slug: string;
+	title: string;
+	eventType: EventType;
+	honoreeNames: string[];
+};
+
 /** What the guest types at the access gate: one field holding either an
  *  email address or a phone number. The server decides which it is. */
 export type RequestGuestLinkInput = { contact: string };
@@ -109,6 +124,14 @@ export type RegisterGuestResult =
 /** Agent B implements a component with EXACTLY this prop type.
  *  Claude's loader returns exactly PublicEventPageData.
  *  A drift on either side is a compile error, not a runtime surprise. */
+/** The pre-invitation screen: a preview plus the one action it offers. */
+export type PublicEventPreviewProps = {
+	event: PublicEventPreview;
+	onRequestGuestLink?: (
+		input: RequestGuestLinkInput,
+	) => Promise<RequestGuestLinkResult>;
+};
+
 export type PublicEventPageProps = PublicEventPageData & {
 	onSubmitRsvp: (input: {
 		attending: boolean;

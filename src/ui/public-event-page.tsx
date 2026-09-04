@@ -1,14 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import type { PublicEventPageProps as ContractPublicEventPageProps } from "#/server/contracts/public";
+import type {
+	PublicEventPageProps as ContractPublicEventPageProps,
+	RequestGuestLinkInput,
+	RequestGuestLinkResult,
+} from "#/server/contracts/public";
 import { BottomNav } from "./components/bottom-nav";
 import { EventDetailsSection } from "./components/event-details-section";
 import { GiftRegistry } from "./components/gift-registry";
-import {
-	GuestAccessGate,
-	type RequestGuestLinkInput,
-	type RequestGuestLinkResult,
-} from "./components/guest-access-gate";
 import { GuestMessageForm } from "./components/guest-message-form";
 import type {
 	RegisterGuestInput,
@@ -38,7 +37,7 @@ export function PublicEventPage({
 	onReserveGift,
 	onCancelReservation,
 	onSubmitMessage,
-	onRequestGuestLink,
+	onRequestGuestLink: _onRequestGuestLink,
 }: PublicEventPageProps) {
 	const coverImage = media && media.length > 0 ? media[0]?.urls.full : null;
 	const [currentGuest, setCurrentGuest] = useState(guest);
@@ -60,19 +59,19 @@ export function PublicEventPage({
 				{/* Event Details section */}
 				<EventDetailsSection event={event} />
 
-				{/* RSVP or Guest Access Gate section */}
-				<div className="px-4 py-6">
-					{currentGuest ? (
+				{/* RSVP section */}
+				{currentGuest ? (
+					<div className="px-4 py-6">
 						<RsvpForm
 							maxCompanions={event.maxCompanions}
 							rsvpDeadline={event.rsvpDeadline}
 							guest={currentGuest}
 							onSubmitRsvp={onSubmitRsvp}
 						/>
-					) : (
-						<GuestAccessGate onRequestGuestLink={onRequestGuestLink} />
-					)}
-				</div>
+					</div>
+				) : (
+					<div id="rsvp" />
+				)}
 
 				{/* Gift registry section */}
 				<GiftRegistry

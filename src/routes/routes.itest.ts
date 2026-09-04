@@ -15,6 +15,7 @@ import {
 import { GET as event } from "../../app/api/events/[eventId]/route";
 import { GET as events } from "../../app/api/events/route";
 import { GET as guestLink } from "../../app/api/guest-link/route";
+import { GET as publicEventPreview } from "../../app/api/public/[slug]/preview/route";
 import { GET as publicEvent } from "../../app/api/public/[slug]/route";
 import { GET as session } from "../../app/api/session/route";
 
@@ -45,17 +46,42 @@ describe("route handler transport", () => {
 		expect(await response.json()).toEqual({ code: "unauthorized" });
 	});
 
-	test("resolves the event behind a slug for an anonymous visitor", async () => {
+	test("refuses anonymous public-event requests without disclosing invitation fields", async () => {
 		const response = await callParameterizedRoute(publicEvent, {
 			path: `/api/public/${organizer.slug}`,
 			params: { slug: organizer.slug },
 		});
+		expect(response.status).toBe(401);
+		const body = await response.json();
+		expect(body).toEqual({ code: "unauthorized" });
+		for (const field of [
+			"startsAt",
+			"venueName",
+			"description",
+			"gifts",
+			"media",
+		]) {
+			expect(JSON.stringify(body)).not.toContain(field);
+		}
+	});
+
+	test("returns only the identity preview for an anonymous visitor", async () => {
+		const response = await callParameterizedRoute(publicEventPreview, {
+			path: `/api/public/${organizer.slug}/preview`,
+			params: { slug: organizer.slug },
+		});
 		expect(response.status).toBe(200);
-		expect(
-			(await response.json()) as { event: { id: string }; guest: null },
-		).toMatchObject({
-			event: { id: organizer.eventId },
-			guest: null,
+		const preview = (await response.json()) as Record<string, unknown>;
+		expect(Object.keys(preview).sort()).toEqual([
+			"eventType",
+			"honoreeNames",
+			"slug",
+			"title",
+		]);
+		expect(preview).toMatchObject({
+			slug: organizer.slug,
+			title: "Fixture event",
+			eventType: "other",
 		});
 	});
 
@@ -85,6 +111,17 @@ describe("route handler transport", () => {
 		expect((await response.json()) as { guest: { id: string } }).toMatchObject({
 			guest: { id: guest.guestId },
 		});
+	});
+
+	test("treats a revoked guest token as anonymous", async () => {
+		const guest = await createGuestSession(pool, organizer, { revoked: true });
+		const response = await callParameterizedRoute(publicEvent, {
+			path: `/api/public/${organizer.slug}`,
+			headers: { cookie: guest.cookie },
+			params: { slug: organizer.slug },
+		});
+		expect(response.status).toBe(401);
+		expect(await response.json()).toEqual({ code: "unauthorized" });
 	});
 
 	test("accepts a valid query token into a secure guest cookie for the next request", async () => {

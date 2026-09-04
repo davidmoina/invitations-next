@@ -68,8 +68,10 @@ test("a disabled registry is absent from the anonymous loader payload and does n
 			[event.eventId],
 		);
 		await insertGift(event.eventId, title);
+		const guest = await createGuestSession(pool, event);
 		const payload = await callParameterizedRoute(publicEvent, {
 			path: `/api/public/${event.slug}`,
+			headers: { cookie: guest.cookie },
 			params: { slug: event.slug },
 		});
 		expect(payload.status).toBe(200);
@@ -78,6 +80,7 @@ test("a disabled registry is absent from the anonymous loader payload and does n
 		try {
 			const noQuery = await callParameterizedRoute(publicEvent, {
 				path: `/api/public/${event.slug}`,
+				headers: { cookie: guest.cookie },
 				params: { slug: event.slug },
 			});
 			expect(noQuery.status).toBe(200);
@@ -93,8 +96,10 @@ test("a disabled registry is absent from the anonymous loader payload and does n
 test("an enabled registry retains gift data in the anonymous loader payload", async () => {
 	await withEvent(async (event) => {
 		await insertGift(event.eventId, "Enabled registry gift");
+		const guest = await createGuestSession(pool, event);
 		const response = await callParameterizedRoute(publicEvent, {
 			path: `/api/public/${event.slug}`,
+			headers: { cookie: guest.cookie },
 			params: { slug: event.slug },
 		});
 		expect(response.status).toBe(200);

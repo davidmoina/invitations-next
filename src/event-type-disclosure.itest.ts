@@ -1,6 +1,7 @@
 import { Pool } from "@neondatabase/serverless";
 import { afterAll, beforeAll, expect, test } from "vitest";
 import {
+	createGuestSession,
 	createOrganizerSession,
 	destroyFixture,
 	type EventFixture,
@@ -36,9 +37,15 @@ test("public event DTO structurally omits sensitive event-type fields", async ()
 			details: { type: "baby_shower", dueDate: "2030-07-01", babySex: "girl" },
 		}),
 	});
-	const created = (await r.json()) as { slug: string };
+	const created = (await r.json()) as { id: string; slug: string };
+	const guest = await createGuestSession(pool, {
+		...f,
+		slug: created.slug,
+		eventId: created.id as EventFixture["eventId"],
+	});
 	const publicResponse = await callParameterizedRoute(GET, {
 		path: `/api/public/${created.slug}`,
+		headers: { cookie: guest.cookie },
 		params: { slug: created.slug },
 	});
 	const body = (await publicResponse.json()) as {
