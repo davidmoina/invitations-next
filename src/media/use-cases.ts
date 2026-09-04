@@ -3,6 +3,8 @@ import type { Actor } from "#/audit/actor";
 import {
 	deleteEventMedia,
 	insertEventMedia,
+	listEventMedia,
+	setEventCoverMedia as persistEventCoverMedia,
 	runMutation,
 } from "#/platform/db/domain-mutations";
 
@@ -61,7 +63,18 @@ export async function addEventMedia(
 		});
 		if (!media) throw new Error("Media row did not persist");
 		return {
-			value: media,
+			value: {
+				id: media.id,
+				imagePublicId: media.imagePublicId,
+				alt: media.alt,
+				position: media.position,
+				isCover: media.isCover,
+				urls: {
+					thumb: storage.urlFor(media.imagePublicId, "thumb"),
+					card: storage.urlFor(media.imagePublicId, "card"),
+					full: storage.urlFor(media.imagePublicId, "full"),
+				},
+			},
 			events: [
 				{
 					action: "media.added",
@@ -83,6 +96,12 @@ export async function removeEventMedia(
 	const media = await runMutation(organizer, async (tx) => {
 		const removed = await deleteEventMedia(tx, organizer.eventId, mediaId);
 		if (!removed) throw new Error("Media not found for event");
+		if (removed.isCover) {
+			const [next] = await listEventMedia(tx, organizer.eventId);
+			if (next) {
+				await persistEventCoverMedia(tx, organizer.eventId, next.id);
+			}
+		}
 		return {
 			value: removed,
 			events: [
@@ -96,5 +115,38 @@ export async function removeEventMedia(
 		};
 	});
 	await storage.remove(media.imagePublicId);
-	return media;
+	return { mediaId };
+}
+
+export async function setEventCoverMedia(
+	actor: Actor,
+	mediaId: string,
+	storage: ImageStorage,
+) {
+	const organizer = editor(actor);
+	return runMutation(organizer, async (tx) => {
+		const media = await persistEventCoverMedia(tx, organizer.eventId, mediaId);
+		if (!media) throw new Error("Media not found for event");
+		const allMedia = await listEventMedia(tx, organizer.eventId);
+		return {
+			value: {
+				media: allMedia.map((item) => ({
+					...item,
+					urls: {
+						thumb: storage.urlFor(item.imagePublicId, "thumb"),
+						card: storage.urlFor(item.imagePublicId, "card"),
+						full: storage.urlFor(item.imagePublicId, "full"),
+					},
+				})),
+			},
+			events: [
+				{
+					action: "media.cover_set",
+					entityType: "event_media",
+					entityId: media.id,
+					eventId: organizer.eventId,
+				},
+			],
+		};
+	});
 }

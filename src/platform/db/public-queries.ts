@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
 
 import type { Actor } from "#/audit/actor";
 import { toPublicDto } from "#/gifts/rules";
@@ -153,10 +153,11 @@ export async function getPublicEventData(
 			width: eventMedia.width,
 			height: eventMedia.height,
 			alt: eventMedia.alt,
+			isCover: eventMedia.isCover,
 		})
 		.from(eventMedia)
 		.where(eq(eventMedia.eventId, event.id))
-		.orderBy(asc(eventMedia.position));
+		.orderBy(desc(eventMedia.isCover), asc(eventMedia.position));
 	return {
 		event: {
 			id: event.id,
@@ -205,6 +206,7 @@ export async function getPublicEventData(
 			id: media.id,
 			imagePublicId: media.imagePublicId,
 			alt: media.alt,
+			isCover: media.isCover,
 			urls: galleryImage(storage, {
 				publicId: media.imagePublicId,
 				width: media.width,

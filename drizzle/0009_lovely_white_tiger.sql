@@ -1,0 +1,2 @@
+ALTER TABLE "event_media" ADD COLUMN "is_cover" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "event_media_one_cover" ON "event_media" USING btree ("event_id") WHERE "event_media"."is_cover";

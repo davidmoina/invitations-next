@@ -1,17 +1,16 @@
 import type {
 	AddGuestsResult,
-	AddMediaResult,
 	AdminAuditEntry,
 	AdminEvent,
 	AdminEventListItem,
 	AdminEventPageData,
 	AdminGift,
 	AdminGuest,
+	AdminMedia,
 	AdminMembership,
 	CreatedEvent,
 	IssueGuestLinkResult,
 	NewEventInput,
-	RemoveMediaResult,
 	TransferOwnershipResult,
 } from "#/server/contracts/admin";
 import type {
@@ -96,10 +95,13 @@ export type ApiClient = {
 	): Promise<ReserveGiftResult>;
 	addEventMedia(
 		input: EventScope & { file: File; alt: string; position: number },
-	): Promise<AddMediaResult>;
+	): Promise<AdminMedia>;
 	removeEventMedia(
 		input: EventScope & { mediaId: string },
-	): Promise<RemoveMediaResult>;
+	): Promise<{ mediaId: string }>;
+	setCoverMedia(
+		input: EventScope & { mediaId: string },
+	): Promise<{ media: AdminMedia[] }>;
 	getPublicEvent(input: { slug: string }): Promise<PublicEventPageData>;
 	getPublicEventPreview(input: { slug: string }): Promise<PublicEventPreview>;
 	requestGuestLink(
@@ -243,6 +245,11 @@ export function createApiClient(request: ApiRequest): ApiClient {
 			request(`${eventPath(eventId)}/media/${encodeURIComponent(mediaId)}`, {
 				method: "DELETE",
 			}),
+		setCoverMedia: ({ eventId, mediaId }) =>
+			request(
+				`${eventPath(eventId)}/media/${encodeURIComponent(mediaId)}/cover`,
+				{ method: "PATCH" },
+			),
 		getPublicEvent: ({ slug }) => request(publicPath(slug)),
 		getPublicEventPreview: ({ slug }) => request(`${publicPath(slug)}/preview`),
 		requestGuestLink: ({ slug, ...input }) =>

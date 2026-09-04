@@ -33,6 +33,7 @@ export const {
 	cancelReservationAdmin,
 	addEventMedia,
 	removeEventMedia,
+	setCoverMedia,
 	getPublicEvent,
 	getPublicEventPreview,
 	requestGuestLink,

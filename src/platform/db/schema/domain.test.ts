@@ -3,6 +3,7 @@ import { expect, test } from "vitest";
 
 import {
 	auditLog,
+	eventMedia,
 	eventMemberships,
 	giftReservations,
 	gifts,
@@ -86,4 +87,15 @@ test("owner and active-reservation guards are unique partial indexes", () => {
 	expect(ownershipIndex?.config.where?.queryChunks).toBeDefined();
 	expect(reservationIndex?.config.unique).toBe(true);
 	expect(reservationIndex?.config.where?.queryChunks).toBeDefined();
+});
+
+test("event media has exactly one explicit cover per event", () => {
+	const coverIndex = getTableConfig(eventMedia).indexes.find(
+		(index) => index.config.name === "event_media_one_cover",
+	);
+
+	expect(eventMedia.isCover.notNull).toBe(true);
+	expect(eventMedia.isCover.default).toBe(false);
+	expect(coverIndex?.config.unique).toBe(true);
+	expect(coverIndex?.config.where?.queryChunks).toBeDefined();
 });

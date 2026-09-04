@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
 
 import type { Actor, AuditedTx, EventId, MutationOutcome } from "#/audit/actor";
 import { readOnly, withActor } from "#/platform/db/client";
@@ -344,13 +344,75 @@ export async function insertEventMedia(
 		position: number;
 	},
 ) {
-	const [media] = await tx.insert(eventMedia).values(input).returning({
-		id: eventMedia.id,
-		imagePublicId: eventMedia.imagePublicId,
-		width: eventMedia.width,
-		height: eventMedia.height,
-	});
+	const [cover] = await tx
+		.select({ id: eventMedia.id })
+		.from(eventMedia)
+		.where(
+			and(eq(eventMedia.eventId, input.eventId), eq(eventMedia.isCover, true)),
+		)
+		.limit(1);
+	const [media] = await tx
+		.insert(eventMedia)
+		.values({
+			...input,
+			isCover: !cover,
+		})
+		.returning({
+			id: eventMedia.id,
+			imagePublicId: eventMedia.imagePublicId,
+			width: eventMedia.width,
+			height: eventMedia.height,
+			alt: eventMedia.alt,
+			position: eventMedia.position,
+			isCover: eventMedia.isCover,
+		});
 	return media ?? null;
+}
+
+export async function setEventCoverMedia(
+	tx: AuditedTx,
+	eventId: string,
+	mediaId: string,
+) {
+	const [target] = await tx
+		.select({ id: eventMedia.id })
+		.from(eventMedia)
+		.where(and(eq(eventMedia.id, mediaId), eq(eventMedia.eventId, eventId)))
+		.limit(1);
+	if (!target) return null;
+
+	await tx
+		.update(eventMedia)
+		.set({ isCover: false })
+		.where(and(eq(eventMedia.eventId, eventId), eq(eventMedia.isCover, true)));
+	const [media] = await tx
+		.update(eventMedia)
+		.set({ isCover: true })
+		.where(and(eq(eventMedia.id, mediaId), eq(eventMedia.eventId, eventId)))
+		.returning({
+			id: eventMedia.id,
+			imagePublicId: eventMedia.imagePublicId,
+			width: eventMedia.width,
+			height: eventMedia.height,
+			alt: eventMedia.alt,
+			position: eventMedia.position,
+			isCover: eventMedia.isCover,
+		});
+	return media ?? null;
+}
+
+export async function listEventMedia(tx: AuditedTx, eventId: string) {
+	return tx
+		.select({
+			id: eventMedia.id,
+			imagePublicId: eventMedia.imagePublicId,
+			alt: eventMedia.alt,
+			position: eventMedia.position,
+			isCover: eventMedia.isCover,
+		})
+		.from(eventMedia)
+		.where(eq(eventMedia.eventId, eventId))
+		.orderBy(desc(eventMedia.isCover), asc(eventMedia.position));
 }
 
 export async function deleteEventMedia(
@@ -361,6 +423,10 @@ export async function deleteEventMedia(
 	const [media] = await tx
 		.delete(eventMedia)
 		.where(and(eq(eventMedia.id, mediaId), eq(eventMedia.eventId, eventId)))
-		.returning({ id: eventMedia.id, imagePublicId: eventMedia.imagePublicId });
+		.returning({
+			id: eventMedia.id,
+			imagePublicId: eventMedia.imagePublicId,
+			isCover: eventMedia.isCover,
+		});
 	return media ?? null;
 }

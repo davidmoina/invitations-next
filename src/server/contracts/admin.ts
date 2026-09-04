@@ -109,6 +109,7 @@ export type AdminMedia = {
 	imagePublicId: string;
 	alt: string | null;
 	position: number;
+	isCover: boolean;
 	urls: Record<"thumb" | "card" | "full", string>;
 };
 
@@ -218,5 +219,3 @@ export type TransferOwnershipResult = AdminResult<{
 	memberships: AdminMembership[];
 }>;
 export type UpdateEventResult = AdminResult<{ event: AdminEvent }>;
-export type AddMediaResult = AdminResult<{ media: AdminMedia }>;
-export type RemoveMediaResult = AdminResult<{ mediaId: string }>;

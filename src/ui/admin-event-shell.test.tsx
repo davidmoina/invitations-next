@@ -176,6 +176,14 @@ describe("AdminEventShell", () => {
 		expect(metrics.getByText(/mesa de regalos/i)).toBeInTheDocument();
 	});
 
+	it("renders the media panel with photos section", () => {
+		renderShell();
+
+		expect(
+			screen.getByRole("region", { name: "Fotos del evento" }),
+		).toBeInTheDocument();
+	});
+
 	it("calls the injected sign-out control", async () => {
 		const user = userEvent.setup();
 		const { onSignOut } = renderShell();

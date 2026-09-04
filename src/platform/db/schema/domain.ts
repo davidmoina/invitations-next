@@ -249,9 +249,15 @@ export const eventMedia = pgTable(
 		height: integer("height").notNull(),
 		alt: text("alt").notNull(),
 		position: integer("position").notNull().default(0),
+		isCover: boolean("is_cover").notNull().default(false),
 		createdAt,
 	},
-	(table) => [unique().on(table.eventId, table.imagePublicId)],
+	(table) => [
+		unique().on(table.eventId, table.imagePublicId),
+		uniqueIndex("event_media_one_cover")
+			.on(table.eventId)
+			.where(sql`${table.isCover}`),
+	],
 );
 
 export const auditLog = pgTable(

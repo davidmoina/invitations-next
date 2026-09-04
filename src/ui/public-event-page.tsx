@@ -39,7 +39,8 @@ export function PublicEventPage({
 	onSubmitMessage,
 	onRequestGuestLink: _onRequestGuestLink,
 }: PublicEventPageProps) {
-	const coverImage = media && media.length > 0 ? media[0]?.urls.full : null;
+	const coverImage = media?.find((m) => m.isCover)?.urls.full ?? null;
+	const galleryMedia = media?.filter((m) => !m.isCover) ?? [];
 	const [currentGuest, setCurrentGuest] = useState(guest);
 
 	useEffect(() => {
@@ -82,7 +83,7 @@ export function PublicEventPage({
 				/>
 
 				{/* Media gallery section */}
-				<MediaGallery media={media} />
+				<MediaGallery media={galleryMedia} />
 
 				{/* Guest message / Guestbook section */}
 				<div className="px-4 py-8">

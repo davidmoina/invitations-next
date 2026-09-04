@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import type { ComponentProps } from "react";
 import {
+	addEventMedia,
 	addGuests,
 	cancelReservationAdmin,
 	createGift,
@@ -12,6 +13,8 @@ import {
 	inviteCollaborator,
 	issueGuestLink,
 	removeCollaborator,
+	removeEventMedia,
+	setCoverMedia,
 	transferOwnershipAdmin,
 	updateEvent,
 } from "#/api-client";
@@ -60,6 +63,9 @@ export function AdminEventWrapper({
 			onEditGift={(input) => editGift({ ...input, eventId })}
 			onEditGuest={(input) => editGuest({ ...input, eventId })}
 			onIssueGuestLink={(guestId) => issueGuestLink({ eventId, guestId })}
+			onAddMedia={(input) => addEventMedia({ ...input, eventId })}
+			onRemoveMedia={(mediaId) => removeEventMedia({ eventId, mediaId })}
+			onSetCoverMedia={(mediaId) => setCoverMedia({ eventId, mediaId })}
 			onRefresh={() => router.refresh()}
 		/>
 	);

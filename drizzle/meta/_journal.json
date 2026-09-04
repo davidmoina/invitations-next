@@ -64,6 +64,13 @@
       "when": 1788474181431,
       "tag": "0008_dark_sally_floyd",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1788484028261,
+      "tag": "0009_lovely_white_tiger",
+      "breakpoints": true
     }
   ]
 }

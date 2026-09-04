@@ -1,6 +1,7 @@
 import type {
 	AdminAuditEntry,
 	AdminEventPageData,
+	AdminMedia,
 } from "#/server/contracts/admin";
 import type { ReserveGiftResult } from "#/server/contracts/public";
 import { AdminShell } from "./components/admin/admin-shell";
@@ -23,6 +24,7 @@ import {
 	type EditGuestInput,
 	GuestList,
 } from "./components/admin/guest-list";
+import { MediaPanel } from "./components/admin/media-panel";
 import {
 	CalendarIcon,
 	ExternalLinkIcon,
@@ -52,6 +54,13 @@ export type AdminEventShellProps = {
 	onIssueGuestLink?: (guestId: string) => Promise<{ url: string }>;
 	onRefresh?: () => Promise<void> | void;
 	homeHref?: string;
+	onAddMedia?: (input: {
+		file: File;
+		alt: string;
+		position: number;
+	}) => Promise<AdminMedia>;
+	onRemoveMedia?: (mediaId: string) => Promise<{ mediaId: string }>;
+	onSetCoverMedia?: (mediaId: string) => Promise<{ media: AdminMedia[] }>;
 };
 
 export function formatAuditEntry(entry: AdminAuditEntry): string {
@@ -103,6 +112,9 @@ export function AdminEventShell({
 	onIssueGuestLink,
 	onRefresh,
 	homeHref = "/admin",
+	onAddMedia,
+	onRemoveMedia,
+	onSetCoverMedia,
 }: AdminEventShellProps) {
 	const totalGuests = data.summary.guestCount;
 	const attendingGuests = data.summary.attendingCount;
@@ -312,6 +324,15 @@ export function AdminEventShell({
 				/>
 
 				<GuestIntakeForm onAddGuests={onAddGuests} />
+
+				{/* Media Section */}
+				<MediaPanel
+					media={data.media}
+					onAddMedia={onAddMedia}
+					onRemoveMedia={onRemoveMedia}
+					onSetCoverMedia={onSetCoverMedia}
+					onRefresh={onRefresh}
+				/>
 
 				{/* Registry Section */}
 				<GiftReservations

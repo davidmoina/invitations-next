@@ -52,6 +52,7 @@ describe("PublicEventPage", () => {
 				id: "media-1",
 				imagePublicId: "wedding-hero",
 				alt: "Foto de la pareja",
+				isCover: false,
 				urls: {
 					thumb: "https://example.com/thumb.jpg",
 					card: "https://example.com/card.jpg",
@@ -192,6 +193,70 @@ describe("PublicEventPage", () => {
 		expect(screen.getByText("Villa La Pietra, Florencia")).toBeInTheDocument();
 		// No per-type section
 		expect(screen.queryByText(/fecha prevista/i)).not.toBeInTheDocument();
+	});
+
+	it("uses explicit cover for hero background and excludes it from the gallery", () => {
+		const propsWithCover = {
+			...mockProps,
+			media: [
+				{
+					id: "media-1",
+					imagePublicId: "wedding-hero",
+					alt: "Foto de portada",
+					isCover: true,
+					urls: {
+						thumb: "https://example.com/cover-thumb.jpg",
+						card: "https://example.com/cover-card.jpg",
+						full: "https://example.com/cover-full.jpg",
+					},
+				},
+				{
+					id: "media-2",
+					imagePublicId: "wedding-gallery",
+					alt: "Foto de la galería",
+					isCover: false,
+					urls: {
+						thumb: "https://example.com/gallery-thumb.jpg",
+						card: "https://example.com/gallery-card.jpg",
+						full: "https://example.com/gallery-full.jpg",
+					},
+				},
+			],
+		};
+		const { container } = render(<PublicEventPage {...propsWithCover} />);
+
+		const heroBg = container.querySelector(
+			'[style*="https://example.com/cover-full.jpg"]',
+		);
+		expect(heroBg).toBeInTheDocument();
+
+		expect(screen.getByAltText("Foto de la galería")).toBeInTheDocument();
+		expect(screen.queryByAltText("Foto de portada")).not.toBeInTheDocument();
+	});
+
+	it("falls back to gradient when no media is marked as cover", () => {
+		const propsWithoutCover = {
+			...mockProps,
+			media: [
+				{
+					id: "media-1",
+					imagePublicId: "wedding-gallery-1",
+					alt: "Foto 1",
+					isCover: false,
+					urls: {
+						thumb: "https://example.com/1-thumb.jpg",
+						card: "https://example.com/1-card.jpg",
+						full: "https://example.com/1-full.jpg",
+					},
+				},
+			],
+		};
+		const { container } = render(<PublicEventPage {...propsWithoutCover} />);
+
+		expect(
+			container.querySelector('[style*="background-image"]'),
+		).not.toBeInTheDocument();
+		expect(screen.getByAltText("Foto 1")).toBeInTheDocument();
 	});
 
 	it("verifies no server or database imports leak into src/ui/**", async () => {

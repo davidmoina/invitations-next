@@ -62,6 +62,7 @@ export type PublicEventPageData = {
 		id: string;
 		imagePublicId: string;
 		alt: string | null;
+		isCover: boolean;
 		urls: Record<"thumb" | "card" | "full", string>;
 	}>;
 };

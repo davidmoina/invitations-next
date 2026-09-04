@@ -288,10 +288,11 @@ export async function getAdminEventPageData(
 					imagePublicId: eventMedia.imagePublicId,
 					alt: eventMedia.alt,
 					position: eventMedia.position,
+					isCover: eventMedia.isCover,
 				})
 				.from(eventMedia)
 				.where(eq(eventMedia.eventId, event.id))
-				.orderBy(asc(eventMedia.position)),
+				.orderBy(desc(eventMedia.isCover), asc(eventMedia.position)),
 		]);
 
 	return {
