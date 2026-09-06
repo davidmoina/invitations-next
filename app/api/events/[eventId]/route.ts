@@ -1,6 +1,7 @@
 import type { EventId } from "#/audit/actor";
 import { deleteEvent, updateEvent } from "#/events/admin-use-cases";
 import { getAdminEventPageData } from "#/platform/db/admin-queries";
+import { cloudinaryImageStorage } from "#/platform/image-storage/cloudinary";
 import { handleRoute } from "#/server/http/handler";
 import { parseJson } from "#/server/http/request";
 import { eventIdSchema, updateEventSchema } from "#/server/http/schemas";
@@ -20,7 +21,9 @@ export async function GET(
 ): Promise<Response> {
 	return handleRoute(request, async () => {
 		const organizer = await requireOrganizer(await eventId(context));
-		return Response.json(await getAdminEventPageData(organizer));
+		return Response.json(
+			await getAdminEventPageData(organizer, cloudinaryImageStorage),
+		);
 	});
 }
 

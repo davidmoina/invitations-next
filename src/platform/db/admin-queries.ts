@@ -3,6 +3,7 @@ import "server-only";
 import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
 
 import type { Actor, UserId } from "#/audit/actor";
+import type { ImageStorage } from "#/media/ports/image-storage";
 import { AccessError } from "#/server/access-error";
 import type {
 	AdminAuditEntry,
@@ -172,6 +173,7 @@ function organizer(actor: Actor): Extract<Actor, { kind: "organizer" }> {
 
 export async function getAdminEventPageData(
 	actor: Actor,
+	storage: ImageStorage,
 ): Promise<AdminEventPageData> {
 	const viewer = organizer(actor);
 	const [event] = await readOnly()
@@ -352,7 +354,11 @@ export async function getAdminEventPageData(
 		})),
 		media: mediaRows.map((media) => ({
 			...media,
-			urls: { thumb: "", card: "", full: "" },
+			urls: {
+				thumb: storage.urlFor(media.imagePublicId, "thumb"),
+				card: storage.urlFor(media.imagePublicId, "card"),
+				full: storage.urlFor(media.imagePublicId, "full"),
+			},
 		})),
 	};
 }
