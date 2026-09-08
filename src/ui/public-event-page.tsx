@@ -48,8 +48,8 @@ export function PublicEventPage({
 	}, [guest]);
 
 	return (
-		<div className="min-h-screen bg-stone-50 text-on-surface font-sans antialiased pb-20 sm:pb-12 selection:bg-primary-container/40 selection:text-primary">
-			<main className="w-full max-w-[720px] mx-auto bg-surface shadow-sm sm:rounded-3xl sm:my-6 overflow-hidden border border-stone-200/60">
+		<div className="min-h-screen py-6 sm:py-12 px-3 sm:px-6 flex justify-center bg-[#f8fafc] text-slate-800 selection:bg-[#d1e4ff] selection:text-[#113657] pb-24 sm:pb-16 font-sans antialiased">
+			<main className="w-full max-w-3xl flex flex-col gap-10">
 				{/* Hero section */}
 				<HeroSection
 					event={event}
@@ -57,19 +57,17 @@ export function PublicEventPage({
 					coverMediaUrl={coverImage}
 				/>
 
-				{/* Event Details section */}
+				{/* Event Details section (Quote + When/Where grid + Type details) */}
 				<EventDetailsSection event={event} />
 
 				{/* RSVP section */}
 				{currentGuest ? (
-					<div className="px-4 py-6">
-						<RsvpForm
-							maxCompanions={event.maxCompanions}
-							rsvpDeadline={event.rsvpDeadline}
-							guest={currentGuest}
-							onSubmitRsvp={onSubmitRsvp}
-						/>
-					</div>
+					<RsvpForm
+						maxCompanions={event.maxCompanions}
+						rsvpDeadline={event.rsvpDeadline}
+						guest={currentGuest}
+						onSubmitRsvp={onSubmitRsvp}
+					/>
 				) : (
 					<div id="rsvp" />
 				)}
@@ -86,16 +84,19 @@ export function PublicEventPage({
 				<MediaGallery media={galleryMedia} />
 
 				{/* Guest message / Guestbook section */}
-				<div className="px-4 py-8">
-					<GuestMessageForm onSubmitMessage={onSubmitMessage} />
-				</div>
+				<GuestMessageForm onSubmitMessage={onSubmitMessage} />
 
 				{/* Footer */}
-				<footer className="py-8 px-4 text-center border-t border-stone-200/80 text-xs text-secondary">
-					<p className="font-serif italic text-sm text-primary mb-1">
+				<footer
+					data-purpose="page-footer"
+					className="text-center py-6 text-slate-500 border-t border-slate-200 space-y-1.5"
+				>
+					<p className="font-serif italic text-xl tracking-wide text-slate-700">
 						{event.title}
 					</p>
-					<p>© {new Date().getFullYear()} — Diseñado con cariño</p>
+					<p className="text-xs text-slate-400 font-light">
+						© {new Date().getFullYear()} — Diseñado con cariño
+					</p>
 				</footer>
 			</main>
 

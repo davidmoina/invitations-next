@@ -56,75 +56,89 @@ export function HeroSection({ event, guest, coverMediaUrl }: HeroSectionProps) {
 	const formattedDate = formatDate(event.startsAt, event.timezone);
 
 	return (
-		<section className="relative min-h-[580px] w-full flex flex-col justify-between overflow-hidden bg-stone-900 text-white rounded-b-3xl shadow-lg">
-			{/* Background Image / Backdrop */}
-			{coverMediaUrl ? (
-				<div
-					className="absolute inset-0 bg-cover bg-center"
-					style={{ backgroundImage: `url(${coverMediaUrl})` }}
-				/>
-			) : (
-				<div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-800 to-champagne-700/40" />
-			)}
-
-			{/* Soft Warm Gradient Overlay */}
-			<div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-900/40 to-stone-900/60" />
-
-			{/* Top Header info */}
-			<div className="relative z-10 pt-10 px-6 text-center">
-				<p className="text-xs uppercase tracking-[0.25em] text-champagne-100 font-medium opacity-90">
-					{guest
-						? `Invitación para ${guest.displayName}`
-						: "Estás cordialmente invitado"}
-				</p>
+		<header
+			data-purpose="hero-header"
+			className="relative rounded-3xl overflow-hidden shadow-2xl bg-slate-950 border border-slate-700/40 min-h-[520px] sm:min-h-[580px] w-full flex flex-col justify-between text-white"
+		>
+			{/* Background Image with Atmosphere Gradients */}
+			<div className="absolute inset-0 overflow-hidden">
+				{coverMediaUrl ? (
+					<div
+						className="w-full h-full bg-cover bg-center transform scale-105 transition duration-1000 ease-out"
+						style={{ backgroundImage: `url(${coverMediaUrl})` }}
+					/>
+				) : (
+					<div className="w-full h-full bg-gradient-to-br from-slate-950 via-slate-900 to-[#1e344d]" />
+				)}
+				{/* Radial & Linear Vignettes */}
+				<div className="absolute inset-0 bg-gradient-to-b from-stone-950/70 via-stone-900/35 to-stone-950/80" />
+				<div className="absolute inset-0 bg-gradient-to-t from-[#0f1e2f]/80 via-[#1e344d]/30 to-transparent" />
 			</div>
 
-			{/* Main Hero Center / Bottom */}
-			<div className="relative z-10 pb-12 px-6 flex flex-col items-center text-center max-w-lg mx-auto">
-				<h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight mb-3 text-white drop-shadow-md">
-					{event.title}
-				</h1>
-				{event.honoreeNames && event.honoreeNames.length > 0 && (
-					<p className="text-champagne-200 font-serif text-lg sm:text-xl font-medium tracking-wide mb-3 drop-shadow-sm">
-						{event.honoreeNames.join(" & ")}
-					</p>
-				)}
-				<p className="text-champagne-100 font-serif italic text-lg sm:text-xl capitalize mb-8 drop-shadow-sm">
-					{formattedDate}
-				</p>
+			{/* Hero Text & Content */}
+			<div className="relative z-10 flex flex-col justify-between items-center text-center p-6 sm:p-10 min-h-[520px] sm:min-h-[580px]">
+				{/* Personalized Guest Welcome Header */}
+				<div className="pt-2">
+					<span className="inline-flex items-center tracking-[0.25em] text-[11px] sm:text-xs uppercase font-semibold text-sky-100 bg-white/15 px-4 py-1.5 rounded-full border border-white/20 backdrop-blur-md shadow-sm">
+						{guest
+							? `Invitación para ${guest.displayName}`
+							: "Estás cordialmente invitado"}
+					</span>
+				</div>
 
-				{/* Countdown timer badge */}
+				{/* Main Title & Hosts */}
+				<div className="space-y-3 my-auto max-w-xl py-6">
+					<h1 className="font-serif text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white drop-shadow-md leading-[1.08] capitalize">
+						{event.title}
+					</h1>
+					{event.honoreeNames && event.honoreeNames.length > 0 && (
+						<p className="text-sm sm:text-base tracking-widest uppercase font-light text-sky-200">
+							{event.honoreeNames.join(" & ")}
+						</p>
+					)}
+					<div className="flex items-center justify-center gap-3 pt-1">
+						<span className="h-[1px] w-8 bg-sky-200/40" />
+						<p className="font-serif italic text-lg sm:text-xl text-stone-100 capitalize">
+							{formattedDate}
+						</p>
+						<span className="h-[1px] w-8 bg-sky-200/40" />
+					</div>
+				</div>
+
+				{/* Countdown Counter */}
 				{timeLeft && (
-					<div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex gap-6 text-white w-full max-w-xs justify-center shadow-md">
-						<div className="flex flex-col items-center">
-							<span className="font-serif text-2xl font-bold">
-								{timeLeft.days}
-							</span>
-							<span className="text-[10px] uppercase tracking-wider opacity-80">
-								Días
-							</span>
-						</div>
-						<div className="w-px bg-white/20" />
-						<div className="flex flex-col items-center">
-							<span className="font-serif text-2xl font-bold">
-								{timeLeft.hours}
-							</span>
-							<span className="text-[10px] uppercase tracking-wider opacity-80">
-								Horas
-							</span>
-						</div>
-						<div className="w-px bg-white/20" />
-						<div className="flex flex-col items-center">
-							<span className="font-serif text-2xl font-bold">
-								{timeLeft.minutes}
-							</span>
-							<span className="text-[10px] uppercase tracking-wider opacity-80">
-								Min
-							</span>
+					<div className="w-full max-w-sm pb-2">
+						<div className="glass-hero-badge rounded-2xl p-4 sm:p-5 shadow-2xl">
+							<div className="grid grid-cols-3 divide-x divide-white/15 text-center items-center">
+								<div className="px-2">
+									<span className="block font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-white leading-none">
+										{timeLeft.days}
+									</span>
+									<span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-sky-200/90 font-medium mt-1.5 block">
+										Días
+									</span>
+								</div>
+								<div className="px-2">
+									<span className="block font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-white leading-none">
+										{String(timeLeft.hours).padStart(2, "0")}
+									</span>
+									<span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-sky-200/90 font-medium mt-1.5 block">
+										Horas
+									</span>
+								</div>
+								<div className="px-2">
+									<span className="block font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-white leading-none">
+										{String(timeLeft.minutes).padStart(2, "0")}
+									</span>
+									<span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-sky-200/90 font-medium mt-1.5 block">
+										Min
+									</span>
+								</div>
+							</div>
 						</div>
 					</div>
 				)}
 			</div>
-		</section>
+		</header>
 	);
 }

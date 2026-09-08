@@ -83,22 +83,26 @@ export function GiftRegistry({
 	};
 
 	return (
-		<section id="registry" className="py-12 px-4 sm:px-6">
-			<div className="text-center mb-8">
-				<div className="w-12 h-12 bg-champagne-50 text-primary rounded-full flex items-center justify-center mx-auto mb-3 border border-champagne-100 shadow-sm">
-					<GiftIcon className="w-6 h-6" />
+		<section
+			id="registry"
+			data-purpose="gift-registry"
+			className="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-slate-200"
+		>
+			<div className="text-center max-w-xl mx-auto mb-9">
+				<div className="w-14 h-14 rounded-full bg-[#e8f1fa] text-[#274b70] mx-auto flex items-center justify-center mb-4 shadow-sm border border-[#d1e4ff]">
+					<GiftIcon className="w-7 h-7" />
 				</div>
-				<h2 className="font-serif text-3xl text-primary font-semibold mb-2">
+				<h2 className="font-serif text-3xl sm:text-4xl font-bold text-slate-800">
 					Mesa de regalos
 				</h2>
-				<p className="text-secondary text-sm max-w-md mx-auto">
+				<p className="text-slate-600 text-sm sm:text-base mt-2 leading-relaxed font-light">
 					Tu presencia es nuestro mejor regalo, pero si deseas hacernos un
 					detalle, aquí tienes algunas ideas que nos encantarían.
 				</p>
 			</div>
 
 			{gifts.length === 0 ? (
-				<div className="p-8 text-center bg-surface-container-lowest rounded-2xl border border-stone-200 text-secondary text-sm">
+				<div className="p-8 text-center bg-[#f8fafc] rounded-2xl border border-slate-200 text-slate-500 text-sm">
 					No hay regalos añadidos todavía.
 				</div>
 			) : (
@@ -110,36 +114,36 @@ export function GiftRegistry({
 						return (
 							<div
 								key={gift.id}
-								className={`p-5 rounded-2xl border flex flex-col justify-between transition-all bg-surface-container-lowest ${
+								className={`p-6 rounded-2xl border flex flex-col justify-between transition-all ${
 									gift.status === "reserved"
 										? gift.reservedByMe
-											? "border-primary-container bg-champagne-50/50 shadow-sm"
-											: "border-stone-200 opacity-75"
-										: "border-stone-200 shadow-sm hover:border-stone-300"
+											? "border-2 border-[#b9d5f7] bg-[#f2f7fc] shadow-sm hover:shadow-md"
+											: "border-slate-200 bg-slate-50/70 opacity-90"
+										: "border-slate-200 bg-white shadow-sm hover:shadow-md hover:border-[#b9d5f7]"
 								}`}
 							>
 								<div>
-									<div className="flex items-start justify-between gap-2 mb-2">
-										<h3 className="font-semibold text-base text-on-surface">
+									<div className="flex items-start justify-between gap-2 mb-3">
+										<h3 className="font-semibold text-lg text-slate-800 capitalize">
 											{gift.title}
 										</h3>
 										{gift.status === "available" ? (
-											<span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-bg text-success-green shrink-0">
+											<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#e8f1fa] text-[#274b70] border border-[#d1e4ff] shrink-0">
 												Disponible
 											</span>
 										) : gift.reservedByMe ? (
-											<span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-champagne-100 text-champagne-700 shrink-0">
+											<span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#d9e8f8] text-[#1c4167] border border-[#bcd7f4] shrink-0">
 												Reservado por ti
 											</span>
 										) : (
-											<span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-secondary shrink-0">
+											<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-200/80 text-slate-600 shrink-0">
 												Reservado
 											</span>
 										)}
 									</div>
 
 									{gift.description && (
-										<p className="text-sm text-secondary mb-3">
+										<p className="text-xs text-slate-500 mb-6">
 											{gift.description}
 										</p>
 									)}
@@ -149,7 +153,7 @@ export function GiftRegistry({
 											href={gift.url}
 											target="_blank"
 											rel="noopener noreferrer"
-											className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline mb-4 font-medium"
+											className="inline-flex items-center gap-1.5 text-xs text-[#2c4d6f] hover:underline mb-4 font-medium"
 										>
 											<span>Ver producto</span>
 											<ExternalLinkIcon className="w-3.5 h-3.5" />
@@ -157,7 +161,7 @@ export function GiftRegistry({
 									)}
 
 									{error && (
-										<p className="text-xs text-error font-medium mb-3">
+										<p className="text-xs text-red-600 font-medium mb-3">
 											{error}
 										</p>
 									)}
@@ -170,7 +174,7 @@ export function GiftRegistry({
 											aria-label={`Reservar regalo: ${gift.title}`}
 											disabled={isActionLoading}
 											onClick={() => handleReserve(gift.id)}
-											className="w-full py-2.5 px-4 bg-primary text-white rounded-xl text-xs font-medium hover:bg-primary/90 disabled:opacity-50 transition-all shadow-sm flex items-center justify-center gap-1.5"
+											className="w-full py-2.5 px-4 rounded-xl bg-[#2c4d6f] hover:bg-[#1f3750] text-white font-medium text-xs sm:text-sm tracking-wide transition shadow-sm active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5"
 										>
 											{isActionLoading ? "Reservando..." : "Reservar regalo"}
 										</button>
@@ -180,7 +184,7 @@ export function GiftRegistry({
 											aria-label={`Cancelar reserva: ${gift.title}`}
 											disabled={isActionLoading}
 											onClick={() => handleCancel(gift.id)}
-											className="w-full py-2.5 px-4 border border-stone-300 text-on-surface bg-white rounded-xl text-xs font-medium hover:bg-stone-50 disabled:opacity-50 transition-all shadow-sm flex items-center justify-center gap-1.5"
+											className="w-full py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-[#274b70] font-medium text-xs sm:text-sm tracking-wide transition shadow-sm active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5"
 										>
 											{isActionLoading ? "Cancelando..." : "Cancelar reserva"}
 										</button>
@@ -188,7 +192,7 @@ export function GiftRegistry({
 										<button
 											type="button"
 											disabled
-											className="w-full py-2.5 px-4 bg-stone-100 text-secondary rounded-xl text-xs font-medium cursor-not-allowed opacity-75"
+											className="w-full py-2.5 px-4 rounded-xl bg-slate-100 text-slate-400 font-medium text-xs sm:text-sm cursor-not-allowed border border-slate-200/60"
 										>
 											Reservado por otro invitado
 										</button>
