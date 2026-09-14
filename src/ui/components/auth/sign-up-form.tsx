@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Button, Description, Input, Label, TextField } from "@heroui/react";
 import { type FormEvent, useState } from "react";
 
 export type SignUpFormProps = {
@@ -45,11 +45,11 @@ export function SignUpForm({ onSignUp }: SignUpFormProps) {
 					</p>
 				</header>
 				<form onSubmit={submit} aria-busy={submitting} className="space-y-5">
-					<div className="space-y-1.5">
-						<label htmlFor="sign-up-name" className={labelCls}>
+					<TextField className="space-y-1.5 w-full">
+						<Label htmlFor="sign-up-name" className={labelCls}>
 							Nombre
-						</label>
-						<input
+						</Label>
+						<Input
 							id="sign-up-name"
 							type="text"
 							value={name}
@@ -59,12 +59,12 @@ export function SignUpForm({ onSignUp }: SignUpFormProps) {
 							disabled={submitting}
 							className={inputCls}
 						/>
-					</div>
-					<div className="space-y-1.5">
-						<label htmlFor="sign-up-email" className={labelCls}>
+					</TextField>
+					<TextField className="space-y-1.5 w-full">
+						<Label htmlFor="sign-up-email" className={labelCls}>
 							Correo electrónico
-						</label>
-						<input
+						</Label>
+						<Input
 							id="sign-up-email"
 							type="email"
 							value={email}
@@ -74,12 +74,12 @@ export function SignUpForm({ onSignUp }: SignUpFormProps) {
 							disabled={submitting}
 							className={inputCls}
 						/>
-					</div>
-					<div className="space-y-1.5">
-						<label htmlFor="sign-up-password" className={labelCls}>
+					</TextField>
+					<TextField className="space-y-1.5 w-full">
+						<Label htmlFor="sign-up-password" className={labelCls}>
 							Contraseña
-						</label>
-						<input
+						</Label>
+						<Input
 							id="sign-up-password"
 							type="password"
 							value={password}
@@ -91,10 +91,13 @@ export function SignUpForm({ onSignUp }: SignUpFormProps) {
 							disabled={submitting}
 							className={inputCls}
 						/>
-						<p id="sign-up-password-hint" className="text-xs text-secondary">
+						<Description
+							id="sign-up-password-hint"
+							className="text-xs text-secondary"
+						>
 							Mínimo 8 caracteres
-						</p>
-					</div>
+						</Description>
+					</TextField>
 					{error ? (
 						<p
 							role="alert"

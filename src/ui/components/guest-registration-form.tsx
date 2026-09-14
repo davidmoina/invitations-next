@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Button, Input, Label, TextField } from "@heroui/react";
 import { type FormEvent, useState } from "react";
 
 import { ArrowRightIcon, CheckCircleIcon, SpinnerIcon } from "./icons";
@@ -152,8 +152,8 @@ export function GuestRegistrationForm({
 
 			<form onSubmit={handleSubmit} className="space-y-5" noValidate>
 				{/* Name input */}
-				<div className="space-y-1.5">
-					<label
+				<TextField isInvalid={Boolean(nameError)} className="space-y-1.5">
+					<Label
 						htmlFor="guest-name"
 						className="block text-sm font-medium text-on-surface"
 					>
@@ -161,9 +161,9 @@ export function GuestRegistrationForm({
 						<span className="text-error" aria-hidden="true">
 							*
 						</span>
-					</label>
+					</Label>
 					<div className="relative">
-						<input
+						<Input
 							id="guest-name"
 							name="displayName"
 							type="text"
@@ -199,11 +199,11 @@ export function GuestRegistrationForm({
 							{nameError}
 						</p>
 					)}
-				</div>
+				</TextField>
 
 				{/* Email input */}
-				<div className="space-y-1.5">
-					<label
+				<TextField isInvalid={Boolean(emailError)} className="space-y-1.5">
+					<Label
 						htmlFor="guest-email"
 						className="block text-sm font-medium text-on-surface"
 					>
@@ -211,8 +211,8 @@ export function GuestRegistrationForm({
 						<span className="text-secondary/70 font-normal text-xs ml-1">
 							(Optional)
 						</span>
-					</label>
-					<input
+					</Label>
+					<Input
 						id="guest-email"
 						name="email"
 						type="email"
@@ -237,7 +237,7 @@ export function GuestRegistrationForm({
 							{emailError}
 						</p>
 					)}
-				</div>
+				</TextField>
 
 				{/* Server/submission error alert */}
 				{errorMessage && (

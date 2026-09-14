@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Button, Input, Label, TextField } from "@heroui/react";
 import { useState } from "react";
 
 import { FIELD_CLASS, LABEL_CLASS, orNull } from "./event-form-fields";
@@ -82,24 +82,24 @@ export function GuestIntakeForm({
 				</output>
 			)}
 
-			<div>
-				<label htmlFor="guest-display-name" className={LABEL_CLASS}>
+			<TextField className="space-y-1">
+				<Label htmlFor="guest-display-name" className={LABEL_CLASS}>
 					Nombre
-				</label>
-				<input
+				</Label>
+				<Input
 					id="guest-display-name"
 					value={displayName}
 					onChange={(event) => setDisplayName(event.target.value)}
 					placeholder="Ej. María García"
 					className={FIELD_CLASS}
 				/>
-			</div>
+			</TextField>
 
-			<div>
-				<label htmlFor="guest-email" className={LABEL_CLASS}>
+			<TextField className="space-y-1">
+				<Label htmlFor="guest-email" className={LABEL_CLASS}>
 					Email
-				</label>
-				<input
+				</Label>
+				<Input
 					id="guest-email"
 					type="email"
 					value={email}
@@ -107,13 +107,13 @@ export function GuestIntakeForm({
 					placeholder="maria@example.com"
 					className={FIELD_CLASS}
 				/>
-			</div>
+			</TextField>
 
-			<div>
-				<label htmlFor="guest-phone" className={LABEL_CLASS}>
+			<TextField className="space-y-1">
+				<Label htmlFor="guest-phone" className={LABEL_CLASS}>
 					Teléfono
-				</label>
-				<input
+				</Label>
+				<Input
 					id="guest-phone"
 					type="tel"
 					value={phone}
@@ -121,7 +121,7 @@ export function GuestIntakeForm({
 					placeholder="+34 600 123 456"
 					className={FIELD_CLASS}
 				/>
-			</div>
+			</TextField>
 
 			{error ? (
 				<p role="alert" className="text-sm text-red-700 font-medium">

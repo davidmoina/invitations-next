@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Button, Radio, RadioGroup } from "@heroui/react";
 import { useState } from "react";
 import type { PublicError } from "#/server/contracts/errors";
 import type {
@@ -152,50 +152,69 @@ export function RsvpForm({
 			</div>
 
 			<form onSubmit={handleSubmit} className="space-y-6">
-				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<button
-						type="button"
-						onClick={() => setAttending(true)}
-						className={`p-5 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center text-center h-full ${
-							attending === true
-								? "border-[#2c4d6f] bg-[#f0f6fc] shadow-sm ring-2 ring-[#2c4d6f]/20"
-								: "border-slate-200 hover:border-[#2c4d6f]/40 bg-[#f8fafc]"
-						}`}
-					>
-						<div className="w-11 h-11 rounded-full bg-[#d1e4ff] text-[#113657] flex items-center justify-center mb-3 border border-sky-200">
-							<CheckCircleIcon className="w-6 h-6" />
-						</div>
-						<span className="font-semibold text-slate-800 text-base mb-1">
-							Asistiré
-						</span>
-						<span className="text-xs text-slate-500 leading-snug">
-							¡Con muchas ganas de celebrar!
-						</span>
-					</button>
-
-					<button
-						type="button"
-						onClick={() => {
+				<RadioGroup
+					aria-label="Confirmación de asistencia"
+					value={attending === null ? "" : attending ? "yes" : "no"}
+					onChange={(val) => {
+						if (val === "yes") {
+							setAttending(true);
+						} else if (val === "no") {
 							setAttending(false);
 							setCompanions(0);
-						}}
-						className={`p-5 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center text-center h-full ${
-							attending === false
-								? "border-[#2c4d6f] bg-[#f0f6fc] shadow-sm ring-2 ring-[#2c4d6f]/20"
-								: "border-slate-200 hover:border-[#2c4d6f]/40 bg-[#f8fafc]"
-						}`}
-					>
-						<div className="w-11 h-11 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3 border border-slate-200">
-							<XCircleIcon className="w-6 h-6" />
-						</div>
-						<span className="font-semibold text-slate-800 text-base mb-1">
-							No podré asistir
-						</span>
-						<span className="text-xs text-slate-500 leading-snug">
-							Estaré presente en espíritu
-						</span>
-					</button>
-				</div>
+						}
+					}}
+					className="w-full"
+				>
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<Radio
+							value="yes"
+							className={`p-5 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center text-center h-full cursor-pointer ${
+								attending === true
+									? "border-[#2c4d6f] bg-[#f0f6fc] shadow-sm ring-2 ring-[#2c4d6f]/20"
+									: "border-slate-200 hover:border-[#2c4d6f]/40 bg-[#f8fafc]"
+							}`}
+						>
+							<Radio.Content className="flex flex-col items-center justify-center text-center w-full">
+								<Radio.Control className="sr-only">
+									<Radio.Indicator />
+								</Radio.Control>
+								<div className="w-11 h-11 rounded-full bg-[#d1e4ff] text-[#113657] flex items-center justify-center mb-3 border border-sky-200">
+									<CheckCircleIcon className="w-6 h-6" />
+								</div>
+								<span className="font-semibold text-slate-800 text-base mb-1">
+									Asistiré
+								</span>
+								<span className="text-xs text-slate-500 leading-snug">
+									¡Con muchas ganas de celebrar!
+								</span>
+							</Radio.Content>
+						</Radio>
+
+						<Radio
+							value="no"
+							className={`p-5 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center text-center h-full cursor-pointer ${
+								attending === false
+									? "border-[#2c4d6f] bg-[#f0f6fc] shadow-sm ring-2 ring-[#2c4d6f]/20"
+									: "border-slate-200 hover:border-[#2c4d6f]/40 bg-[#f8fafc]"
+							}`}
+						>
+							<Radio.Content className="flex flex-col items-center justify-center text-center w-full">
+								<Radio.Control className="sr-only">
+									<Radio.Indicator />
+								</Radio.Control>
+								<div className="w-11 h-11 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3 border border-slate-200">
+									<XCircleIcon className="w-6 h-6" />
+								</div>
+								<span className="font-semibold text-slate-800 text-base mb-1">
+									No podré asistir
+								</span>
+								<span className="text-xs text-slate-500 leading-snug">
+									Estaré presente en espíritu
+								</span>
+							</Radio.Content>
+						</Radio>
+					</div>
+				</RadioGroup>
 
 				{attending === true && maxCompanions > 0 && (
 					<div className="p-4 bg-[#f8fafc] rounded-2xl border border-slate-200 space-y-2">

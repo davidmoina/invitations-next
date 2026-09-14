@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Button, Input, Label, TextField } from "@heroui/react";
 import { type FormEvent, useState } from "react";
 
 export type SignInFormProps = {
@@ -43,11 +43,11 @@ export function SignInForm({ onSignIn }: SignInFormProps) {
 					</p>
 				</header>
 				<form onSubmit={submit} aria-busy={submitting} className="space-y-5">
-					<div className="space-y-1.5">
-						<label htmlFor="sign-in-email" className={labelCls}>
+					<TextField className="space-y-1.5 w-full">
+						<Label htmlFor="sign-in-email" className={labelCls}>
 							Correo electrónico
-						</label>
-						<input
+						</Label>
+						<Input
 							id="sign-in-email"
 							type="email"
 							value={email}
@@ -57,12 +57,12 @@ export function SignInForm({ onSignIn }: SignInFormProps) {
 							disabled={submitting}
 							className={inputCls}
 						/>
-					</div>
-					<div className="space-y-1.5">
-						<label htmlFor="sign-in-password" className={labelCls}>
+					</TextField>
+					<TextField className="space-y-1.5 w-full">
+						<Label htmlFor="sign-in-password" className={labelCls}>
 							Contraseña
-						</label>
-						<input
+						</Label>
+						<Input
 							id="sign-in-password"
 							type="password"
 							value={password}
@@ -73,7 +73,7 @@ export function SignInForm({ onSignIn }: SignInFormProps) {
 							disabled={submitting}
 							className={inputCls}
 						/>
-					</div>
+					</TextField>
 					{error ? (
 						<p
 							role="alert"

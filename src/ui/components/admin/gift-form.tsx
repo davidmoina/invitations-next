@@ -1,5 +1,12 @@
 "use client";
-import { Button } from "@heroui/react";
+import {
+	Button,
+	Input,
+	Label,
+	NumberField,
+	TextArea,
+	TextField,
+} from "@heroui/react";
 import { useState } from "react";
 
 import { FIELD_CLASS, LABEL_CLASS, orNull } from "./event-form-fields";
@@ -72,58 +79,71 @@ export function GiftForm({
 
 	const formContent = (
 		<form onSubmit={handleSubmit} className="space-y-3">
-			<label htmlFor="gift-title" className={LABEL_CLASS}>
-				Título
-			</label>
-			<input
-				id="gift-title"
-				value={form.title}
-				onChange={(event) => set("title", event.target.value)}
-				className={FIELD_CLASS}
-			/>
+			<TextField className="space-y-1">
+				<Label htmlFor="gift-title" className={LABEL_CLASS}>
+					Título
+				</Label>
+				<Input
+					id="gift-title"
+					value={form.title}
+					onChange={(event) => set("title", event.target.value)}
+					className={FIELD_CLASS}
+				/>
+			</TextField>
 
-			<label htmlFor="gift-description" className={LABEL_CLASS}>
-				Descripción
-			</label>
-			<textarea
-				id="gift-description"
-				value={form.description}
-				onChange={(event) => set("description", event.target.value)}
-				className={FIELD_CLASS}
-			/>
+			<TextField className="space-y-1">
+				<Label htmlFor="gift-description" className={LABEL_CLASS}>
+					Descripción
+				</Label>
+				<TextArea
+					id="gift-description"
+					value={form.description}
+					onChange={(event) => set("description", event.target.value)}
+					className={FIELD_CLASS}
+				/>
+			</TextField>
 
-			<label htmlFor="gift-url" className={LABEL_CLASS}>
-				Enlace
-			</label>
-			<input
-				id="gift-url"
-				type="url"
-				value={form.url}
-				onChange={(event) => set("url", event.target.value)}
-				className={FIELD_CLASS}
-			/>
+			<TextField className="space-y-1">
+				<Label htmlFor="gift-url" className={LABEL_CLASS}>
+					Enlace
+				</Label>
+				<Input
+					id="gift-url"
+					type="url"
+					value={form.url}
+					onChange={(event) => set("url", event.target.value)}
+					className={FIELD_CLASS}
+				/>
+			</TextField>
 
-			<label htmlFor="gift-image" className={LABEL_CLASS}>
-				Imagen
-			</label>
-			<input
-				id="gift-image"
-				value={form.imagePublicId}
-				onChange={(event) => set("imagePublicId", event.target.value)}
-				className={FIELD_CLASS}
-			/>
+			<TextField className="space-y-1">
+				<Label htmlFor="gift-image" className={LABEL_CLASS}>
+					Imagen
+				</Label>
+				<Input
+					id="gift-image"
+					value={form.imagePublicId}
+					onChange={(event) => set("imagePublicId", event.target.value)}
+					className={FIELD_CLASS}
+				/>
+			</TextField>
 
-			<label htmlFor="gift-position" className={LABEL_CLASS}>
-				Posición
-			</label>
-			<input
+			<NumberField
 				id="gift-position"
-				type="number"
-				min={0}
+				minValue={0}
 				value={form.position}
-				onChange={(event) => set("position", Number(event.target.value) || 0)}
-				className={FIELD_CLASS}
-			/>
+				onChange={(val) => set("position", Number.isNaN(val) ? 0 : val)}
+				className="space-y-1"
+			>
+				<Label htmlFor="gift-position" className={LABEL_CLASS}>
+					Posición
+				</Label>
+				<NumberField.Input
+					id="gift-position"
+					type="number"
+					className={FIELD_CLASS}
+				/>
+			</NumberField>
 
 			{error ? (
 				<p role="alert" className="text-sm text-red-700">

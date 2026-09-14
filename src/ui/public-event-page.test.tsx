@@ -97,7 +97,7 @@ describe("PublicEventPage", () => {
 		// RSVP section
 		expect(screen.getByText("¿Nos acompañas?")).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: /^asistiré/i }),
+			screen.getByRole("radio", { name: /^asistiré/i }),
 		).toBeInTheDocument();
 
 		// Gift Registry section
@@ -134,7 +134,7 @@ describe("PublicEventPage", () => {
 
 		expect(screen.getByText("¿Nos acompañas?")).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: /^asistiré/i }),
+			screen.getByRole("radio", { name: /^asistiré/i }),
 		).toBeInTheDocument();
 		expect(container.querySelector("#rsvp")).toBeInTheDocument();
 	});

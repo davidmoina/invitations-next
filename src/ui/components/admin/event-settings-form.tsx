@@ -1,5 +1,15 @@
 "use client";
-import { Button, Label, ListBox, Select } from "@heroui/react";
+import {
+	Button,
+	Checkbox,
+	Input,
+	Label,
+	ListBox,
+	NumberField,
+	Select,
+	TextArea,
+	TextField,
+} from "@heroui/react";
 import { useState } from "react";
 
 import type { AdminEvent, EventDetails } from "#/server/contracts/admin";
@@ -240,17 +250,17 @@ export function EventSettingsForm({
 			</h2>
 
 			<form onSubmit={handleSubmit} className="space-y-4">
-				<div>
-					<label htmlFor="event-title" className={LABEL_CLASS}>
+				<TextField className="space-y-1">
+					<Label htmlFor="event-title" className={LABEL_CLASS}>
 						Título
-					</label>
-					<input
+					</Label>
+					<Input
 						id="event-title"
 						value={form.title}
 						onChange={(e) => set("title", e.target.value)}
 						className={FIELD_CLASS}
 					/>
-				</div>
+				</TextField>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 					<Select
@@ -279,17 +289,17 @@ export function EventSettingsForm({
 							</ListBox>
 						</Select.Popover>
 					</Select>
-					<div>
-						<label htmlFor="event-timezone" className={LABEL_CLASS}>
+					<TextField className="space-y-1">
+						<Label htmlFor="event-timezone" className={LABEL_CLASS}>
 							Zona horaria
-						</label>
-						<input
+						</Label>
+						<Input
 							id="event-timezone"
 							value={form.timezone}
 							onChange={(e) => set("timezone", e.target.value)}
 							className={FIELD_CLASS}
 						/>
-					</div>
+					</TextField>
 					<div>
 						<label htmlFor="event-starts-at" className={LABEL_CLASS}>
 							Fecha y hora
@@ -318,18 +328,18 @@ export function EventSettingsForm({
 
 				{form.eventType === "baby_shower" && (
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-stone-50 border border-stone-200/60">
-						<div>
-							<label htmlFor="event-due-date" className={LABEL_CLASS}>
+						<TextField className="space-y-1">
+							<Label htmlFor="event-due-date" className={LABEL_CLASS}>
 								Fecha prevista de parto
-							</label>
-							<input
+							</Label>
+							<Input
 								id="event-due-date"
 								type="date"
 								value={form.dueDate}
 								onChange={(e) => set("dueDate", e.target.value)}
 								className={FIELD_CLASS}
 							/>
-						</div>
+						</TextField>
 						<Select
 							name="babySex"
 							selectedKey={form.babySex || null}
@@ -363,19 +373,24 @@ export function EventSettingsForm({
 				)}
 
 				{form.eventType === "birthday" && (
-					<div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/60">
-						<label htmlFor="event-turning-age" className={LABEL_CLASS}>
+					<NumberField
+						id="event-turning-age"
+						minValue={0}
+						value={form.turningAge === "" ? NaN : Number(form.turningAge)}
+						onChange={(val) =>
+							set("turningAge", Number.isNaN(val) ? "" : String(val))
+						}
+						className="p-4 rounded-2xl bg-stone-50 border border-stone-200/60 space-y-1"
+					>
+						<Label htmlFor="event-turning-age" className={LABEL_CLASS}>
 							Edad que cumple
-						</label>
-						<input
+						</Label>
+						<NumberField.Input
 							id="event-turning-age"
 							type="number"
-							min={0}
-							value={form.turningAge}
-							onChange={(e) => set("turningAge", e.target.value)}
 							className={FIELD_CLASS}
 						/>
-					</div>
+					</NumberField>
 				)}
 
 				<div className="space-y-2">
@@ -415,17 +430,17 @@ export function EventSettingsForm({
 					))}
 				</div>
 
-				<div>
-					<label htmlFor="event-venue-name" className={LABEL_CLASS}>
+				<TextField className="space-y-1">
+					<Label htmlFor="event-venue-name" className={LABEL_CLASS}>
 						Lugar
-					</label>
-					<input
+					</Label>
+					<Input
 						id="event-venue-name"
 						value={form.venueName}
 						onChange={(e) => set("venueName", e.target.value)}
 						className={FIELD_CLASS}
 					/>
-				</div>
+				</TextField>
 
 				<VenueAddressField
 					address={form.venueAddress}
@@ -436,35 +451,38 @@ export function EventSettingsForm({
 					}}
 				/>
 
-				<div>
-					<label htmlFor="event-description" className={LABEL_CLASS}>
+				<TextField className="space-y-1">
+					<Label htmlFor="event-description" className={LABEL_CLASS}>
 						Descripción
-					</label>
-					<textarea
+					</Label>
+					<TextArea
 						id="event-description"
 						rows={3}
 						value={form.description}
 						onChange={(e) => set("description", e.target.value)}
 						className={FIELD_CLASS}
 					/>
-				</div>
+				</TextField>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-					<div>
-						<label htmlFor="event-max-companions" className={LABEL_CLASS}>
+					<NumberField
+						id="event-max-companions"
+						minValue={0}
+						value={form.maxCompanions}
+						onChange={(val) =>
+							set("maxCompanions", Math.max(0, Number.isNaN(val) ? 0 : val))
+						}
+						className="space-y-1"
+					>
+						<Label htmlFor="event-max-companions" className={LABEL_CLASS}>
 							Máximo de acompañantes
-						</label>
-						<input
+						</Label>
+						<NumberField.Input
 							id="event-max-companions"
 							type="number"
-							min={0}
-							value={form.maxCompanions}
-							onChange={(e) =>
-								set("maxCompanions", Math.max(0, Number(e.target.value) || 0))
-							}
 							className={FIELD_CLASS}
 						/>
-					</div>
+					</NumberField>
 					<Select
 						name="status"
 						selectedKey={form.status}
@@ -499,18 +517,19 @@ export function EventSettingsForm({
 					</Select>
 				</div>
 
-				<label
-					htmlFor="event-gift-registry"
+				<Checkbox
+					id="event-gift-registry"
+					isSelected={form.giftRegistryEnabled}
+					onChange={(checked) => set("giftRegistryEnabled", checked)}
 					className="flex items-center gap-2 text-sm text-on-surface"
 				>
-					<input
-						id="event-gift-registry"
-						type="checkbox"
-						checked={form.giftRegistryEnabled}
-						onChange={(e) => set("giftRegistryEnabled", e.target.checked)}
-					/>
-					Mostrar la lista de regalos
-				</label>
+					<Checkbox.Content className="flex items-center gap-2 cursor-pointer">
+						<Checkbox.Control className="rounded border-stone-300">
+							<Checkbox.Indicator />
+						</Checkbox.Control>
+						Mostrar la lista de regalos
+					</Checkbox.Content>
+				</Checkbox>
 
 				{error && (
 					<p

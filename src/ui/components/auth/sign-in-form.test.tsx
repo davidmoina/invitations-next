@@ -36,6 +36,8 @@ describe("SignInForm", () => {
 		expect(pass.id).toBe("sign-in-password");
 		expect(pass.getAttribute("type")).toBe("password");
 		expect(pass.getAttribute("autocomplete")).toBe("current-password");
+		expect(email).toHaveAttribute("data-slot", "input");
+		expect(pass).toHaveAttribute("data-slot", "input");
 
 		const q = (s: string) => container.querySelector(s);
 		expect(q('label[for="sign-in-email"]')).toBeInTheDocument();

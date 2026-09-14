@@ -1,5 +1,13 @@
 "use client";
-import { Button, Label, ListBox, Select } from "@heroui/react";
+import {
+	Button,
+	Input,
+	Label,
+	ListBox,
+	NumberField,
+	Select,
+	TextField,
+} from "@heroui/react";
 import { useMemo, useState } from "react";
 
 import type { AdminGuest } from "#/server/contracts/admin";
@@ -260,7 +268,7 @@ export function GuestList({
 			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 				<div className="relative flex-1 max-w-md">
 					<SearchIcon className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary" />
-					<input
+					<Input
 						type="text"
 						value={search}
 						onChange={(e) => {
@@ -382,14 +390,14 @@ export function GuestList({
 													className="space-y-4"
 												>
 													<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-														<div>
-															<label
+														<TextField className="space-y-1">
+															<Label
 																htmlFor={`edit-guest-name-${guest.id}`}
 																className={LABEL_CLASS}
 															>
 																Nombre
-															</label>
-															<input
+															</Label>
+															<Input
 																id={`edit-guest-name-${guest.id}`}
 																value={editForm.displayName}
 																onChange={(e) =>
@@ -400,15 +408,15 @@ export function GuestList({
 																}
 																className={FIELD_CLASS}
 															/>
-														</div>
-														<div>
-															<label
+														</TextField>
+														<TextField className="space-y-1">
+															<Label
 																htmlFor={`edit-guest-email-${guest.id}`}
 																className={LABEL_CLASS}
 															>
 																Email
-															</label>
-															<input
+															</Label>
+															<Input
 																id={`edit-guest-email-${guest.id}`}
 																type="email"
 																value={editForm.email}
@@ -420,7 +428,7 @@ export function GuestList({
 																}
 																className={FIELD_CLASS}
 															/>
-														</div>
+														</TextField>
 														<Select
 															name="attending"
 															selectedKey={editForm.attending}
@@ -469,30 +477,33 @@ export function GuestList({
 																</ListBox>
 															</Select.Popover>
 														</Select>
-														<div>
-															<label
+														<NumberField
+															id={`edit-guest-companions-${guest.id}`}
+															minValue={0}
+															value={editForm.companions}
+															onChange={(val) =>
+																setEditForm((c) => ({
+																	...c,
+																	companions: Math.max(
+																		0,
+																		Number.isNaN(val) ? 0 : val,
+																	),
+																}))
+															}
+															className="space-y-1"
+														>
+															<Label
 																htmlFor={`edit-guest-companions-${guest.id}`}
 																className={LABEL_CLASS}
 															>
 																Acompañantes
-															</label>
-															<input
+															</Label>
+															<NumberField.Input
 																id={`edit-guest-companions-${guest.id}`}
 																type="number"
-																min={0}
-																value={editForm.companions}
-																onChange={(e) =>
-																	setEditForm((c) => ({
-																		...c,
-																		companions: Math.max(
-																			0,
-																			Number(e.target.value) || 0,
-																		),
-																	}))
-																}
 																className={FIELD_CLASS}
 															/>
-														</div>
+														</NumberField>
 													</div>
 
 													{editError && (

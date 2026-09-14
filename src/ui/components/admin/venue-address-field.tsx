@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Button, Input, Label, TextField } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
 
 import { FIELD_CLASS, LABEL_CLASS } from "./event-form-fields";
@@ -100,29 +100,29 @@ export function VenueAddressField({
 	if (!resolvedApiKey || loadError) {
 		return (
 			<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-				<div>
-					<label htmlFor="event-venue-address" className={LABEL_CLASS}>
+				<TextField className="space-y-1">
+					<Label htmlFor="event-venue-address" className={LABEL_CLASS}>
 						Dirección
-					</label>
-					<input
+					</Label>
+					<Input
 						id="event-venue-address"
 						value={address}
 						onChange={(e) => onChange({ address: e.target.value, mapUrl })}
 						className={FIELD_CLASS}
 					/>
-				</div>
-				<div>
-					<label htmlFor="event-venue-map" className={LABEL_CLASS}>
+				</TextField>
+				<TextField className="space-y-1">
+					<Label htmlFor="event-venue-map" className={LABEL_CLASS}>
 						Enlace al mapa
-					</label>
-					<input
+					</Label>
+					<Input
 						id="event-venue-map"
 						type="url"
 						value={mapUrl}
 						onChange={(e) => onChange({ address, mapUrl: e.target.value })}
 						className={FIELD_CLASS}
 					/>
-				</div>
+				</TextField>
 				{loadError && (
 					<p className="sm:col-span-2 text-xs text-error">
 						No se pudo cargar Google Maps.

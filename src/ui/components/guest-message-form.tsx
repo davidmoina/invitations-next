@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Button, Label, TextArea, TextField } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { CheckCircleIcon, MessageSquareIcon } from "./icons";
 
@@ -121,11 +121,11 @@ export function GuestMessageForm({
 			</div>
 
 			<form onSubmit={handleSubmit} className="space-y-4 text-left">
-				<div>
-					<label htmlFor="guest-message-body" className="sr-only">
+				<TextField className="space-y-1">
+					<Label htmlFor="guest-message-body" className="sr-only">
 						Mensaje para los anfitriones
-					</label>
-					<textarea
+					</Label>
+					<TextArea
 						id="guest-message-body"
 						rows={4}
 						value={body}
@@ -133,7 +133,7 @@ export function GuestMessageForm({
 						placeholder="Escribe unas palabras para los anfitriones..."
 						className="w-full p-4 bg-[#f8fafc] border border-slate-200 rounded-2xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2c4d6f]/20 focus:border-[#2c4d6f] transition-all resize-none"
 					/>
-				</div>
+				</TextField>
 
 				{errorMessage && (
 					<p className="text-xs text-red-600 font-medium">{errorMessage}</p>

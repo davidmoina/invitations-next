@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Button, Input, Label, TextField } from "@heroui/react";
 import { type FormEvent, useState } from "react";
 import { ArrowRightIcon, CheckCircleIcon, SpinnerIcon } from "./icons";
 
@@ -82,8 +82,8 @@ export function GuestAccessGate({ onRequestGuestLink }: GuestAccessGateProps) {
 			</div>
 
 			<form onSubmit={handleSubmit} className="space-y-5" noValidate>
-				<div className="space-y-1.5">
-					<label
+				<TextField isInvalid={Boolean(contactError)} className="space-y-1.5">
+					<Label
 						htmlFor="guest-contact"
 						className="block text-sm font-medium text-on-surface"
 					>
@@ -91,8 +91,8 @@ export function GuestAccessGate({ onRequestGuestLink }: GuestAccessGateProps) {
 						<span className="text-error" aria-hidden="true">
 							*
 						</span>
-					</label>
-					<input
+					</Label>
+					<Input
 						id="guest-contact"
 						name="contact"
 						type="text"
@@ -120,7 +120,7 @@ export function GuestAccessGate({ onRequestGuestLink }: GuestAccessGateProps) {
 							{contactError}
 						</p>
 					)}
-				</div>
+				</TextField>
 
 				<div className="pt-2">
 					<Button
