@@ -59,6 +59,28 @@ body {
 	-webkit-font-smoothing: antialiased;
 }
 
+/*
+ * Google Places autocomplete widget (admin venue field). It is a web
+ * component, so Tailwind utilities do not reach its internals: pin it to the
+ * light scheme (it otherwise follows the OS) and map its theme hooks to the
+ * same look as the plain form inputs.
+ */
+gmp-place-autocomplete {
+	color-scheme: light;
+	display: block;
+	width: 100%;
+	background-color: #ffffff;
+	border: 1px solid var(--color-stone-300);
+	border-radius: var(--radius-xl);
+	font-size: 0.875rem;
+	--gmp-mat-font-family: var(--font-sans);
+	--gmp-mat-color-surface: #ffffff;
+	--gmp-mat-color-on-surface: var(--color-on-surface);
+	--gmp-mat-color-on-surface-variant: var(--color-secondary);
+	--gmp-mat-color-primary: var(--color-primary);
+	--gmp-mat-color-outline-decorative: var(--color-stone-300);
+}
+
 .font-cormorant {
 	font-family: "Cormorant Garamond", "EB Garamond", Georgia, serif;
 }

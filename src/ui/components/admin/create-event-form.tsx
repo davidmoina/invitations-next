@@ -20,6 +20,7 @@ import {
 	orNull,
 	toIso,
 } from "./event-form-fields";
+import { VenueAddressField } from "./venue-address-field";
 
 export type CreateEventFormProps = {
 	/** Resolves with the created event so the route can navigate to it. */
@@ -376,31 +377,14 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 					/>
 				</div>
 
-				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-					<div>
-						<label htmlFor="new-event-venue-address" className={LABEL_CLASS}>
-							Dirección
-						</label>
-						<input
-							id="new-event-venue-address"
-							value={form.venueAddress}
-							onChange={(e) => set("venueAddress", e.target.value)}
-							className={FIELD_CLASS}
-						/>
-					</div>
-					<div>
-						<label htmlFor="new-event-venue-map-url" className={LABEL_CLASS}>
-							Enlace al mapa
-						</label>
-						<input
-							id="new-event-venue-map-url"
-							type="url"
-							value={form.venueMapUrl}
-							onChange={(e) => set("venueMapUrl", e.target.value)}
-							className={FIELD_CLASS}
-						/>
-					</div>
-				</div>
+				<VenueAddressField
+					address={form.venueAddress}
+					mapUrl={form.venueMapUrl}
+					onChange={(next) => {
+						set("venueAddress", next.address);
+						set("venueMapUrl", next.mapUrl);
+					}}
+				/>
 
 				<div>
 					<label htmlFor="new-event-description" className={LABEL_CLASS}>

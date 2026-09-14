@@ -17,6 +17,7 @@ import {
 	toIso,
 	toLocalInput,
 } from "./event-form-fields";
+import { VenueAddressField } from "./venue-address-field";
 
 /** Everything an organizer may edit: the identity fields are not editable. */
 export type UpdateEventInput = Omit<AdminEvent, "id" | "slug" | "updatedAt">;
@@ -405,31 +406,14 @@ export function EventSettingsForm({
 					/>
 				</div>
 
-				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-					<div>
-						<label htmlFor="event-venue-address" className={LABEL_CLASS}>
-							Dirección
-						</label>
-						<input
-							id="event-venue-address"
-							value={form.venueAddress}
-							onChange={(e) => set("venueAddress", e.target.value)}
-							className={FIELD_CLASS}
-						/>
-					</div>
-					<div>
-						<label htmlFor="event-venue-map" className={LABEL_CLASS}>
-							Enlace al mapa
-						</label>
-						<input
-							id="event-venue-map"
-							type="url"
-							value={form.venueMapUrl}
-							onChange={(e) => set("venueMapUrl", e.target.value)}
-							className={FIELD_CLASS}
-						/>
-					</div>
-				</div>
+				<VenueAddressField
+					address={form.venueAddress}
+					mapUrl={form.venueMapUrl}
+					onChange={(next) => {
+						set("venueAddress", next.address);
+						set("venueMapUrl", next.mapUrl);
+					}}
+				/>
 
 				<div>
 					<label htmlFor="event-description" className={LABEL_CLASS}>
