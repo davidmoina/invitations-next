@@ -33,6 +33,15 @@ export async function decodeAccessError(
 	return parsed.success ? new AccessError(parsed.data.code) : null;
 }
 
+/** Failures with a typed client response; everything else is a 500. */
+export function isExpectedFailure(error: unknown): boolean {
+	return (
+		error instanceof AccessError ||
+		error instanceof CompanionCapError ||
+		error instanceof z.ZodError
+	);
+}
+
 export function errorResponse(error: unknown): Response {
 	if (error instanceof AccessError) return accessErrorResponse(error);
 	if (error instanceof CompanionCapError)
