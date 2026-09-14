@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@heroui/react";
 import { useMemo, useState } from "react";
 
 import type { AdminGuest } from "#/server/contracts/admin";
@@ -242,14 +243,15 @@ export function GuestList({
 				</div>
 				{onAddGuests && (
 					<div className="shrink-0 self-start sm:self-center">
-						<button
+						<Button
 							type="button"
-							onClick={() => setIsAddModalOpen(true)}
-							className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-primary"
+							variant="primary"
+							size="sm"
+							onPress={() => setIsAddModalOpen(true)}
 						>
 							<PlusIcon className="w-4 h-4" />
 							<span>Añadir invitado</span>
-						</button>
+						</Button>
 					</div>
 				)}
 			</div>
@@ -483,21 +485,24 @@ export function GuestList({
 													)}
 
 													<div className="flex items-center gap-2">
-														<button
+														<Button
 															type="submit"
-															disabled={isSaving}
-															className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-medium shadow-xs disabled:opacity-40"
+															variant="primary"
+															size="sm"
+															isDisabled={isSaving}
+															isPending={isSaving}
 														>
 															{isSaving ? "Guardando…" : "Guardar cambios"}
-														</button>
-														<button
+														</Button>
+														<Button
 															type="button"
-															disabled={isSaving}
-															onClick={cancelEdit}
-															className="px-4 py-2 rounded-xl border border-stone-300 text-on-surface text-xs font-medium hover:bg-stone-100 disabled:opacity-40"
+															variant="secondary"
+															size="sm"
+															isDisabled={isSaving}
+															onPress={cancelEdit}
 														>
 															Cancelar
-														</button>
+														</Button>
 													</div>
 												</form>
 											</td>
@@ -547,23 +552,27 @@ export function GuestList({
 										<td className="px-6 py-4 text-right">
 											<div className="flex flex-col items-end gap-1">
 												<div className="flex items-center justify-end gap-2">
-													<button
-														type="button"
-														onClick={() => handleIssueGuestLink(guest.id)}
-														disabled={isIssuing}
-														title="Generar un nuevo enlace invalida el enlace anterior del invitado"
-														className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-on-surface hover:bg-stone-100 transition-colors focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-40"
-													>
-														{isIssuing ? "Copiando…" : "Copiar enlace"}
-													</button>
-													<button
+													<span title="Generar un nuevo enlace invalida el enlace anterior del invitado">
+														<Button
+															type="button"
+															onPress={() => handleIssueGuestLink(guest.id)}
+															isDisabled={isIssuing}
+															isPending={isIssuing}
+															variant="outline"
+															size="sm"
+														>
+															{isIssuing ? "Copiando…" : "Copiar enlace"}
+														</Button>
+													</span>
+													<Button
 														type="button"
 														aria-label={`Editar ${guest.displayName}`}
-														onClick={() => startEdit(guest)}
-														className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-on-surface hover:bg-stone-100 transition-colors focus-visible:ring-2 focus-visible:ring-primary"
+														onPress={() => startEdit(guest)}
+														variant="outline"
+														size="sm"
 													>
 														Editar
-													</button>
+													</Button>
 												</div>
 												{isCopied && (
 													<output className="text-xs text-success-green font-medium block">
@@ -595,25 +604,27 @@ export function GuestList({
 					invitados
 				</p>
 				<div className="flex items-center gap-2">
-					<button
+					<Button
 						type="button"
-						disabled={currentPage <= 1}
-						onClick={() => setPage((p) => Math.max(1, p - 1))}
-						className="px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+						variant="outline"
+						size="sm"
+						isDisabled={currentPage <= 1}
+						onPress={() => setPage((p) => Math.max(1, p - 1))}
 					>
 						Anterior
-					</button>
+					</Button>
 					<span className="font-medium px-2">
 						Página {currentPage} de {totalPages}
 					</span>
-					<button
+					<Button
 						type="button"
-						disabled={currentPage >= totalPages}
-						onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-						className="px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+						variant="outline"
+						size="sm"
+						isDisabled={currentPage >= totalPages}
+						onPress={() => setPage((p) => Math.min(totalPages, p + 1))}
 					>
 						Siguiente
-					</button>
+					</Button>
 				</div>
 			</div>
 

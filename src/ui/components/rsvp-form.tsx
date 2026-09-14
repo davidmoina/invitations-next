@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@heroui/react";
 import { useState } from "react";
 import type { PublicError } from "#/server/contracts/errors";
 import type {
@@ -206,29 +207,33 @@ export function RsvpForm({
 								</span>
 							</div>
 							<div className="flex items-center gap-3">
-								<button
+								<Button
 									type="button"
 									aria-label="Reducir acompañantes"
-									disabled={companions <= 0}
-									onClick={() => setCompanions((c) => Math.max(0, c - 1))}
-									className="w-8 h-8 rounded-full border border-slate-300 bg-white flex items-center justify-center text-sm font-bold text-slate-700 disabled:opacity-30 hover:bg-slate-100 shadow-2xs"
+									variant="outline"
+									size="sm"
+									isIconOnly
+									isDisabled={companions <= 0}
+									onPress={() => setCompanions((c) => Math.max(0, c - 1))}
 								>
 									-
-								</button>
+								</Button>
 								<span className="font-semibold text-base w-4 text-center text-slate-800">
 									{companions}
 								</span>
-								<button
+								<Button
 									type="button"
 									aria-label="Incrementar acompañantes"
-									disabled={companions >= maxCompanions}
-									onClick={() =>
+									variant="outline"
+									size="sm"
+									isIconOnly
+									isDisabled={companions >= maxCompanions}
+									onPress={() =>
 										setCompanions((c) => Math.min(maxCompanions, c + 1))
 									}
-									className="w-8 h-8 rounded-full border border-slate-300 bg-white flex items-center justify-center text-sm font-bold text-slate-700 disabled:opacity-30 hover:bg-slate-100 shadow-2xs"
 								>
 									+
-								</button>
+								</Button>
 							</div>
 						</div>
 						<p className="text-xs text-slate-500 text-right">
@@ -243,10 +248,12 @@ export function RsvpForm({
 					</div>
 				)}
 
-				<button
+				<Button
 					type="submit"
-					disabled={attending === null || isSubmitting}
-					className="w-full py-4 px-6 rounded-2xl bg-[#2c4d6f] hover:bg-[#1f3750] text-white font-medium text-base shadow-lg shadow-slate-900/15 hover:shadow-xl active:scale-[0.99] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+					variant="primary"
+					fullWidth
+					isDisabled={attending === null || isSubmitting}
+					isPending={isSubmitting}
 				>
 					{isSubmitting ? (
 						<span>
@@ -259,7 +266,7 @@ export function RsvpForm({
 								: "Confirmar respuesta"}
 						</span>
 					)}
-				</button>
+				</Button>
 			</form>
 		</section>
 	);

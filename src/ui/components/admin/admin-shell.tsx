@@ -1,4 +1,5 @@
 "use client";
+import { Button, buttonVariants } from "@heroui/react";
 import { useState } from "react";
 import {
 	CalendarIcon,
@@ -92,19 +93,22 @@ export function AdminShell({
 					Invit
 				</a>
 				<div className="flex items-center gap-2">
-					<button
+					<Button
 						type="button"
+						variant="ghost"
+						size="sm"
+						isIconOnly
 						aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
 						aria-expanded={mobileMenuOpen}
-						onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-						className="p-2 rounded-lg text-secondary hover:text-primary hover:bg-surface-variant/40 transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
+						onPress={() => setMobileMenuOpen(!mobileMenuOpen)}
+						className="p-2 rounded-lg text-secondary hover:text-primary hover:bg-surface-variant/40 transition-colors"
 					>
 						{mobileMenuOpen ? (
 							<XCircleIcon className="w-6 h-6" />
 						) : (
 							<MenuIcon className="w-6 h-6" />
 						)}
-					</button>
+					</Button>
 				</div>
 			</nav>
 
@@ -121,14 +125,17 @@ export function AdminShell({
 							<span className="font-serif italic text-xl font-semibold text-primary">
 								Invit
 							</span>
-							<button
+							<Button
 								type="button"
+								variant="ghost"
+								size="sm"
+								isIconOnly
 								aria-label="Cerrar menú"
-								onClick={() => setMobileMenuOpen(false)}
-								className="p-2 rounded-lg text-secondary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
+								onPress={() => setMobileMenuOpen(false)}
+								className="p-2 rounded-lg text-secondary hover:text-primary"
 							>
 								<XCircleIcon className="w-5 h-5" />
-							</button>
+							</Button>
 						</div>
 
 						{currentEventTitle ? (
@@ -190,7 +197,10 @@ export function AdminShell({
 							<a
 								href={newEventHref}
 								onClick={() => setMobileMenuOpen(false)}
-								className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white font-medium text-sm shadow-xs hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-primary"
+								className={buttonVariants({
+									variant: "primary",
+									className: "w-full flex items-center justify-center gap-2",
+								})}
 							>
 								<PlusIcon className="w-4 h-4" />
 								<span>Crear evento</span>
@@ -199,17 +209,19 @@ export function AdminShell({
 
 						{onSignOut ? (
 							<div className="mt-auto pt-6 border-t border-surface-variant/50">
-								<button
+								<Button
 									type="button"
-									onClick={() => {
+									variant="ghost"
+									fullWidth
+									onPress={() => {
 										setMobileMenuOpen(false);
 										void onSignOut();
 									}}
-									className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-secondary hover:text-error hover:bg-stone-100 transition-colors"
+									className="flex items-center justify-start gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-secondary hover:text-error hover:bg-stone-100 transition-colors"
 								>
 									<LogOutIcon className="w-5 h-5" />
 									<span>Cerrar sesión</span>
-								</button>
+								</Button>
 							</div>
 						) : null}
 					</div>
@@ -289,14 +301,17 @@ export function AdminShell({
 					<div className="mt-6 px-1">
 						<a
 							href={newEventHref}
-							className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white font-medium text-sm shadow-xs hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
+							className={buttonVariants({
+								variant: "primary",
+								className: "w-full flex items-center justify-center gap-2",
+							})}
 						>
 							<PlusIcon className="w-4 h-4" />
 							<span>Crear evento</span>
 						</a>
 					</div>
 
-					<div className="mt-auto pt-4 border-t border-surface-variant/50 space-y-1">
+					<div className="mt-auto pt-6 border-t border-surface-variant/50 space-y-1">
 						<span
 							aria-disabled="true"
 							className="flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-medium text-secondary/60 cursor-not-allowed"
@@ -306,14 +321,16 @@ export function AdminShell({
 						</span>
 
 						{onSignOut ? (
-							<button
+							<Button
 								type="button"
-								onClick={() => void onSignOut()}
-								className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-secondary hover:text-error hover:bg-stone-100 transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
+								variant="ghost"
+								fullWidth
+								onPress={() => void onSignOut()}
+								className="flex items-center justify-start gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-secondary hover:text-error hover:bg-stone-100 transition-colors"
 							>
 								<LogOutIcon className="w-4 h-4" />
 								<span>Cerrar sesión</span>
-							</button>
+							</Button>
 						) : null}
 					</div>
 				</nav>

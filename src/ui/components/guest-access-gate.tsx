@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@heroui/react";
 import { type FormEvent, useState } from "react";
 import { ArrowRightIcon, CheckCircleIcon, SpinnerIcon } from "./icons";
 
@@ -122,10 +123,12 @@ export function GuestAccessGate({ onRequestGuestLink }: GuestAccessGateProps) {
 				</div>
 
 				<div className="pt-2">
-					<button
+					<Button
 						type="submit"
-						disabled={isSubmitting}
-						className="w-full bg-primary text-white font-medium text-sm py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+						variant="primary"
+						fullWidth
+						isDisabled={isSubmitting}
+						isPending={isSubmitting}
 					>
 						{isSubmitting ? (
 							<>
@@ -138,7 +141,7 @@ export function GuestAccessGate({ onRequestGuestLink }: GuestAccessGateProps) {
 								<ArrowRightIcon className="w-4 h-4" />
 							</>
 						)}
-					</button>
+					</Button>
 				</div>
 			</form>
 		</section>

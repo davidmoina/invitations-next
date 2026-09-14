@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@heroui/react";
 import { useState } from "react";
 
 import type { AdminMembership } from "#/server/contracts/admin";
@@ -86,38 +87,43 @@ export function CollaboratorsPanel({
 								<div className="flex items-center gap-2 shrink-0">
 									{member.role === "editor" &&
 										(confirmingTransfer === member.userId ? (
-											<button
+											<Button
 												type="button"
-												disabled={pending !== null}
-												onClick={() =>
+												variant="primary"
+												size="sm"
+												isDisabled={pending !== null}
+												isPending={pending === member.userId}
+												onPress={() =>
 													run(member.userId, () =>
 														onTransfer(member.userId),
 													).then(() => setConfirmingTransfer(null))
 												}
-												className="text-xs font-medium px-3 py-1.5 rounded-lg bg-primary text-white disabled:opacity-40"
 											>
 												Confirmar traspaso
-											</button>
+											</Button>
 										) : (
-											<button
+											<Button
 												type="button"
-												disabled={pending !== null}
-												onClick={() => setConfirmingTransfer(member.userId)}
-												className="text-xs font-medium px-3 py-1.5 rounded-lg border border-stone-300 text-on-surface disabled:opacity-40"
+												variant="outline"
+												size="sm"
+												isDisabled={pending !== null}
+												onPress={() => setConfirmingTransfer(member.userId)}
 											>
 												Transferir a {member.displayName}
-											</button>
+											</Button>
 										))}
-									<button
+									<Button
 										type="button"
-										disabled={pending !== null}
-										onClick={() =>
+										variant="danger"
+										size="sm"
+										isDisabled={pending !== null}
+										isPending={pending === member.userId}
+										onPress={() =>
 											run(member.userId, () => onRemove(member.userId))
 										}
-										className="text-xs font-medium px-3 py-1.5 rounded-lg border border-stone-300 text-error disabled:opacity-40"
 									>
 										Quitar a {member.displayName}
-									</button>
+									</Button>
 								</div>
 							)}
 						</li>
@@ -142,13 +148,14 @@ export function CollaboratorsPanel({
 							className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm"
 						/>
 					</div>
-					<button
+					<Button
 						type="submit"
-						disabled={pending !== null}
-						className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium disabled:opacity-40"
+						variant="primary"
+						isDisabled={pending !== null}
+						isPending={pending === "invite"}
 					>
 						Invitar
-					</button>
+					</Button>
 				</form>
 			)}
 

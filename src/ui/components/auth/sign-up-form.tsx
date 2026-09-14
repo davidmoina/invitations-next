@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@heroui/react";
 import { type FormEvent, useState } from "react";
 
 export type SignUpFormProps = {
@@ -102,13 +103,15 @@ export function SignUpForm({ onSignUp }: SignUpFormProps) {
 							{error}
 						</p>
 					) : null}
-					<button
+					<Button
 						type="submit"
-						disabled={submitting}
-						className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl bg-primary text-white text-sm sm:text-base font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 motion-reduce:transition-none disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+						variant="primary"
+						fullWidth
+						isDisabled={submitting}
+						isPending={submitting}
 					>
 						{submitting ? "Creando cuenta…" : "Crear cuenta"}
-					</button>
+					</Button>
 				</form>
 			</div>
 		</div>

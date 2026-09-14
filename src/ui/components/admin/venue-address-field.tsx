@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
 
 import { FIELD_CLASS, LABEL_CLASS } from "./event-form-fields";
@@ -143,13 +144,15 @@ export function VenueAddressField({
 			{address && (
 				<div className="mt-2 flex items-center gap-2 text-sm text-on-surface">
 					<span>{address}</span>
-					<button
+					<Button
 						type="button"
-						onClick={() => onChange({ address: "", mapUrl: "" })}
-						className="text-xs font-medium text-secondary hover:underline"
+						variant="ghost"
+						size="sm"
+						onPress={() => onChange({ address: "", mapUrl: "" })}
+						className="text-xs font-medium text-secondary hover:underline p-0 h-auto"
 					>
 						Quitar
-					</button>
+					</Button>
 				</div>
 			)}
 

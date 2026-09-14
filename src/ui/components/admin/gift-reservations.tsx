@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@heroui/react";
 import { useState } from "react";
 
 import type { AdminGift } from "#/server/contracts/admin";
@@ -175,14 +176,16 @@ export function GiftReservations({
 					</p>
 				</div>
 				{onCreateGift && (
-					<button
+					<Button
 						type="button"
-						onClick={() => setIsAddGiftModalOpen(true)}
-						className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-primary self-start sm:self-auto"
+						variant="primary"
+						size="sm"
+						onPress={() => setIsAddGiftModalOpen(true)}
+						className="self-start sm:self-auto"
 					>
 						<PlusIcon className="w-4 h-4" />
 						<span>Añadir regalo</span>
-					</button>
+					</Button>
 				)}
 			</div>
 
@@ -314,21 +317,24 @@ export function GiftReservations({
 									)}
 
 									<div className="flex items-center gap-2">
-										<button
+										<Button
 											type="submit"
-											disabled={isSaving}
-											className="px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-medium disabled:opacity-40"
+											variant="primary"
+											size="sm"
+											isDisabled={isSaving}
+											isPending={isSaving}
 										>
 											{isSaving ? "Guardando…" : "Guardar cambios"}
-										</button>
-										<button
+										</Button>
+										<Button
 											type="button"
-											disabled={isSaving}
-											onClick={cancelEdit}
-											className="px-3 py-1.5 rounded-lg border border-stone-300 text-on-surface text-xs font-medium hover:bg-stone-100 disabled:opacity-40"
+											variant="secondary"
+											size="sm"
+											isDisabled={isSaving}
+											onPress={cancelEdit}
 										>
 											Cancelar
-										</button>
+										</Button>
 									</div>
 								</form>
 							) : (
@@ -349,24 +355,27 @@ export function GiftReservations({
 										)}
 									</div>
 									<div className="flex items-center gap-2 shrink-0">
-										<button
+										<Button
 											type="button"
+											variant="outline"
+											size="sm"
 											aria-label={`Editar ${displayedGift.title}`}
-											disabled={pending !== null}
-											onClick={() => startEdit(displayedGift)}
-											className="text-xs font-medium px-3 py-1.5 rounded-lg border border-stone-300 text-on-surface hover:bg-stone-100 disabled:opacity-40"
+											isDisabled={pending !== null}
+											onPress={() => startEdit(displayedGift)}
 										>
 											Editar
-										</button>
+										</Button>
 										{displayedGift.reservedBy && (
-											<button
+											<Button
 												type="button"
-												disabled={pending !== null}
-												onClick={() => cancel(displayedGift)}
-												className="text-xs font-medium px-3 py-1.5 rounded-lg border border-stone-300 text-error hover:bg-stone-100 disabled:opacity-40"
+												variant="danger"
+												size="sm"
+												isDisabled={pending !== null}
+												isPending={pending === displayedGift.id}
+												onPress={() => cancel(displayedGift)}
 											>
 												Cancelar reserva de {displayedGift.title}
-											</button>
+											</Button>
 										)}
 									</div>
 								</div>

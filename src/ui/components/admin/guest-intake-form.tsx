@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@heroui/react";
 import { useState } from "react";
 
 import { FIELD_CLASS, LABEL_CLASS, orNull } from "./event-form-fields";
@@ -129,24 +130,26 @@ export function GuestIntakeForm({
 			) : null}
 
 			<div className="flex flex-wrap items-center gap-3 pt-2">
-				<button
+				<Button
 					type="submit"
 					name="intent"
 					value={ADD_INTENT}
-					disabled={submitting}
-					className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs focus-visible:ring-2 focus-visible:ring-primary"
+					variant="primary"
+					isDisabled={submitting}
+					isPending={submitting && !isAnother}
 				>
 					{submitting && !isAnother ? "Añadiendo…" : "Añadir invitado"}
-				</button>
-				<button
+				</Button>
+				<Button
 					type="submit"
 					name="intent"
 					value={ADD_ANOTHER_INTENT}
-					disabled={submitting}
-					className="px-4 py-2 rounded-xl border border-stone-300 bg-white text-on-surface text-sm font-medium hover:bg-stone-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary"
+					variant="secondary"
+					isDisabled={submitting}
+					isPending={submitting && isAnother}
 				>
 					{submitting && isAnother ? "Añadiendo…" : "Guardar y añadir otro"}
-				</button>
+				</Button>
 			</div>
 		</form>
 	);

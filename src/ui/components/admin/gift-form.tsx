@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@heroui/react";
 import { useState } from "react";
 
 import { FIELD_CLASS, LABEL_CLASS, orNull } from "./event-form-fields";
@@ -130,13 +131,14 @@ export function GiftForm({
 				</p>
 			) : null}
 			<div className="pt-2">
-				<button
+				<Button
 					type="submit"
-					disabled={submitting}
-					className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs focus-visible:ring-2 focus-visible:ring-primary"
+					variant="primary"
+					isDisabled={submitting}
+					isPending={submitting}
 				>
 					{submitting ? "Añadiendo…" : "Añadir regalo"}
-				</button>
+				</Button>
 			</div>
 		</form>
 	);

@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@heroui/react";
 import { useState } from "react";
 
 import type { AdminEvent, EventDetails } from "#/server/contracts/admin";
@@ -362,13 +363,14 @@ export function EventSettingsForm({
 				<div className="space-y-2">
 					<div className="flex items-center justify-between">
 						<span className={LABEL_CLASS}>Personas homenajeadas</span>
-						<button
+						<Button
 							type="button"
-							onClick={addHonoree}
-							className="text-xs font-medium text-primary hover:underline"
+							variant="ghost"
+							size="sm"
+							onPress={addHonoree}
 						>
 							Añadir persona homenajeada
-						</button>
+						</Button>
 					</div>
 					{form.honorees.map((item, index) => (
 						<div key={item.id} className="flex items-center gap-2">
@@ -381,14 +383,15 @@ export function EventSettingsForm({
 								className={FIELD_CLASS}
 							/>
 							{form.honorees.length > 1 && (
-								<button
+								<Button
 									type="button"
-									onClick={() => removeHonoree(item.id)}
+									variant="danger"
+									size="sm"
 									aria-label={`Eliminar homenajeado ${index + 1}`}
-									className="px-2 py-2 text-xs text-secondary hover:text-red-700"
+									onPress={() => removeHonoree(item.id)}
 								>
 									Eliminar
-								</button>
+								</Button>
 							)}
 						</div>
 					))}
@@ -494,13 +497,14 @@ export function EventSettingsForm({
 					</output>
 				)}
 
-				<button
+				<Button
 					type="submit"
-					disabled={saving}
-					className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium disabled:opacity-40"
+					variant="primary"
+					isDisabled={saving}
+					isPending={saving}
 				>
 					{saving ? "Guardando..." : "Guardar cambios"}
-				</button>
+				</Button>
 			</form>
 
 			{isOwner && (
@@ -526,41 +530,42 @@ export function EventSettingsForm({
 									irreversible.
 								</p>
 								<div className="flex items-center gap-2">
-									<button
+									<Button
 										type="button"
-										disabled={deleting}
-										onClick={handleDelete}
-										className="px-4 py-2 bg-error text-white rounded-lg text-sm font-medium hover:bg-error/90 transition-colors disabled:opacity-40"
+										variant="danger"
+										isDisabled={deleting}
+										isPending={deleting}
+										onPress={handleDelete}
 									>
 										{deleting ? "Archivando…" : "Confirmar archivado"}
-									</button>
-									<button
+									</Button>
+									<Button
 										type="button"
-										disabled={deleting}
-										onClick={() => {
+										variant="secondary"
+										isDisabled={deleting}
+										onPress={() => {
 											setConfirmingDelete(false);
 											setDeleteError(null);
 										}}
-										className="px-4 py-2 border border-stone-300 rounded-lg text-sm font-medium text-on-surface hover:bg-stone-50 transition-colors disabled:opacity-40"
 									>
 										Cancelar
-									</button>
+									</Button>
 								</div>
 							</div>
 						) : (
-							<button
+							<Button
 								type="button"
-								disabled={deleting || event.status === "archived" || deleted}
-								onClick={() => {
+								variant="danger"
+								isDisabled={deleting || event.status === "archived" || deleted}
+								onPress={() => {
 									setConfirmingDelete(true);
 									setDeleteError(null);
 								}}
-								className="px-4 py-2 border border-error/30 text-error hover:bg-error-container/50 rounded-lg text-sm font-medium transition-colors shrink-0 disabled:opacity-40"
 							>
 								{event.status === "archived" || deleted
 									? "Evento archivado"
 									: "Archivar evento"}
-							</button>
+							</Button>
 						)}
 					</div>
 					{deleteError && (

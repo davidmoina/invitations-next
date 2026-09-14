@@ -54,6 +54,7 @@ describe("SignUpForm", () => {
 
 		const form = q("form");
 		const btn = screen.getByRole("button", { name: "Crear cuenta" });
+		expect(btn).toHaveAttribute("data-slot", "button");
 		expect(form).toHaveAttribute("aria-busy", "false");
 
 		await user.click(btn);

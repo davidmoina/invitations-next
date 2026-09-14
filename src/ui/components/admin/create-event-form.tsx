@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@heroui/react";
 import { useState } from "react";
 
 import type {
@@ -306,13 +307,14 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 				<div className="space-y-2">
 					<div className="flex items-center justify-between">
 						<span className={LABEL_CLASS}>Personas homenajeadas</span>
-						<button
+						<Button
 							type="button"
-							onClick={addHonoree}
-							className="text-xs font-medium text-primary hover:underline"
+							variant="ghost"
+							size="sm"
+							onPress={addHonoree}
 						>
 							Añadir persona homenajeada
-						</button>
+						</Button>
 					</div>
 					{form.honorees.map((item, index) => (
 						<div key={item.id} className="flex items-center gap-2">
@@ -325,14 +327,15 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 								className={FIELD_CLASS}
 							/>
 							{form.honorees.length > 1 && (
-								<button
+								<Button
 									type="button"
-									onClick={() => removeHonoree(item.id)}
+									variant="danger"
+									size="sm"
 									aria-label={`Eliminar homenajeado ${index + 1}`}
-									className="px-2 py-2 text-xs text-secondary hover:text-red-700"
+									onPress={() => removeHonoree(item.id)}
 								>
 									Eliminar
-								</button>
+								</Button>
 							)}
 						</div>
 					))}
@@ -436,13 +439,14 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 					</p>
 				) : null}
 
-				<button
+				<Button
 					type="submit"
-					disabled={submitting}
-					className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-medium disabled:opacity-60"
+					variant="primary"
+					isDisabled={submitting}
+					isPending={submitting}
 				>
 					{submitting ? "Creando…" : "Crear evento"}
-				</button>
+				</Button>
 			</form>
 		</section>
 	);

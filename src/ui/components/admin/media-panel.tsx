@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
 import type { AdminMedia } from "#/server/contracts/admin";
 import { ImageIcon, UploadCloudIcon } from "../icons";
@@ -95,8 +96,13 @@ export function MediaPanel({
 		setError(null);
 	};
 
-	const handleClearFile = (e?: React.MouseEvent) => {
-		e?.stopPropagation();
+	const handleClearFile = (e?: unknown) => {
+		if (
+			e &&
+			typeof (e as { stopPropagation?: unknown }).stopPropagation === "function"
+		) {
+			(e as { stopPropagation: () => void }).stopPropagation();
+		}
 		setFile(null);
 		if (fileInputRef.current) {
 			fileInputRef.current.value = "";
@@ -213,22 +219,24 @@ export function MediaPanel({
 									</p>
 								) : null}
 								<div className="flex flex-wrap gap-1.5 pt-1">
-									<button
+									<Button
 										type="button"
-										onClick={() => handleSetCover(item.id)}
-										disabled={item.isCover || submitting}
-										className="text-xs font-medium px-2.5 py-1 rounded-lg border border-stone-300 text-on-surface hover:bg-stone-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+										variant="outline"
+										size="sm"
+										onPress={() => handleSetCover(item.id)}
+										isDisabled={item.isCover || submitting}
 									>
 										Usar como portada
-									</button>
-									<button
+									</Button>
+									<Button
 										type="button"
-										onClick={() => handleRemove(item.id)}
-										disabled={submitting}
-										className="text-xs font-medium px-2.5 py-1 rounded-lg border border-stone-300 text-error hover:bg-stone-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+										variant="danger"
+										size="sm"
+										onPress={() => handleRemove(item.id)}
+										isDisabled={submitting}
 									>
 										Eliminar
-									</button>
+									</Button>
 								</div>
 							</div>
 						</div>
@@ -308,13 +316,15 @@ export function MediaPanel({
 												Cambiar foto
 											</span>
 											<span className="text-stone-300">·</span>
-											<button
+											<Button
 												type="button"
-												onClick={handleClearFile}
-												className="text-xs text-error font-medium hover:underline"
+												variant="ghost"
+												size="sm"
+												onPress={() => handleClearFile()}
+												className="text-xs text-error font-medium hover:underline p-0 h-auto"
 											>
 												Quitar
-											</button>
+											</Button>
 										</div>
 									</div>
 								</div>
@@ -359,13 +369,14 @@ export function MediaPanel({
 				) : null}
 
 				<div className="pt-2">
-					<button
+					<Button
 						type="submit"
-						disabled={submitting}
-						className="px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-40 disabled:cursor-not-allowed"
+						variant="primary"
+						isDisabled={submitting}
+						isPending={submitting}
 					>
 						{submitting ? "Subiendo…" : "Subir imagen"}
-					</button>
+					</Button>
 				</div>
 			</form>
 		</section>

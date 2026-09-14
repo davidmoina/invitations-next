@@ -46,6 +46,7 @@ describe("SignInForm", () => {
 
 		const form = q("form");
 		const btn = screen.getByRole("button", { name: "Iniciar sesión" });
+		expect(btn).toHaveAttribute("data-slot", "button");
 		expect(form).toHaveAttribute("aria-busy", "false");
 
 		await user.click(btn);
