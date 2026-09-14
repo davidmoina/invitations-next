@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Button, Label, ListBox, Select } from "@heroui/react";
 import { useState } from "react";
 
 import type {
@@ -220,26 +220,35 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 				</div>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-					<div>
-						<label htmlFor="new-event-type" className={LABEL_CLASS}>
-							Tipo de celebración
-						</label>
-						<select
-							id="new-event-type"
-							value={form.eventType}
-							onChange={(e) =>
-								handleEventTypeChange(e.target.value as EventType | "")
-							}
-							className={FIELD_CLASS}
-						>
-							<option value="">Selecciona un tipo de celebración</option>
-							{EVENT_TYPES.map((type) => (
-								<option key={type} value={type}>
-									{EVENT_TYPE_LABELS[type]}
-								</option>
-							))}
-						</select>
-					</div>
+					<Select
+						name="eventType"
+						selectedKey={form.eventType || null}
+						onSelectionChange={(key) =>
+							handleEventTypeChange((key as EventType) || "")
+						}
+						placeholder="Selecciona un tipo de celebración"
+						className="w-full"
+					>
+						<Label className={LABEL_CLASS}>Tipo de celebración</Label>
+						<Select.Trigger id="new-event-type" className="w-full">
+							<Select.Value />
+							<Select.Indicator />
+						</Select.Trigger>
+						<Select.Popover>
+							<ListBox>
+								{EVENT_TYPES.map((type) => (
+									<ListBox.Item
+										key={type}
+										id={type}
+										textValue={EVENT_TYPE_LABELS[type]}
+									>
+										{EVENT_TYPE_LABELS[type]}
+										<ListBox.ItemIndicator />
+									</ListBox.Item>
+								))}
+							</ListBox>
+						</Select.Popover>
+					</Select>
 					<div>
 						<label htmlFor="new-event-timezone" className={LABEL_CLASS}>
 							Zona horaria
@@ -267,24 +276,35 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 								className={FIELD_CLASS}
 							/>
 						</div>
-						<div>
-							<label htmlFor="new-event-baby-sex" className={LABEL_CLASS}>
-								Sexo del bebé
-							</label>
-							<select
-								id="new-event-baby-sex"
-								value={form.babySex}
-								onChange={(e) => set("babySex", e.target.value as BabySex | "")}
-								className={FIELD_CLASS}
-							>
-								<option value="">Sin especificar</option>
-								{BABY_SEXES.map((sex) => (
-									<option key={sex} value={sex}>
-										{BABY_SEX_LABELS[sex]}
-									</option>
-								))}
-							</select>
-						</div>
+						<Select
+							name="babySex"
+							selectedKey={form.babySex || null}
+							onSelectionChange={(key) =>
+								set("babySex", (key as BabySex) || "")
+							}
+							placeholder="Sin especificar"
+							className="w-full"
+						>
+							<Label className={LABEL_CLASS}>Sexo del bebé</Label>
+							<Select.Trigger id="new-event-baby-sex" className="w-full">
+								<Select.Value />
+								<Select.Indicator />
+							</Select.Trigger>
+							<Select.Popover>
+								<ListBox>
+									{BABY_SEXES.map((sex) => (
+										<ListBox.Item
+											key={sex}
+											id={sex}
+											textValue={BABY_SEX_LABELS[sex]}
+										>
+											{BABY_SEX_LABELS[sex]}
+											<ListBox.ItemIndicator />
+										</ListBox.Item>
+									))}
+								</ListBox>
+							</Select.Popover>
+						</Select>
 					</div>
 				)}
 

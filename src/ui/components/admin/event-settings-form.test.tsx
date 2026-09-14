@@ -248,12 +248,25 @@ describe("EventSettingsForm", () => {
 		);
 	});
 
+	async function selectOption(
+		user: ReturnType<typeof userEvent.setup>,
+		triggerName: RegExp | string,
+		optionName: RegExp | string,
+	) {
+		const trigger = screen.getByRole("button", { name: triggerName });
+		await user.click(trigger);
+		const option = await screen.findByRole("option", { name: optionName });
+		await user.click(option);
+	}
+
 	it("renders event type as a select and prefills honoree names", () => {
 		renderForm();
 
-		const select = screen.getByLabelText(/tipo de celebración/i);
-		expect(select.tagName).toBe("SELECT");
-		expect(select).toHaveValue("wedding");
+		const trigger = screen.getByRole("button", {
+			name: /tipo de celebración/i,
+		});
+		expect(trigger).toHaveAttribute("data-slot", "select-trigger");
+		expect(trigger).toHaveTextContent("Boda");
 
 		const honoreeInputs = screen.getAllByLabelText(/persona homenajeada/i);
 		expect(honoreeInputs).toHaveLength(2);
@@ -275,13 +288,12 @@ describe("EventSettingsForm", () => {
 		const props = renderForm({ event: babyShowerEvent });
 
 		expect(screen.getByLabelText(/fecha prevista/i)).toHaveValue("2030-05-01");
-		expect(screen.getByLabelText(/sexo del bebé/i)).toHaveValue("girl");
+		expect(
+			screen.getByRole("button", { name: /sexo del bebé/i }),
+		).toHaveTextContent("Niña");
 
 		// Change to birthday
-		await user.selectOptions(
-			screen.getByLabelText(/tipo de celebración/i),
-			"birthday",
-		);
+		await selectOption(user, /tipo de celebración/i, /cumpleaños/i);
 
 		// Old inputs must be gone, new input must appear
 		expect(screen.queryByLabelText(/fecha prevista/i)).not.toBeInTheDocument();

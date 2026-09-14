@@ -23,20 +23,26 @@ function firstPayload(mock: ReturnType<typeof vi.fn<CreateEventCallback>>) {
 	return call[0];
 }
 
+async function selectOption(
+	user: ReturnType<typeof userEvent.setup>,
+	triggerName: RegExp | string,
+	optionName: RegExp | string,
+) {
+	const trigger = screen.getByRole("button", { name: triggerName });
+	await user.click(trigger);
+	const option = await screen.findByRole("option", { name: optionName });
+	await user.click(option);
+}
+
 describe("CreateEventForm", () => {
-	afterEach(() => {
-		cleanup();
-	});
+	afterEach(cleanup);
 
 	it("submits every field, as an ISO instant and with empty optionals as null", async () => {
 		const user = userEvent.setup();
 		const { onCreateEvent } = renderForm();
 
 		await user.type(screen.getByLabelText(/título/i), "Boda de Julián y Sarah");
-		await user.selectOptions(
-			screen.getByLabelText(/tipo de celebración/i),
-			"wedding",
-		);
+		await selectOption(user, /tipo de celebración/i, /boda/i);
 		// `datetime-local` yields "2030-06-12T17:00": no seconds, no zone. The
 		// validator rejects exactly that string, so the form must convert it.
 		await user.type(screen.getByLabelText(/fecha y hora/i), "2030-06-12T17:00");
@@ -64,10 +70,7 @@ describe("CreateEventForm", () => {
 		const { onCreateEvent } = renderForm();
 
 		await user.type(screen.getByLabelText(/título/i), "Boda de Julián y Sarah");
-		await user.selectOptions(
-			screen.getByLabelText(/tipo de celebración/i),
-			"wedding",
-		);
+		await selectOption(user, /tipo de celebración/i, /boda/i);
 		await user.type(screen.getByLabelText(/fecha y hora/i), "2030-06-12T17:00");
 
 		await user.click(
@@ -97,13 +100,10 @@ describe("CreateEventForm", () => {
 		const { onCreateEvent } = renderForm();
 
 		await user.type(screen.getByLabelText(/título/i), "Baby Shower de Mateo");
-		await user.selectOptions(
-			screen.getByLabelText(/tipo de celebración/i),
-			"baby_shower",
-		);
+		await selectOption(user, /tipo de celebración/i, /baby shower/i);
 		await user.type(screen.getByLabelText(/fecha y hora/i), "2030-06-12T17:00");
 		await user.type(screen.getByLabelText(/fecha prevista/i), "2030-08-15");
-		await user.selectOptions(screen.getByLabelText(/sexo del bebé/i), "boy");
+		await selectOption(user, /sexo del bebé/i, /niño/i);
 
 		await user.click(screen.getByRole("button", { name: /crear/i }));
 
@@ -122,10 +122,7 @@ describe("CreateEventForm", () => {
 		const { onCreateEvent } = renderForm();
 
 		await user.type(screen.getByLabelText(/título/i), "Baby Shower Sorpresa");
-		await user.selectOptions(
-			screen.getByLabelText(/tipo de celebración/i),
-			"baby_shower",
-		);
+		await selectOption(user, /tipo de celebración/i, /baby shower/i);
 		await user.type(screen.getByLabelText(/fecha y hora/i), "2030-06-12T17:00");
 		await user.type(screen.getByLabelText(/fecha prevista/i), "2030-08-15");
 
@@ -145,10 +142,7 @@ describe("CreateEventForm", () => {
 		const { onCreateEvent } = renderForm();
 
 		await user.type(screen.getByLabelText(/título/i), "Cumpleaños 30");
-		await user.selectOptions(
-			screen.getByLabelText(/tipo de celebración/i),
-			"birthday",
-		);
+		await selectOption(user, /tipo de celebración/i, /cumpleaños/i);
 		await user.type(screen.getByLabelText(/fecha y hora/i), "2030-06-12T17:00");
 		await user.type(screen.getByLabelText(/edad que cumple/i), "30");
 
@@ -168,10 +162,7 @@ describe("CreateEventForm", () => {
 		const { onCreateEvent } = renderForm();
 
 		await user.type(screen.getByLabelText(/título/i), "Cumpleaños");
-		await user.selectOptions(
-			screen.getByLabelText(/tipo de celebración/i),
-			"birthday",
-		);
+		await selectOption(user, /tipo de celebración/i, /cumpleaños/i);
 		await user.type(screen.getByLabelText(/fecha y hora/i), "2030-06-12T17:00");
 
 		await user.click(screen.getByRole("button", { name: /crear/i }));
@@ -188,9 +179,10 @@ describe("CreateEventForm", () => {
 		const user = userEvent.setup();
 		const { onCreateEvent } = renderForm();
 
-		const select = screen.getByLabelText(/tipo de celebración/i);
-		expect(select.tagName).toBe("SELECT");
-		expect(select).toHaveValue("");
+		const trigger = screen.getByRole("button", {
+			name: /tipo de celebración/i,
+		});
+		expect(trigger).toHaveAttribute("data-slot", "select-trigger");
 
 		await user.type(screen.getByLabelText(/título/i), "Mi evento");
 		await user.type(screen.getByLabelText(/fecha y hora/i), "2030-06-12T17:00");

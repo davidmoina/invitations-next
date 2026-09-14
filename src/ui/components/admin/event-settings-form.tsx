@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Button, Label, ListBox, Select } from "@heroui/react";
 import { useState } from "react";
 
 import type { AdminEvent, EventDetails } from "#/server/contracts/admin";
@@ -253,25 +253,32 @@ export function EventSettingsForm({
 				</div>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-					<div>
-						<label htmlFor="event-type" className={LABEL_CLASS}>
-							Tipo de celebración
-						</label>
-						<select
-							id="event-type"
-							value={form.eventType}
-							onChange={(e) =>
-								handleEventTypeChange(e.target.value as EventType)
-							}
-							className={FIELD_CLASS}
-						>
-							{EVENT_TYPES.map((type) => (
-								<option key={type} value={type}>
-									{EVENT_TYPE_LABELS[type]}
-								</option>
-							))}
-						</select>
-					</div>
+					<Select
+						name="eventType"
+						selectedKey={form.eventType}
+						onSelectionChange={(key) => handleEventTypeChange(key as EventType)}
+						className="w-full"
+					>
+						<Label className={LABEL_CLASS}>Tipo de celebración</Label>
+						<Select.Trigger id="event-type" className="w-full">
+							<Select.Value />
+							<Select.Indicator />
+						</Select.Trigger>
+						<Select.Popover>
+							<ListBox>
+								{EVENT_TYPES.map((type) => (
+									<ListBox.Item
+										key={type}
+										id={type}
+										textValue={EVENT_TYPE_LABELS[type]}
+									>
+										{EVENT_TYPE_LABELS[type]}
+										<ListBox.ItemIndicator />
+									</ListBox.Item>
+								))}
+							</ListBox>
+						</Select.Popover>
+					</Select>
 					<div>
 						<label htmlFor="event-timezone" className={LABEL_CLASS}>
 							Zona horaria
@@ -323,24 +330,35 @@ export function EventSettingsForm({
 								className={FIELD_CLASS}
 							/>
 						</div>
-						<div>
-							<label htmlFor="event-baby-sex" className={LABEL_CLASS}>
-								Sexo del bebé
-							</label>
-							<select
-								id="event-baby-sex"
-								value={form.babySex}
-								onChange={(e) => set("babySex", e.target.value as BabySex | "")}
-								className={FIELD_CLASS}
-							>
-								<option value="">Sin especificar</option>
-								{BABY_SEXES.map((sex) => (
-									<option key={sex} value={sex}>
-										{BABY_SEX_LABELS[sex]}
-									</option>
-								))}
-							</select>
-						</div>
+						<Select
+							name="babySex"
+							selectedKey={form.babySex || null}
+							onSelectionChange={(key) =>
+								set("babySex", (key as BabySex) || "")
+							}
+							placeholder="Sin especificar"
+							className="w-full"
+						>
+							<Label className={LABEL_CLASS}>Sexo del bebé</Label>
+							<Select.Trigger id="event-baby-sex" className="w-full">
+								<Select.Value />
+								<Select.Indicator />
+							</Select.Trigger>
+							<Select.Popover>
+								<ListBox>
+									{BABY_SEXES.map((sex) => (
+										<ListBox.Item
+											key={sex}
+											id={sex}
+											textValue={BABY_SEX_LABELS[sex]}
+										>
+											{BABY_SEX_LABELS[sex]}
+											<ListBox.ItemIndicator />
+										</ListBox.Item>
+									))}
+								</ListBox>
+							</Select.Popover>
+						</Select>
 					</div>
 				)}
 
@@ -447,27 +465,38 @@ export function EventSettingsForm({
 							className={FIELD_CLASS}
 						/>
 					</div>
-					<div>
-						<label htmlFor="event-status" className={LABEL_CLASS}>
-							Estado
-						</label>
-						<select
-							id="event-status"
-							value={form.status}
-							onChange={(e) =>
-								set("status", e.target.value as AdminEvent["status"])
-							}
-							className={FIELD_CLASS}
-						>
-							<option value="draft">Borrador</option>
-							<option value="published">Publicado</option>
-							{event.status === "archived" && (
-								<option value="archived" disabled>
-									Archivado
-								</option>
-							)}
-						</select>
-					</div>
+					<Select
+						name="status"
+						selectedKey={form.status}
+						onSelectionChange={(key) =>
+							set("status", key as AdminEvent["status"])
+						}
+						className="w-full"
+					>
+						<Label className={LABEL_CLASS}>Estado</Label>
+						<Select.Trigger id="event-status" className="w-full">
+							<Select.Value />
+							<Select.Indicator />
+						</Select.Trigger>
+						<Select.Popover>
+							<ListBox>
+								<ListBox.Item id="draft" textValue="Borrador">
+									Borrador
+									<ListBox.ItemIndicator />
+								</ListBox.Item>
+								<ListBox.Item id="published" textValue="Publicado">
+									Publicado
+									<ListBox.ItemIndicator />
+								</ListBox.Item>
+								{event.status === "archived" && (
+									<ListBox.Item id="archived" textValue="Archivado" isDisabled>
+										Archivado
+										<ListBox.ItemIndicator />
+									</ListBox.Item>
+								)}
+							</ListBox>
+						</Select.Popover>
+					</Select>
 				</div>
 
 				<label

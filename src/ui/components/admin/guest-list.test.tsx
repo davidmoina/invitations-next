@@ -40,10 +40,19 @@ function renderGuestList(
 	return props;
 }
 
+async function selectOption(
+	user: ReturnType<typeof userEvent.setup>,
+	triggerName: RegExp | string,
+	optionName: RegExp | string,
+) {
+	const trigger = screen.getByRole("button", { name: triggerName });
+	await user.click(trigger);
+	const option = await screen.findByRole("option", { name: optionName });
+	await user.click(option);
+}
+
 describe("GuestList", () => {
-	afterEach(() => {
-		cleanup();
-	});
+	afterEach(cleanup);
 
 	it("renders the guest list with attendance and companion count", () => {
 		renderGuestList();
@@ -165,10 +174,7 @@ describe("GuestList", () => {
 		renderGuestList({ onEditGuest });
 
 		await user.click(screen.getByRole("button", { name: /editar ana ruiz/i }));
-		await user.selectOptions(
-			screen.getByLabelText(/^asistencia/i),
-			"unanswered",
-		);
+		await selectOption(user, /asistencia/i, /sin respuesta/i);
 		await user.click(screen.getByRole("button", { name: /guardar cambios/i }));
 
 		await waitFor(() => {
@@ -190,10 +196,7 @@ describe("GuestList", () => {
 		await user.click(screen.getByRole("button", { name: /editar ana ruiz/i }));
 		await user.clear(screen.getByLabelText(/^nombre/i));
 		await user.type(screen.getByLabelText(/^nombre/i), "Ana Ruiz de Mendoza");
-		await user.selectOptions(
-			screen.getByLabelText(/^asistencia/i),
-			"unanswered",
-		);
+		await selectOption(user, /asistencia/i, /sin respuesta/i);
 		await user.clear(screen.getByLabelText(/^acompañantes/i));
 		await user.type(screen.getByLabelText(/^acompañantes/i), "0");
 		await user.click(screen.getByRole("button", { name: /guardar cambios/i }));

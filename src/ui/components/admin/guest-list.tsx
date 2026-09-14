@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Button, Label, ListBox, Select } from "@heroui/react";
 import { useMemo, useState } from "react";
 
 import type { AdminGuest } from "#/server/contracts/admin";
@@ -421,34 +421,54 @@ export function GuestList({
 																className={FIELD_CLASS}
 															/>
 														</div>
-														<div>
-															<label
-																htmlFor={`edit-guest-attending-${guest.id}`}
-																className={LABEL_CLASS}
-															>
-																Asistencia
-															</label>
-															<select
+														<Select
+															name="attending"
+															selectedKey={editForm.attending}
+															onSelectionChange={(key) =>
+																setEditForm((c) => ({
+																	...c,
+																	attending: key as
+																		| "attending"
+																		| "declined"
+																		| "unanswered",
+																}))
+															}
+															className="w-full"
+														>
+															<Label className={LABEL_CLASS}>Asistencia</Label>
+															<Select.Trigger
 																id={`edit-guest-attending-${guest.id}`}
-																value={editForm.attending}
-																onChange={(e) =>
-																	setEditForm((c) => ({
-																		...c,
-																		attending: e.target.value as
-																			| "attending"
-																			| "declined"
-																			| "unanswered",
-																	}))
-																}
-																className={FIELD_CLASS}
+																className="w-full"
 															>
-																<option value="attending">Asistirá</option>
-																<option value="declined">No asistirá</option>
-																<option value="unanswered">
-																	Sin respuesta
-																</option>
-															</select>
-														</div>
+																<Select.Value />
+																<Select.Indicator />
+															</Select.Trigger>
+															<Select.Popover>
+																<ListBox>
+																	<ListBox.Item
+																		id="attending"
+																		textValue="Asistirá"
+																	>
+																		Asistirá
+																		<ListBox.ItemIndicator />
+																	</ListBox.Item>
+																	<ListBox.Item
+																		id="declined"
+																		textValue="No asistirá"
+																	>
+																		No asistirá
+																		<ListBox.ItemIndicator />
+																	</ListBox.Item>
+																	<ListBox.Item
+																		id="unanswered"
+																		textValue="Sin respuesta"
+																	>
+																		Sin respuesta
+																		<ListBox.ItemIndicator />
+																	</ListBox.Item>
+																</ListBox>
+															</Select.Popover>
+														</Select>
 														<div>
 															<label
 																htmlFor={`edit-guest-companions-${guest.id}`}
