@@ -400,4 +400,28 @@ describe("GuestList", () => {
 			expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 		});
 	});
+
+	it("keeps the modal open, clears the fields and confirms when adding another", async () => {
+		const user = userEvent.setup();
+		const onAddGuests = vi.fn().mockResolvedValue(undefined);
+		const onRefresh = vi.fn().mockResolvedValue(undefined);
+
+		renderGuestList({ onAddGuests, onRefresh });
+
+		await user.click(screen.getByRole("button", { name: /añadir invitado/i }));
+		expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+		await user.type(screen.getByLabelText(/nombre/i), "Elena Morales");
+		await user.click(
+			screen.getByRole("button", { name: /guardar y añadir otro/i }),
+		);
+
+		await waitFor(() => expect(onAddGuests).toHaveBeenCalledOnce());
+
+		expect(screen.getByRole("dialog")).toBeInTheDocument();
+		expect(screen.getByLabelText(/nombre/i)).toHaveValue("");
+		expect(
+			screen.getByText(/«Elena Morales» añadido con éxito/i),
+		).toBeInTheDocument();
+	});
 });

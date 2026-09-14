@@ -15,6 +15,9 @@ export type GuestIntakeFormProps = {
 	showHeader?: boolean;
 };
 
+const ADD_INTENT = "add";
+const ADD_ANOTHER_INTENT = "add-another";
+
 /** Manual one-at-a-time intake deliberately excludes CSV import. */
 export function GuestIntakeForm({
 	onAddGuests,
@@ -29,9 +32,16 @@ export function GuestIntakeForm({
 	const [successNotice, setSuccessNotice] = useState<string | null>(null);
 	const [isAnother, setIsAnother] = useState(false);
 
-	const addGuest = async (event: React.FormEvent) => {
+	const addGuest = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		if (submitting) return;
+		// Read the intent from the submitter: a state set in the button's onClick
+		// is not yet applied when the browser dispatches the submit event.
+		const submitter = (event.nativeEvent as SubmitEvent).submitter;
+		const another =
+			submitter instanceof HTMLButtonElement &&
+			submitter.value === ADD_ANOTHER_INTENT;
+		setIsAnother(another);
 		const name = displayName.trim();
 		if (name === "") {
 			setError("Indica el nombre del invitado.");
@@ -52,10 +62,10 @@ export function GuestIntakeForm({
 			setDisplayName("");
 			setEmail("");
 			setPhone("");
-			if (isAnother) {
+			if (another) {
 				setSuccessNotice(`«${name}» añadido con éxito. Puedes añadir otro.`);
 			}
-			onSuccess?.(isAnother);
+			onSuccess?.(another);
 		} catch {
 			setError("No hemos podido añadir el invitado. Inténtalo de nuevo.");
 		} finally {
@@ -121,19 +131,21 @@ export function GuestIntakeForm({
 			<div className="flex flex-wrap items-center gap-3 pt-2">
 				<button
 					type="submit"
+					name="intent"
+					value={ADD_INTENT}
 					disabled={submitting}
-					onClick={() => setIsAnother(false)}
 					className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs focus-visible:ring-2 focus-visible:ring-primary"
 				>
 					{submitting && !isAnother ? "Añadiendo…" : "Añadir invitado"}
 				</button>
 				<button
 					type="submit"
+					name="intent"
+					value={ADD_ANOTHER_INTENT}
 					disabled={submitting}
-					onClick={() => setIsAnother(true)}
 					className="px-4 py-2 rounded-xl border border-stone-300 bg-white text-on-surface text-sm font-medium hover:bg-stone-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary"
 				>
-					{submitting && isAnother ? "Añadiendo…" : "Añadir y otro"}
+					{submitting && isAnother ? "Añadiendo…" : "Guardar y añadir otro"}
 				</button>
 			</div>
 		</form>
