@@ -58,7 +58,7 @@ export function HeroSection({ event, guest, coverMediaUrl }: HeroSectionProps) {
 	return (
 		<header
 			data-purpose="hero-header"
-			className="relative rounded-3xl overflow-hidden shadow-2xl bg-slate-950 border border-slate-700/40 min-h-[520px] sm:min-h-[580px] w-full flex flex-col justify-between text-white"
+			className="relative rounded-3xl overflow-hidden shadow-2xl bg-slate-950 border border-slate-700/40 min-h-[580px] sm:min-h-[720px] w-full flex flex-col justify-between text-white"
 		>
 			{/* Background Image with Atmosphere Gradients */}
 			<div className="absolute inset-0 overflow-hidden">
@@ -76,7 +76,7 @@ export function HeroSection({ event, guest, coverMediaUrl }: HeroSectionProps) {
 			</div>
 
 			{/* Hero Text & Content */}
-			<div className="relative z-10 flex flex-col justify-between items-center text-center p-6 sm:p-10 min-h-[520px] sm:min-h-[580px]">
+			<div className="relative z-10 flex-1 flex flex-col justify-between items-center text-center p-6 sm:p-10">
 				{/* Personalized Guest Welcome Header */}
 				<div className="pt-2">
 					<span className="inline-flex items-center tracking-[0.25em] text-[11px] sm:text-xs uppercase font-semibold text-sky-100 bg-white/15 px-4 py-1.5 rounded-full border border-white/20 backdrop-blur-md shadow-sm">
