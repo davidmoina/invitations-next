@@ -69,4 +69,14 @@ describe("LandingPage", () => {
 		});
 		expect(heading).toHaveClass("font-serif", "text-primary");
 	});
+
+	it("renders the Invit brand in the top navigation and footer", () => {
+		render(<LandingPage signUpHref="/sign-up" signInHref="/sign-in" />);
+
+		expect(screen.getByRole("banner")).toHaveTextContent(/^Invit/);
+		expect(screen.getByRole("contentinfo")).toHaveTextContent(
+			new RegExp(`© ${new Date().getFullYear()} Invit\\.`),
+		);
+		expect(screen.queryByText(/lumina/i)).not.toBeInTheDocument();
+	});
 });

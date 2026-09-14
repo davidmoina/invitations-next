@@ -89,7 +89,7 @@ export function AdminShell({
 					href={eventsHref}
 					className="font-serif italic text-xl font-semibold text-primary"
 				>
-					Lumina Events
+					Invit
 				</a>
 				<div className="flex items-center gap-2">
 					<button
@@ -119,7 +119,7 @@ export function AdminShell({
 					<div className="bg-surface w-4/5 max-w-sm h-full shadow-xl flex flex-col p-6 overflow-y-auto">
 						<div className="flex items-center justify-between pb-4 border-b border-surface-variant/50">
 							<span className="font-serif italic text-xl font-semibold text-primary">
-								Lumina Events
+								Invit
 							</span>
 							<button
 								type="button"
@@ -220,7 +220,7 @@ export function AdminShell({
 			<aside className="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container border-r border-surface-variant/70 z-40">
 				<div className="px-6 py-6 border-b border-surface-variant/50">
 					<div className="font-serif italic text-2xl font-bold text-primary">
-						Lumina Admin
+						Invit Admin
 					</div>
 					<div className="text-xs text-secondary mt-1 font-medium">
 						Panel de Organización

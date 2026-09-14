@@ -19,7 +19,7 @@ export function LandingPage({ signUpHref, signInHref }: LandingPageProps) {
 				<div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						<span className="font-serif italic text-2xl font-bold text-primary">
-							Lumina Events
+							Invit
 						</span>
 					</div>
 					<nav
@@ -245,7 +245,7 @@ export function LandingPage({ signUpHref, signInHref }: LandingPageProps) {
 			{/* Footer */}
 			<footer className="mt-auto border-t border-stone-200/60 bg-surface py-8">
 				<div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-secondary">
-					<p>© {new Date().getFullYear()} Lumina Events. Editorial Elegance.</p>
+					<p>© {new Date().getFullYear()} Invit. Editorial Elegance.</p>
 					<div className="flex items-center gap-6">
 						<a
 							href={signInHref}

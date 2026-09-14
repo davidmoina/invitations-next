@@ -69,4 +69,19 @@ describe("AdminShell", () => {
 		await user.click(signOutBtn);
 		expect(onSignOut).toHaveBeenCalledOnce();
 	});
+
+	it("renders the Invit brand in the sidebar and mobile navigation", () => {
+		render(
+			<AdminShell currentSection="events" eventsHref="/admin">
+				<div>Content</div>
+			</AdminShell>,
+		);
+
+		expect(screen.getByText("Invit Admin")).toBeInTheDocument();
+
+		const mobileBrandLink = screen.getByRole("link", { name: "Invit" });
+		expect(mobileBrandLink).toHaveAttribute("href", "/admin");
+
+		expect(screen.queryByText(/lumina/i)).not.toBeInTheDocument();
+	});
 });
