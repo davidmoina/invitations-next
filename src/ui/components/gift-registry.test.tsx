@@ -136,6 +136,250 @@ describe("GiftRegistry", () => {
 		});
 	});
 
+	it("updates the card to reserved-by-me after a successful reservation, without reload", async () => {
+		const user = userEvent.setup();
+		const onReserveGift = vi.fn().mockResolvedValue({
+			ok: true,
+			giftId: "gift-1",
+		} satisfies ReserveGiftResult);
+
+		render(
+			<GiftRegistry
+				giftRegistryEnabled={true}
+				gifts={mockGifts}
+				onReserveGift={onReserveGift}
+				onCancelReservation={vi.fn()}
+			/>,
+		);
+
+		await user.click(
+			screen.getByRole("button", {
+				name: /reservar regalo: vajilla de porcelana/i,
+			}),
+		);
+
+		await waitFor(() => {
+			expect(
+				screen.getByRole("button", {
+					name: /cancelar reserva: vajilla de porcelana/i,
+				}),
+			).toBeInTheDocument();
+		});
+		expect(
+			screen.queryByRole("button", {
+				name: /reservar regalo: vajilla de porcelana/i,
+			}),
+		).not.toBeInTheDocument();
+	});
+
+	it("updates the card to available after a successful cancellation, without reload", async () => {
+		const user = userEvent.setup();
+		const onCancelReservation = vi.fn().mockResolvedValue({
+			ok: true,
+			giftId: "gift-2",
+		} satisfies ReserveGiftResult);
+
+		render(
+			<GiftRegistry
+				giftRegistryEnabled={true}
+				gifts={mockGifts}
+				onReserveGift={vi.fn()}
+				onCancelReservation={onCancelReservation}
+			/>,
+		);
+
+		await user.click(
+			screen.getByRole("button", {
+				name: /cancelar reserva: cafetera espresso/i,
+			}),
+		);
+
+		await waitFor(() => {
+			expect(
+				screen.getByRole("button", {
+					name: /reservar regalo: cafetera espresso/i,
+				}),
+			).toBeInTheDocument();
+		});
+	});
+
+	it("leaves the card unchanged when the reservation fails", async () => {
+		const user = userEvent.setup();
+		const onReserveGift = vi.fn().mockResolvedValue({
+			ok: false,
+			error: { code: "gift_already_reserved" },
+		} satisfies ReserveGiftResult);
+
+		render(
+			<GiftRegistry
+				giftRegistryEnabled={true}
+				gifts={mockGifts}
+				onReserveGift={onReserveGift}
+				onCancelReservation={vi.fn()}
+			/>,
+		);
+
+		await user.click(
+			screen.getByRole("button", {
+				name: /reservar regalo: vajilla de porcelana/i,
+			}),
+		);
+
+		await waitFor(() => {
+			expect(
+				screen.getByText(/ya ha sido reservado por otro invitado/i),
+			).toBeInTheDocument();
+		});
+		expect(
+			screen.getByRole("button", {
+				name: /reservar regalo: vajilla de porcelana/i,
+			}),
+		).toBeInTheDocument();
+	});
+
+	it("disables reserve actions once the guest holds the maximum reservations", () => {
+		const atCapGifts: PublicGift[] = [
+			{
+				id: "held-1",
+				title: "Cuna",
+				description: null,
+				imagePublicId: null,
+				url: null,
+				status: "reserved",
+				reservedByMe: true,
+			},
+			{
+				id: "held-2",
+				title: "Cochecito",
+				description: null,
+				imagePublicId: null,
+				url: null,
+				status: "reserved",
+				reservedByMe: true,
+			},
+			{
+				id: "free-1",
+				title: "Trona",
+				description: null,
+				imagePublicId: null,
+				url: null,
+				status: "available",
+				reservedByMe: false,
+			},
+		];
+
+		render(
+			<GiftRegistry
+				giftRegistryEnabled={true}
+				gifts={atCapGifts}
+				onReserveGift={vi.fn()}
+				onCancelReservation={vi.fn()}
+			/>,
+		);
+
+		expect(
+			screen.getByText(/has reservado el máximo de 2 regalos/i),
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole("button", { name: /reservar regalo: trona/i }),
+		).not.toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: /máximo 2 regalos/i }),
+		).toBeDisabled();
+	});
+
+	it("locks the remaining reserve actions after the guest reserves a second gift", async () => {
+		const user = userEvent.setup();
+		const onReserveGift = vi.fn().mockResolvedValue({
+			ok: true,
+			giftId: "free-a",
+		} satisfies ReserveGiftResult);
+		const gifts: PublicGift[] = [
+			{
+				id: "held",
+				title: "Cuna",
+				description: null,
+				imagePublicId: null,
+				url: null,
+				status: "reserved",
+				reservedByMe: true,
+			},
+			{
+				id: "free-a",
+				title: "Trona",
+				description: null,
+				imagePublicId: null,
+				url: null,
+				status: "available",
+				reservedByMe: false,
+			},
+			{
+				id: "free-b",
+				title: "Mochila",
+				description: null,
+				imagePublicId: null,
+				url: null,
+				status: "available",
+				reservedByMe: false,
+			},
+		];
+
+		render(
+			<GiftRegistry
+				giftRegistryEnabled={true}
+				gifts={gifts}
+				onReserveGift={onReserveGift}
+				onCancelReservation={vi.fn()}
+			/>,
+		);
+
+		expect(
+			screen.getByRole("button", { name: /reservar regalo: mochila/i }),
+		).toBeEnabled();
+
+		await user.click(
+			screen.getByRole("button", { name: /reservar regalo: trona/i }),
+		);
+
+		await waitFor(() => {
+			expect(
+				screen.queryByRole("button", { name: /reservar regalo: mochila/i }),
+			).not.toBeInTheDocument();
+		});
+		expect(
+			screen.getByRole("button", { name: /máximo 2 regalos/i }),
+		).toBeDisabled();
+	});
+
+	it("surfaces the server limit error on the affected gift", async () => {
+		const user = userEvent.setup();
+		const onReserveGift = vi.fn().mockResolvedValue({
+			ok: false,
+			error: { code: "gift_limit_reached", limit: 2 },
+		} satisfies ReserveGiftResult);
+
+		render(
+			<GiftRegistry
+				giftRegistryEnabled={true}
+				gifts={mockGifts}
+				onReserveGift={onReserveGift}
+				onCancelReservation={vi.fn()}
+			/>,
+		);
+
+		await user.click(
+			screen.getByRole("button", {
+				name: /reservar regalo: vajilla de porcelana/i,
+			}),
+		);
+
+		await waitFor(() => {
+			expect(
+				screen.getByText(/solo puedes reservar 2 regalos/i),
+			).toBeInTheDocument();
+		});
+	});
+
 	it("guarantees no reserver identity field is rendered", () => {
 		const onReserveGift = vi.fn();
 		const onCancelReservation = vi.fn();

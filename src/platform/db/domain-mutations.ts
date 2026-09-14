@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNull } from "drizzle-orm";
 
 import type { Actor, AuditedTx, EventId, MutationOutcome } from "#/audit/actor";
 import { readOnly, withActor } from "#/platform/db/client";
@@ -215,6 +215,25 @@ export async function reserveGiftRow(
 		.values(input)
 		.onConflictDoNothing()
 		.returning({ id: giftReservations.id });
+}
+
+/** Active (not cancelled) reservations a guest currently holds for an event. */
+export async function countActiveGuestReservations(
+	tx: AuditedTx,
+	eventId: string,
+	guestId: string,
+): Promise<number> {
+	const [row] = await tx
+		.select({ value: count() })
+		.from(giftReservations)
+		.where(
+			and(
+				eq(giftReservations.eventId, eventId),
+				eq(giftReservations.guestId, guestId),
+				isNull(giftReservations.cancelledAt),
+			),
+		);
+	return row?.value ?? 0;
 }
 
 export async function cancelGiftReservation(

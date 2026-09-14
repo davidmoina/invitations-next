@@ -2,8 +2,10 @@
 import { useMemo, useState } from "react";
 
 import type { AdminGuest } from "#/server/contracts/admin";
-import { SearchIcon } from "../icons";
+import { PlusIcon, SearchIcon } from "../icons";
+import { Modal } from "../modal";
 import { FIELD_CLASS, LABEL_CLASS, orNull } from "./event-form-fields";
+import { GuestIntakeForm, type GuestIntakeInput } from "./guest-intake-form";
 
 export type EditGuestInput = {
 	guestId: string;
@@ -18,6 +20,7 @@ export type GuestListProps = {
 	onEditGuest?: (input: EditGuestInput) => Promise<{ id: string }>;
 	onRefresh?: () => Promise<void> | void;
 	onIssueGuestLink?: (guestId: string) => Promise<{ url: string }>;
+	onAddGuests?: (guests: GuestIntakeInput[]) => Promise<unknown>;
 };
 
 type StatusFilter = "all" | "attending" | "declined" | "unanswered";
@@ -50,6 +53,7 @@ export function GuestList({
 	onEditGuest,
 	onRefresh,
 	onIssueGuestLink,
+	onAddGuests,
 }: GuestListProps) {
 	const [guestOverrides, setGuestOverrides] = useState<
 		Record<string, Partial<AdminGuest>>
@@ -60,6 +64,7 @@ export function GuestList({
 		setGuestOverrides({});
 	}
 
+	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 	const [page, setPage] = useState(1);
@@ -235,6 +240,18 @@ export function GuestList({
 						enlace anterior que se le haya emitido.
 					</div>
 				</div>
+				{onAddGuests && (
+					<div className="shrink-0 self-start sm:self-center">
+						<button
+							type="button"
+							onClick={() => setIsAddModalOpen(true)}
+							className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-primary"
+						>
+							<PlusIcon className="w-4 h-4" />
+							<span>Añadir invitado</span>
+						</button>
+					</div>
+				)}
 			</div>
 
 			{/* Search & Filter Bar */}
@@ -599,6 +616,28 @@ export function GuestList({
 					</button>
 				</div>
 			</div>
+
+			{onAddGuests && (
+				<Modal
+					isOpen={isAddModalOpen}
+					onClose={() => setIsAddModalOpen(false)}
+					title="Añadir invitado"
+					description="Registra manualmente un invitado en la lista del evento."
+				>
+					<GuestIntakeForm
+						onAddGuests={async (newGuests) => {
+							await onAddGuests(newGuests);
+							await onRefresh?.();
+						}}
+						onSuccess={(addedAnother) => {
+							if (!addedAnother) {
+								setIsAddModalOpen(false);
+							}
+						}}
+						showHeader={false}
+					/>
+				</Modal>
+			)}
 		</section>
 	);
 }

@@ -37,6 +37,7 @@ export function RsvpForm({
 	onSubmitRsvp,
 }: RsvpFormProps) {
 	const isClosed = rsvpDeadline ? new Date(rsvpDeadline) < new Date() : false;
+	const hasExistingResponse = guest?.attending != null;
 
 	const [attending, setAttending] = useState<boolean | null>(
 		guest?.attending ?? null,
@@ -248,9 +249,15 @@ export function RsvpForm({
 					className="w-full py-4 px-6 rounded-2xl bg-[#2c4d6f] hover:bg-[#1f3750] text-white font-medium text-base shadow-lg shadow-slate-900/15 hover:shadow-xl active:scale-[0.99] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 				>
 					{isSubmitting ? (
-						<span>Enviando...</span>
+						<span>
+							{hasExistingResponse ? "Actualizando..." : "Enviando..."}
+						</span>
 					) : (
-						<span>Confirmar respuesta</span>
+						<span>
+							{hasExistingResponse
+								? "Actualizar respuesta"
+								: "Confirmar respuesta"}
+						</span>
 					)}
 				</button>
 			</form>

@@ -180,4 +180,50 @@ describe("RsvpForm", () => {
 		expect(screen.getByText("Laura Gómez")).toBeInTheDocument();
 		expect(screen.getByText("1")).toBeInTheDocument();
 	});
+
+	it("labels the submit action as an update when the guest already responded", () => {
+		render(
+			<RsvpForm
+				maxCompanions={2}
+				rsvpDeadline={null}
+				guest={{
+					id: "guest-1",
+					displayName: "Laura Gómez",
+					attending: true,
+					companions: 1,
+				}}
+				onSubmitRsvp={vi.fn()}
+			/>,
+		);
+
+		expect(
+			screen.getByRole("button", { name: /actualizar respuesta/i }),
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole("button", { name: /confirmar respuesta/i }),
+		).not.toBeInTheDocument();
+	});
+
+	it("labels the submit action as a first confirmation when there is no prior response", () => {
+		render(
+			<RsvpForm
+				maxCompanions={2}
+				rsvpDeadline={null}
+				guest={{
+					id: "guest-2",
+					displayName: "Diego Ruiz",
+					attending: null,
+					companions: 0,
+				}}
+				onSubmitRsvp={vi.fn()}
+			/>,
+		);
+
+		expect(
+			screen.getByRole("button", { name: /confirmar respuesta/i }),
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole("button", { name: /actualizar respuesta/i }),
+		).not.toBeInTheDocument();
+	});
 });

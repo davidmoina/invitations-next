@@ -13,9 +13,15 @@ export type GiftFormInput = {
 
 export type GiftFormProps = {
 	onCreateGift: (input: GiftFormInput) => Promise<{ id: string }>;
+	onSuccess?: () => void;
+	showHeader?: boolean;
 };
 
-export function GiftForm({ onCreateGift }: GiftFormProps) {
+export function GiftForm({
+	onCreateGift,
+	onSuccess,
+	showHeader = true,
+}: GiftFormProps) {
 	const [form, setForm] = useState({
 		title: "",
 		description: "",
@@ -55,12 +61,89 @@ export function GiftForm({ onCreateGift }: GiftFormProps) {
 				imagePublicId: "",
 				position: 0,
 			});
+			onSuccess?.();
 		} catch {
 			setError("No hemos podido añadir el regalo. Inténtalo de nuevo.");
 		} finally {
 			setSubmitting(false);
 		}
 	};
+
+	const formContent = (
+		<form onSubmit={handleSubmit} className="space-y-3">
+			<label htmlFor="gift-title" className={LABEL_CLASS}>
+				Título
+			</label>
+			<input
+				id="gift-title"
+				value={form.title}
+				onChange={(event) => set("title", event.target.value)}
+				className={FIELD_CLASS}
+			/>
+
+			<label htmlFor="gift-description" className={LABEL_CLASS}>
+				Descripción
+			</label>
+			<textarea
+				id="gift-description"
+				value={form.description}
+				onChange={(event) => set("description", event.target.value)}
+				className={FIELD_CLASS}
+			/>
+
+			<label htmlFor="gift-url" className={LABEL_CLASS}>
+				Enlace
+			</label>
+			<input
+				id="gift-url"
+				type="url"
+				value={form.url}
+				onChange={(event) => set("url", event.target.value)}
+				className={FIELD_CLASS}
+			/>
+
+			<label htmlFor="gift-image" className={LABEL_CLASS}>
+				Imagen
+			</label>
+			<input
+				id="gift-image"
+				value={form.imagePublicId}
+				onChange={(event) => set("imagePublicId", event.target.value)}
+				className={FIELD_CLASS}
+			/>
+
+			<label htmlFor="gift-position" className={LABEL_CLASS}>
+				Posición
+			</label>
+			<input
+				id="gift-position"
+				type="number"
+				min={0}
+				value={form.position}
+				onChange={(event) => set("position", Number(event.target.value) || 0)}
+				className={FIELD_CLASS}
+			/>
+
+			{error ? (
+				<p role="alert" className="text-sm text-red-700">
+					{error}
+				</p>
+			) : null}
+			<div className="pt-2">
+				<button
+					type="submit"
+					disabled={submitting}
+					className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs focus-visible:ring-2 focus-visible:ring-primary"
+				>
+					{submitting ? "Añadiendo…" : "Añadir regalo"}
+				</button>
+			</div>
+		</form>
+	);
+
+	if (!showHeader) {
+		return formContent;
+	}
 
 	return (
 		<section
@@ -70,75 +153,7 @@ export function GiftForm({ onCreateGift }: GiftFormProps) {
 			<h2 className="font-serif text-xl text-primary font-semibold mb-4">
 				Añadir regalo
 			</h2>
-			<form onSubmit={handleSubmit} className="space-y-3">
-				<label htmlFor="gift-title" className={LABEL_CLASS}>
-					Título
-				</label>
-				<input
-					id="gift-title"
-					value={form.title}
-					onChange={(event) => set("title", event.target.value)}
-					className={FIELD_CLASS}
-				/>
-
-				<label htmlFor="gift-description" className={LABEL_CLASS}>
-					Descripción
-				</label>
-				<textarea
-					id="gift-description"
-					value={form.description}
-					onChange={(event) => set("description", event.target.value)}
-					className={FIELD_CLASS}
-				/>
-
-				<label htmlFor="gift-url" className={LABEL_CLASS}>
-					Enlace
-				</label>
-				<input
-					id="gift-url"
-					type="url"
-					value={form.url}
-					onChange={(event) => set("url", event.target.value)}
-					className={FIELD_CLASS}
-				/>
-
-				<label htmlFor="gift-image" className={LABEL_CLASS}>
-					Imagen
-				</label>
-				<input
-					id="gift-image"
-					value={form.imagePublicId}
-					onChange={(event) => set("imagePublicId", event.target.value)}
-					className={FIELD_CLASS}
-				/>
-
-				<label htmlFor="gift-position" className={LABEL_CLASS}>
-					Posición
-				</label>
-				<input
-					id="gift-position"
-					type="number"
-					min={0}
-					value={form.position}
-					onChange={(event) => set("position", Number(event.target.value) || 0)}
-					className={FIELD_CLASS}
-				/>
-
-				{error ? (
-					<p role="alert" className="text-sm text-red-700">
-						{error}
-					</p>
-				) : null}
-				<div className="pt-2">
-					<button
-						type="submit"
-						disabled={submitting}
-						className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-					>
-						{submitting ? "Añadiendo…" : "Añadir regalo"}
-					</button>
-				</div>
-			</form>
+			{formContent}
 		</section>
 	);
 }

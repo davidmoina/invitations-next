@@ -355,4 +355,49 @@ describe("GuestList", () => {
 		expect(screen.getByText(/\+34 600 123 456/)).toBeInTheDocument();
 		expect(screen.getByText(/\+34 611 222 333/)).toBeInTheDocument();
 	});
+
+	it("opens the modal and adds a guest via onAddGuests", async () => {
+		const user = userEvent.setup();
+		const onAddGuests = vi.fn().mockResolvedValue(undefined);
+		const onRefresh = vi.fn().mockResolvedValue(undefined);
+
+		renderGuestList({ onAddGuests, onRefresh });
+
+		const openButton = screen.getByRole("button", {
+			name: /añadir invitado/i,
+		});
+		expect(openButton).toBeInTheDocument();
+
+		await user.click(openButton);
+
+		// Modal dialog is open
+		expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+		await user.type(screen.getByLabelText(/nombre/i), "Elena Morales");
+		await user.type(screen.getByLabelText(/email/i), "elena@example.com");
+
+		// Click inside the modal to submit
+		const submitButtons = screen.getAllByRole("button", {
+			name: /^añadir invitado$/i,
+		});
+		// The submit button inside the modal form
+		const submitBtn = submitButtons[submitButtons.length - 1];
+		if (!submitBtn) throw new Error("Submit button not found");
+		await user.click(submitBtn);
+
+		await waitFor(() => expect(onAddGuests).toHaveBeenCalledOnce());
+		expect(onAddGuests).toHaveBeenCalledWith([
+			{
+				displayName: "Elena Morales",
+				email: "elena@example.com",
+				phone: null,
+			},
+		]);
+		expect(onRefresh).toHaveBeenCalledOnce();
+
+		// Modal should close after successful single addition
+		await waitFor(() => {
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+		});
+	});
 });

@@ -243,4 +243,36 @@ describe("EventList", () => {
 		await user.click(signOutButtons[0]);
 		expect(onSignOut).toHaveBeenCalledOnce();
 	});
+
+	it("renders cover image when coverUrl is provided", () => {
+		const eventsWithCover: AdminEventListItem[] = [
+			{
+				...sampleEvents[0],
+				coverUrl: "https://example.com/cover.jpg",
+			},
+			sampleEvents[1],
+		];
+
+		render(
+			<EventList
+				events={eventsWithCover}
+				eventHref={(id) => `/admin/${id}`}
+				newEventHref="/admin/new"
+				homeHref="/admin"
+				onSignOut={vi.fn().mockResolvedValue(undefined)}
+			/>,
+		);
+
+		const coverImg = screen.getByRole("img", {
+			name: `Portada de ${sampleEvents[0].title}`,
+		});
+		expect(coverImg).toBeInTheDocument();
+		expect(coverImg).toHaveAttribute("src", "https://example.com/cover.jpg");
+
+		expect(
+			screen.queryByRole("img", {
+				name: `Portada de ${sampleEvents[1].title}`,
+			}),
+		).not.toBeInTheDocument();
+	});
 });

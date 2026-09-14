@@ -190,14 +190,32 @@ export function EventList({
 									className="bg-surface rounded-2xl border border-stone-200/80 shadow-2xs hover:shadow-card hover:-translate-y-0.5 transition-all duration-200 flex flex-col overflow-hidden group"
 								>
 									{/* Card Top / Header Slot */}
-									<div className="h-36 bg-linear-to-br from-champagne-50 via-surface-container to-stone-100 p-4 flex justify-between items-start border-b border-stone-200/50 relative">
-										<div className="flex items-center gap-2">
-											<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface text-secondary border border-stone-200/80 shadow-2xs">
+									<div className="h-36 bg-linear-to-br from-champagne-50 via-surface-container to-stone-100 p-4 flex justify-between items-start border-b border-stone-200/50 relative overflow-hidden">
+										{event.coverUrl ? (
+											<>
+												{/* biome-ignore lint/performance/noImgElement: event cover photo */}
+												<img
+													src={event.coverUrl}
+													alt={`Portada de ${event.title}`}
+													className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+													loading="lazy"
+												/>
+												<div className="absolute inset-0 bg-linear-to-t from-black/50 via-black/20 to-black/10" />
+											</>
+										) : null}
+										<div className="flex items-center gap-2 relative z-10">
+											<span
+												className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border shadow-2xs ${
+													event.coverUrl
+														? "bg-white/90 text-primary border-white/40 backdrop-blur-xs"
+														: "bg-surface text-secondary border-stone-200/80"
+												}`}
+											>
 												{ROLE_LABELS[event.role]}
 											</span>
 										</div>
 										<span
-											className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold shadow-2xs ${STATUS_CLASSES[event.status]}`}
+											className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold shadow-2xs relative z-10 ${STATUS_CLASSES[event.status]}`}
 										>
 											{STATUS_LABELS[event.status]}
 										</span>

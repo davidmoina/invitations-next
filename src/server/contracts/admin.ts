@@ -178,6 +178,7 @@ export type AdminEventListItem = {
 	role: "owner" | "editor";
 	guestCount: number;
 	attendingCount: number;
+	coverUrl?: string | null;
 };
 
 /** Payload for the admin dashboard of a single event. */

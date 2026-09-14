@@ -132,6 +132,7 @@ export function toAdminEventDetails(row: {
 
 export async function getEventsForOrganizer(
 	userId: UserId,
+	storage?: ImageStorage,
 ): Promise<AdminEventListItem[]> {
 	const rows = await readOnly()
 		.select({
@@ -143,6 +144,13 @@ export async function getEventsForOrganizer(
 			role: eventMemberships.role,
 			guestCount: sql<number>`count(${guests.id})::int`,
 			attendingCount: sql<number>`count(${guests.id}) filter (where ${guests.attending} is true)::int`,
+			coverImagePublicId: sql<string | null>`(
+				select ${eventMedia.imagePublicId}
+				from ${eventMedia}
+				where ${eventMedia.eventId} = ${events.id}
+				order by ${eventMedia.isCover} desc, ${eventMedia.position} asc
+				limit 1
+			)`,
 		})
 		.from(eventMemberships)
 		.innerJoin(events, eq(events.id, eventMemberships.eventId))
@@ -158,12 +166,31 @@ export async function getEventsForOrganizer(
 		)
 		.orderBy(desc(events.startsAt));
 
-	return rows.map((row) => ({
-		...row,
-		startsAt: row.startsAt.toISOString(),
-		status: row.status as AdminEventListItem["status"],
-		role: row.role as AdminEventListItem["role"],
-	}));
+	return rows.map((row) => {
+		let coverUrl: string | null = null;
+		if (row.coverImagePublicId) {
+			if (
+				row.coverImagePublicId.startsWith("http://") ||
+				row.coverImagePublicId.startsWith("https://")
+			) {
+				coverUrl = row.coverImagePublicId;
+			} else if (storage) {
+				coverUrl = storage.urlFor(row.coverImagePublicId, "card");
+			}
+		}
+
+		return {
+			id: row.id,
+			slug: row.slug,
+			title: row.title,
+			startsAt: row.startsAt.toISOString(),
+			status: row.status as AdminEventListItem["status"],
+			role: row.role as AdminEventListItem["role"],
+			guestCount: row.guestCount,
+			attendingCount: row.attendingCount,
+			...(coverUrl ? { coverUrl } : {}),
+		};
+	});
 }
 
 function organizer(actor: Actor): Extract<Actor, { kind: "organizer" }> {

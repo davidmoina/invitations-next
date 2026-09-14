@@ -3,7 +3,10 @@ import { useState } from "react";
 
 import type { AdminGift } from "#/server/contracts/admin";
 import type { ReserveGiftResult } from "#/server/contracts/public";
+import { PlusIcon } from "../icons";
+import { Modal } from "../modal";
 import { FIELD_CLASS, LABEL_CLASS, orNull } from "./event-form-fields";
+import { GiftForm, type GiftFormInput } from "./gift-form";
 
 export type EditGiftInput = {
 	giftId: string;
@@ -23,6 +26,7 @@ export type GiftReservationsProps = {
 	onCancelReservation: (giftId: string) => Promise<ReserveGiftResult>;
 	onEditGift?: (input: EditGiftInput) => Promise<{ id: string }>;
 	onRefresh?: () => Promise<void> | void;
+	onCreateGift?: (input: GiftFormInput) => Promise<{ id: string }>;
 };
 
 export function GiftReservations({
@@ -30,7 +34,9 @@ export function GiftReservations({
 	onCancelReservation,
 	onEditGift,
 	onRefresh,
+	onCreateGift,
 }: GiftReservationsProps) {
+	const [isAddGiftModalOpen, setIsAddGiftModalOpen] = useState(false);
 	const [pending, setPending] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
@@ -159,9 +165,26 @@ export function GiftReservations({
 			aria-label="Regalos reservados"
 			className="px-4 py-6 border-t border-stone-200/80"
 		>
-			<h2 className="font-serif text-xl text-primary font-semibold mb-4">
-				Regalos
-			</h2>
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+				<div>
+					<h2 className="font-serif text-xl text-primary font-semibold">
+						Regalos
+					</h2>
+					<p className="text-xs text-secondary mt-0.5">
+						Supervisa los regalos y el estado de sus reservas.
+					</p>
+				</div>
+				{onCreateGift && (
+					<button
+						type="button"
+						onClick={() => setIsAddGiftModalOpen(true)}
+						className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-primary self-start sm:self-auto"
+					>
+						<PlusIcon className="w-4 h-4" />
+						<span>Añadir regalo</span>
+					</button>
+				)}
+			</div>
 
 			<ul className="space-y-2">
 				{gifts.map((gift) => {
@@ -360,6 +383,26 @@ export function GiftReservations({
 				>
 					{error}
 				</p>
+			)}
+
+			{onCreateGift && (
+				<Modal
+					isOpen={isAddGiftModalOpen}
+					onClose={() => setIsAddGiftModalOpen(false)}
+					title="Añadir regalo"
+					description="Añade un nuevo regalo a la mesa de regalos del evento."
+				>
+					<GiftForm
+						onCreateGift={async (input) => {
+							const res = await onCreateGift(input);
+							setIsAddGiftModalOpen(false);
+							await onRefresh?.();
+							return res;
+						}}
+						onSuccess={() => setIsAddGiftModalOpen(false)}
+						showHeader={false}
+					/>
+				</Modal>
 			)}
 		</section>
 	);
