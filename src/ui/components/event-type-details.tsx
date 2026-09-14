@@ -52,19 +52,17 @@ export function EventTypeDetails({
 				);
 			}
 			return (
-				<div className="p-6 bg-surface-container-lowest rounded-2xl border border-stone-200 shadow-sm">
-					<div className="flex items-start gap-3">
-						<div className="w-10 h-10 rounded-full bg-champagne-50 text-primary flex items-center justify-center shrink-0 border border-champagne-100">
-							<CalendarIcon className="w-5 h-5" />
-						</div>
-						<div>
-							<h3 className="font-semibold text-base text-on-surface">
-								Fecha prevista
-							</h3>
-							<p className="text-sm text-secondary mt-1">
-								{formatDueDate(details.dueDate)}
-							</p>
-						</div>
+				<div className="rounded-2xl bg-[#f8fafc] border border-slate-200 p-4 flex items-center gap-3.5 mb-5">
+					<div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#274b70] shadow-2xs border border-slate-200 shrink-0">
+						<CalendarIcon className="w-4 h-4" />
+					</div>
+					<div>
+						<span className="text-[10px] uppercase tracking-wider font-semibold text-slate-500 block">
+							Fecha Prevista de Nacimiento
+						</span>
+						<span className="text-sm font-medium text-slate-800">
+							{formatDueDate(details.dueDate)}
+						</span>
 					</div>
 				</div>
 			);

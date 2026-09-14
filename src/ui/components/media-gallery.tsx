@@ -27,23 +27,26 @@ export function MediaGallery({ media }: MediaGalleryProps) {
 	if (!media || media.length === 0) return null;
 
 	return (
-		<section id="gallery" className="py-12 px-4 max-w-2xl mx-auto">
+		<section
+			id="gallery"
+			className="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-slate-200"
+		>
 			<div className="text-center mb-8">
-				<h2 className="font-serif text-3xl text-primary font-semibold mb-2">
+				<h2 className="font-serif text-3xl sm:text-4xl font-bold text-slate-800 mb-2">
 					Galería de fotos
 				</h2>
-				<p className="text-secondary text-sm">
+				<p className="text-slate-500 text-sm">
 					Momentos especiales de nuestra historia
 				</p>
 			</div>
 
-			<div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+			<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 				{media.map((item, index) => (
 					<button
 						key={item.id}
 						type="button"
 						onClick={() => setActiveImageIndex(index)}
-						className="group aspect-square rounded-2xl overflow-hidden bg-stone-200 border border-stone-200 shadow-sm relative focus:outline-none focus:ring-2 focus:ring-primary"
+						className="group aspect-square rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-2xs relative focus:outline-none focus:ring-2 focus:ring-[#2c4d6f]"
 					>
 						{/* biome-ignore lint/performance/noImgElement: keeping original img */}
 						<img
@@ -61,7 +64,7 @@ export function MediaGallery({ media }: MediaGalleryProps) {
 				<div
 					role="dialog"
 					aria-modal="true"
-					className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+					className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4"
 				>
 					<button
 						type="button"
