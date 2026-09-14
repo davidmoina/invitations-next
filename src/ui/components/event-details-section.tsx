@@ -68,8 +68,6 @@ export function EventDetailsSection({ event }: EventDetailsSectionProps) {
     ? `https://maps.google.com/maps?q=${encodeURIComponent(locationQuery)}&t=&z=14&ie=UTF8&iwloc=&output=embed`
     : null;
 
-  const calendarUrl = buildGoogleCalendarUrl(event);
-
   return (
     <div id="details" className="space-y-10">
       {/* Invitation Quote */}
@@ -144,10 +142,22 @@ export function EventDetailsSection({ event }: EventDetailsSectionProps) {
         <article className="bg-white rounded-3xl p-7 sm:p-8 shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition duration-300">
           <div>
             <div className="relative w-full h-36 rounded-2xl overflow-hidden border border-slate-200 mb-5 bg-slate-100 group">
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-200 via-slate-100 to-sky-100 flex items-center justify-center">
-                <MapPinIcon className="w-8 h-8 text-[#2c4d6f]/40 group-hover:scale-110 transition-transform duration-300" />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none" />
+              {mapEmbedUrl ? (
+                <iframe
+                  src={mapEmbedUrl}
+                  title={`Mapa de ubicación de ${event.venueName || "el evento"}`}
+                  className="absolute inset-0 w-full h-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              ) : (
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-200 via-slate-100 to-sky-100 flex items-center justify-center">
+                    <MapPinIcon className="w-8 h-8 text-[#2c4d6f]/40 group-hover:scale-110 transition-transform duration-300" />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none" />
+                </>
+              )}
               {event.venueMapUrl && (
                 <a
                   className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/95 text-slate-700 text-xs font-medium shadow-sm hover:bg-white transition"
@@ -172,14 +182,19 @@ export function EventDetailsSection({ event }: EventDetailsSectionProps) {
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold text-slate-800">
                   {event.venueName || "Ubicación por confirmar"}
                 </h2>
+                {event.venueAddress && (
+                  <p className="text-sm text-slate-500 mt-1">
+                    {event.venueAddress}
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
-          {event.venueMapUrl && (
+          {mapDirectionsUrl && (
             <a
               className="w-full inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-[#f1f6fb] text-[#274b70] font-medium text-sm transition-all duration-200 shadow-sm active:scale-[0.99] mt-4"
-              href={event.venueMapUrl}
+              href={mapDirectionsUrl}
               rel="noopener noreferrer"
               target="_blank"
             >
