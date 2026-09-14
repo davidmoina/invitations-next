@@ -158,7 +158,7 @@ export function GiftRegistry({
       </div>
 
       {reservationLimitReached && gifts.length > 0 && (
-        <p className="text-center text-xs text-primary font-medium mb-6 -mt-4">
+        <p className="text-center text-xs text-[#274b70] font-medium mb-6 -mt-4">
           Has reservado el máximo de {MAX_GIFT_RESERVATIONS_PER_GUEST} regalos.
           Cancela una reserva para elegir otro.
         </p>
@@ -181,12 +181,12 @@ export function GiftRegistry({
             return (
               <div
                 key={gift.id}
-                className={`p-5 rounded-2xl border flex flex-col justify-between transition-all bg-surface-container-lowest ${
+                className={`p-6 rounded-2xl border flex flex-col justify-between transition-all ${
                   displayGift.status === "reserved"
                     ? displayGift.reservedByMe
-                      ? "border-primary-container bg-champagne-50/50 shadow-sm"
-                      : "border-stone-200 opacity-75"
-                    : "border-stone-200 shadow-sm hover:border-stone-300"
+                      ? "border-2 border-[#b9d5f7] bg-[#f2f7fc] shadow-sm hover:shadow-md"
+                      : "border-slate-200 bg-slate-50/70 opacity-90"
+                    : "border-slate-200 bg-white shadow-sm hover:shadow-md hover:border-[#b9d5f7]"
                 }`}
               >
                 <div>
@@ -195,11 +195,11 @@ export function GiftRegistry({
                       {gift.title}
                     </h3>
                     {displayGift.status === "available" ? (
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-bg text-success-green shrink-0">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#e8f1fa] text-[#274b70] border border-[#d1e4ff] shrink-0">
                         Disponible
                       </span>
                     ) : displayGift.reservedByMe ? (
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-champagne-100 text-champagne-700 shrink-0">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#d9e8f8] text-[#1c4167] border border-[#bcd7f4] shrink-0">
                         Reservado por ti
                       </span>
                     ) : (
@@ -240,7 +240,7 @@ export function GiftRegistry({
                       <button
                         type="button"
                         disabled
-                        className="w-full py-2.5 px-4 bg-stone-100 text-secondary rounded-xl text-xs font-medium cursor-not-allowed opacity-75"
+                        className="w-full py-2.5 px-4 rounded-xl bg-slate-100 text-slate-400 font-medium text-xs sm:text-sm cursor-not-allowed border border-slate-200/60"
                       >
                         Máximo {MAX_GIFT_RESERVATIONS_PER_GUEST} regalos
                       </button>
@@ -250,7 +250,7 @@ export function GiftRegistry({
                         aria-label={`Reservar regalo: ${gift.title}`}
                         disabled={isActionLoading}
                         onClick={() => handleReserve(gift.id)}
-                        className="w-full py-2.5 px-4 bg-primary text-white rounded-xl text-xs font-medium hover:bg-primary/90 disabled:opacity-50 transition-all shadow-sm flex items-center justify-center gap-1.5"
+                        className="w-full py-2.5 px-4 rounded-xl bg-[#2c4d6f] hover:bg-[#1f3750] text-white font-medium text-xs sm:text-sm tracking-wide transition shadow-sm active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5"
                       >
                         {isActionLoading ? "Reservando..." : "Reservar regalo"}
                       </button>

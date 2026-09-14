@@ -80,7 +80,7 @@ export function RsvpForm({
 		return (
 			<section
 				id="rsvp"
-				className="w-full max-w-md mx-auto p-8 bg-white rounded-3xl border border-slate-200 shadow-sm text-center"
+				className="w-full p-8 sm:p-10 bg-white rounded-3xl border border-slate-200 shadow-sm text-center"
 			>
 				<h2 className="font-serif text-2xl text-[#2c4d6f] font-semibold mb-2">
 					Confirmaciones cerradas
@@ -97,7 +97,7 @@ export function RsvpForm({
 		return (
 			<section
 				id="rsvp"
-				className="w-full max-w-md mx-auto p-8 bg-[#f0f6fc] rounded-3xl border border-[#bcd7f4] shadow-sm text-center"
+				className="w-full p-8 sm:p-10 bg-[#f0f6fc] rounded-3xl border border-[#bcd7f4] shadow-sm text-center"
 			>
 				<div className="w-14 h-14 rounded-full bg-[#d1e4ff] text-[#113657] mx-auto mb-4 flex items-center justify-center border border-sky-200">
 					<CheckCircleIcon className="w-7 h-7" />
@@ -130,7 +130,7 @@ export function RsvpForm({
 		<section
 			id="rsvp"
 			data-purpose="rsvp-module"
-			className="w-full max-w-xl mx-auto p-8 sm:p-10 bg-white rounded-3xl border border-slate-200 shadow-sm text-center"
+			className="w-full p-8 sm:p-10 bg-white rounded-3xl border border-slate-200 shadow-sm text-center"
 		>
 			<div className="max-w-md mx-auto mb-8">
 				<h2 className="font-serif text-3xl sm:text-4xl font-bold text-slate-800">

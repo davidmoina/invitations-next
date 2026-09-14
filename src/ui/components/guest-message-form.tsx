@@ -83,7 +83,7 @@ export function GuestMessageForm({
     return (
       <section
         id="guestbook"
-        className="w-full max-w-xl mx-auto p-8 sm:p-10 bg-[#f0f6fc] rounded-3xl border border-[#bcd7f4] shadow-sm text-center"
+        className="w-full p-8 sm:p-10 bg-[#f0f6fc] rounded-3xl border border-[#bcd7f4] shadow-sm text-center"
       >
         <div className="w-14 h-14 bg-[#d1e4ff] text-[#113657] rounded-full flex items-center justify-center mx-auto mb-3 border border-sky-200">
           <CheckCircleIcon className="w-7 h-7" />
@@ -94,7 +94,7 @@ export function GuestMessageForm({
         <p className="text-slate-500 text-sm">
           Tu dedicatoria ha sido guardada para los anfitriones.
         </p>
-        <blockquote className="text-sm text-on-surface bg-surface-container-lowest border border-champagne-100 rounded-xl p-4 text-left italic whitespace-pre-line">
+        <blockquote className="text-sm text-slate-700 bg-white border border-[#d1e4ff] rounded-xl p-4 text-left italic whitespace-pre-line">
           {submittedBody}
         </blockquote>
       </section>
@@ -105,7 +105,7 @@ export function GuestMessageForm({
     <section
       id="guestbook"
       data-purpose="guestbook-message"
-      className="w-full max-w-xl mx-auto p-8 sm:p-10 bg-white rounded-3xl border border-slate-200 shadow-sm text-center"
+      className="w-full p-8 sm:p-10 bg-white rounded-3xl border border-slate-200 shadow-sm text-center"
     >
       <div className="max-w-xl mx-auto text-center mb-6">
         <div className="w-14 h-14 rounded-full bg-[#e8f1fa] text-[#274b70] mx-auto flex items-center justify-center mb-4 shadow-sm border border-[#d1e4ff]">
