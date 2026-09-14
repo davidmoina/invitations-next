@@ -188,4 +188,92 @@ describe("MediaPanel", () => {
 		);
 		expect(onAddMedia).not.toHaveBeenCalled();
 	});
+
+	it("accepts a dropped image file into the dropzone", async () => {
+		const user = userEvent.setup();
+		const onAddMedia = vi.fn().mockResolvedValue({
+			id: "media-4",
+			imagePublicId: "photo-4",
+			alt: "Foto del baile",
+			position: 2,
+			isCover: false,
+			urls: {
+				thumb: "https://example.com/thumb-4.jpg",
+				card: "https://example.com/card-4.jpg",
+				full: "https://example.com/full-4.jpg",
+			},
+		});
+
+		render(<MediaPanel media={mockMedia} onAddMedia={onAddMedia} />);
+
+		const dropzone = screen.getByText(/arrastra una foto aquí/i).closest("div");
+		expect(dropzone).toBeInTheDocument();
+		if (!dropzone) throw new Error("Dropzone not found");
+
+		const file = new File(["dance image bytes"], "baile.png", {
+			type: "image/png",
+		});
+
+		// Trigger drag and drop
+		const dataTransfer = {
+			files: [file],
+			types: ["Files"],
+		};
+		await user.pointer({ target: dropzone });
+		// Dispatch drop event
+		const dropEvent = new Event("drop", { bubbles: true });
+		Object.defineProperty(dropEvent, "dataTransfer", { value: dataTransfer });
+		dropzone.dispatchEvent(dropEvent);
+
+		// The file name should now appear in the preview card
+		expect(await screen.findByText("baile.png")).toBeInTheDocument();
+
+		await user.type(
+			screen.getByLabelText(/texto alternativo/i),
+			"Foto del baile",
+		);
+		await user.click(screen.getByRole("button", { name: /subir imagen/i }));
+
+		await waitFor(() => expect(onAddMedia).toHaveBeenCalledOnce());
+		expect(onAddMedia).toHaveBeenCalledWith({
+			file,
+			alt: "Foto del baile",
+			position: 2,
+		});
+	});
+
+	it("rejects non-image files dropped into the dropzone", async () => {
+		render(<MediaPanel media={mockMedia} />);
+
+		const dropzone = screen.getByText(/arrastra una foto aquí/i).closest("div");
+		if (!dropzone) throw new Error("Dropzone not found");
+		const textFile = new File(["not an image"], "documento.pdf", {
+			type: "application/pdf",
+		});
+
+		const dropEvent = new Event("drop", { bubbles: true });
+		Object.defineProperty(dropEvent, "dataTransfer", {
+			value: { files: [textFile] },
+		});
+		dropzone.dispatchEvent(dropEvent);
+
+		expect(await screen.findByRole("alert")).toHaveTextContent(
+			/selecciona un archivo de imagen/i,
+		);
+	});
+
+	it("allows removing the selected file before upload", async () => {
+		const user = userEvent.setup();
+		render(<MediaPanel media={mockMedia} />);
+
+		const file = new File(["bytes"], "preview.jpg", { type: "image/jpeg" });
+		await user.upload(screen.getByLabelText(/imagen/i), file);
+
+		expect(screen.getByText("preview.jpg")).toBeInTheDocument();
+
+		await user.click(screen.getByRole("button", { name: /quitar/i }));
+
+		expect(screen.queryByText("preview.jpg")).not.toBeInTheDocument();
+		expect(screen.getByText(/arrastra una foto aquí/i)).toBeInTheDocument();
+	});
 });

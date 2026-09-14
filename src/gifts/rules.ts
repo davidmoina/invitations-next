@@ -1,6 +1,14 @@
 import type { AdminGift } from "#/server/contracts/admin";
 import type { PublicGift } from "#/server/contracts/public";
 
+/**
+ * How many active reservations one guest may hold at once. Enforced on the
+ * server in `reserveGift`; the guest registry UI reads the same constant to
+ * disable the reserve action once the guest is at the cap. Runtime-inert
+ * module (type-only imports), so the client bundle can import it too.
+ */
+export const MAX_GIFT_RESERVATIONS_PER_GUEST = 2;
+
 type GiftWithReservation = {
 	id: string;
 	title: string;

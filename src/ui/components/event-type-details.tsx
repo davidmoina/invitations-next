@@ -1,8 +1,9 @@
 import type { PublicEventDetails } from "#/server/contracts/public";
-import { CalendarIcon } from "./icons";
+import { CalendarIcon, HeartIcon } from "./icons";
 
 export type EventTypeDetailsProps = {
 	details: PublicEventDetails;
+	variant?: "card" | "inline";
 };
 
 function formatDueDate(dateString: string): string {
@@ -27,9 +28,29 @@ function formatDueDate(dateString: string): string {
 	}
 }
 
-export function EventTypeDetails({ details }: EventTypeDetailsProps) {
+export function EventTypeDetails({
+	details,
+	variant = "card",
+}: EventTypeDetailsProps) {
 	switch (details.type) {
 		case "baby_shower":
+			if (variant === "inline") {
+				return (
+					<div className="mt-4 p-3 rounded-xl bg-champagne-50/80 border border-champagne-200/60 flex items-center gap-3">
+						<div className="w-8 h-8 rounded-full bg-white text-primary flex items-center justify-center shrink-0 border border-champagne-100 shadow-2xs">
+							<HeartIcon className="w-4 h-4" />
+						</div>
+						<div>
+							<span className="text-[11px] uppercase tracking-wider font-semibold text-champagne-800 block">
+								Fecha prevista
+							</span>
+							<p className="text-xs sm:text-sm font-medium text-on-surface">
+								{formatDueDate(details.dueDate)}
+							</p>
+						</div>
+					</div>
+				);
+			}
 			return (
 				<div className="p-6 bg-surface-container-lowest rounded-2xl border border-stone-200 shadow-sm">
 					<div className="flex items-start gap-3">

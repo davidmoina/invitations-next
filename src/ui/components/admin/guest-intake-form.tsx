@@ -11,15 +11,23 @@ export type GuestIntakeInput = {
 
 export type GuestIntakeFormProps = {
 	onAddGuests: (guests: GuestIntakeInput[]) => Promise<unknown>;
+	onSuccess?: (addedAnother: boolean) => void;
+	showHeader?: boolean;
 };
 
 /** Manual one-at-a-time intake deliberately excludes CSV import. */
-export function GuestIntakeForm({ onAddGuests }: GuestIntakeFormProps) {
+export function GuestIntakeForm({
+	onAddGuests,
+	onSuccess,
+	showHeader = true,
+}: GuestIntakeFormProps) {
 	const [displayName, setDisplayName] = useState("");
 	const [email, setEmail] = useState("");
 	const [phone, setPhone] = useState("");
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [successNotice, setSuccessNotice] = useState<string | null>(null);
+	const [isAnother, setIsAnother] = useState(false);
 
 	const addGuest = async (event: React.FormEvent) => {
 		event.preventDefault();
@@ -32,6 +40,7 @@ export function GuestIntakeForm({ onAddGuests }: GuestIntakeFormProps) {
 
 		setSubmitting(true);
 		setError(null);
+		setSuccessNotice(null);
 		try {
 			await onAddGuests([
 				{
@@ -43,12 +52,96 @@ export function GuestIntakeForm({ onAddGuests }: GuestIntakeFormProps) {
 			setDisplayName("");
 			setEmail("");
 			setPhone("");
+			if (isAnother) {
+				setSuccessNotice(`«${name}» añadido con éxito. Puedes añadir otro.`);
+			}
+			onSuccess?.(isAnother);
 		} catch {
 			setError("No hemos podido añadir el invitado. Inténtalo de nuevo.");
 		} finally {
 			setSubmitting(false);
 		}
 	};
+
+	const formContent = (
+		<form onSubmit={addGuest} className="space-y-3">
+			{successNotice && (
+				<output className="block p-3 bg-success-bg text-success-green border border-success-green/20 rounded-xl text-xs font-medium">
+					{successNotice}
+				</output>
+			)}
+
+			<div>
+				<label htmlFor="guest-display-name" className={LABEL_CLASS}>
+					Nombre
+				</label>
+				<input
+					id="guest-display-name"
+					value={displayName}
+					onChange={(event) => setDisplayName(event.target.value)}
+					placeholder="Ej. María García"
+					className={FIELD_CLASS}
+				/>
+			</div>
+
+			<div>
+				<label htmlFor="guest-email" className={LABEL_CLASS}>
+					Email
+				</label>
+				<input
+					id="guest-email"
+					type="email"
+					value={email}
+					onChange={(event) => setEmail(event.target.value)}
+					placeholder="maria@example.com"
+					className={FIELD_CLASS}
+				/>
+			</div>
+
+			<div>
+				<label htmlFor="guest-phone" className={LABEL_CLASS}>
+					Teléfono
+				</label>
+				<input
+					id="guest-phone"
+					type="tel"
+					value={phone}
+					onChange={(event) => setPhone(event.target.value)}
+					placeholder="+34 600 123 456"
+					className={FIELD_CLASS}
+				/>
+			</div>
+
+			{error ? (
+				<p role="alert" className="text-sm text-red-700 font-medium">
+					{error}
+				</p>
+			) : null}
+
+			<div className="flex flex-wrap items-center gap-3 pt-2">
+				<button
+					type="submit"
+					disabled={submitting}
+					onClick={() => setIsAnother(false)}
+					className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs focus-visible:ring-2 focus-visible:ring-primary"
+				>
+					{submitting && !isAnother ? "Añadiendo…" : "Añadir invitado"}
+				</button>
+				<button
+					type="submit"
+					disabled={submitting}
+					onClick={() => setIsAnother(true)}
+					className="px-4 py-2 rounded-xl border border-stone-300 bg-white text-on-surface text-sm font-medium hover:bg-stone-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary"
+				>
+					{submitting && isAnother ? "Añadiendo…" : "Añadir y otro"}
+				</button>
+			</div>
+		</form>
+	);
+
+	if (!showHeader) {
+		return formContent;
+	}
 
 	return (
 		<section
@@ -58,61 +151,7 @@ export function GuestIntakeForm({ onAddGuests }: GuestIntakeFormProps) {
 			<h2 className="font-serif text-xl text-primary font-semibold mb-4">
 				Añadir invitados
 			</h2>
-			<form onSubmit={addGuest} className="space-y-3">
-				<label htmlFor="guest-display-name" className={LABEL_CLASS}>
-					Nombre
-				</label>
-				<input
-					id="guest-display-name"
-					value={displayName}
-					onChange={(event) => setDisplayName(event.target.value)}
-					className={FIELD_CLASS}
-				/>
-
-				<label htmlFor="guest-email" className={LABEL_CLASS}>
-					Email
-				</label>
-				<input
-					id="guest-email"
-					type="email"
-					value={email}
-					onChange={(event) => setEmail(event.target.value)}
-					className={FIELD_CLASS}
-				/>
-
-				<label htmlFor="guest-phone" className={LABEL_CLASS}>
-					Teléfono
-				</label>
-				<input
-					id="guest-phone"
-					type="tel"
-					value={phone}
-					onChange={(event) => setPhone(event.target.value)}
-					className={FIELD_CLASS}
-				/>
-
-				{error ? (
-					<p role="alert" className="text-sm text-red-700">
-						{error}
-					</p>
-				) : null}
-				<div className="flex flex-wrap items-center gap-3 pt-2">
-					<button
-						type="submit"
-						disabled={submitting}
-						className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-					>
-						{submitting ? "Añadiendo…" : "Añadir invitado"}
-					</button>
-					<button
-						type="submit"
-						disabled={submitting}
-						className="px-4 py-2 rounded-xl border border-stone-300 bg-white text-on-surface text-sm font-medium hover:bg-stone-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-					>
-						Añadir y otro
-					</button>
-				</div>
-			</form>
+			{formContent}
 		</section>
 	);
 }

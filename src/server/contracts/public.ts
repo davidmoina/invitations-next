@@ -45,6 +45,7 @@ export type PublicEventPageData = {
 		startsAt: string;
 		timezone: string;
 		venueName: string | null;
+		venueAddress?: string | null;
 		venueMapUrl: string | null;
 		description: string | null;
 		maxCompanions: number;

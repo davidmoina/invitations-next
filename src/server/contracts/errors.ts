@@ -17,6 +17,7 @@
 export type PublicError =
 	| { code: "companion_cap_exceeded"; maxCompanions: number }
 	| { code: "gift_already_reserved" }
+	| { code: "gift_limit_reached"; limit: number }
 	| { code: "not_your_reservation" }
 	| { code: "invalid_or_expired_link" }
 	| { code: "rsvp_closed" }

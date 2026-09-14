@@ -386,4 +386,75 @@ describe("AdminEventShell", () => {
 			expect(props.onRefresh).toHaveBeenCalledTimes(2);
 		});
 	});
+
+	it("reaches onAddGuests through the add guest modal", async () => {
+		const user = userEvent.setup();
+		const props = renderShell();
+
+		const guestsRegion = within(
+			screen.getByRole("region", { name: "Invitados" }),
+		);
+		await user.click(
+			guestsRegion.getByRole("button", { name: /añadir invitado/i }),
+		);
+
+		const dialog = screen.getByRole("dialog");
+		expect(dialog).toBeInTheDocument();
+
+		await user.type(within(dialog).getByLabelText(/nombre/i), "Lucía Santos");
+		await user.type(within(dialog).getByLabelText(/email/i), "lucia@test.es");
+
+		const submitBtn = within(dialog).getByRole("button", {
+			name: /^añadir invitado$/i,
+		});
+		await user.click(submitBtn);
+
+		await waitFor(() => {
+			expect(props.onAddGuests).toHaveBeenCalledWith([
+				{
+					displayName: "Lucía Santos",
+					email: "lucia@test.es",
+					phone: null,
+				},
+			]);
+		});
+	});
+
+	it("reaches onCreateGift through the add gift modal", async () => {
+		const user = userEvent.setup();
+		const props = renderShell();
+
+		const giftsRegion = within(
+			screen.getByRole("region", { name: "Regalos reservados" }),
+		);
+		await user.click(
+			giftsRegion.getByRole("button", { name: /añadir regalo/i }),
+		);
+
+		const dialog = screen.getByRole("dialog");
+		expect(dialog).toBeInTheDocument();
+
+		await user.type(
+			within(dialog).getByLabelText(/título/i),
+			"Tostadora retro",
+		);
+		await user.click(
+			within(dialog).getByRole("button", { name: /^añadir regalo$/i }),
+		);
+
+		await waitFor(() => {
+			expect(props.onCreateGift).toHaveBeenCalledWith(
+				expect.objectContaining({
+					title: "Tostadora retro",
+				}),
+			);
+		});
+	});
+
+	it("keeps the audit log hidden for now", () => {
+		renderShell();
+
+		const auditRegion = screen.getByRole("region", { name: "Auditoría" });
+		expect(auditRegion).toHaveClass("hidden");
+	});
 });

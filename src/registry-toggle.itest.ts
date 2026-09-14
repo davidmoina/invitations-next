@@ -158,6 +158,54 @@ test("reserveGift persists a reservation when the registry is enabled", async ()
 	});
 });
 
+test("reserveGift rejects a third reservation once the guest holds two", async () => {
+	await withEvent(async (event) => {
+		const guest = await createGuestSession(pool, event);
+		const first = await insertGift(event.eventId, "First");
+		const second = await insertGift(event.eventId, "Second");
+		const third = await insertGift(event.eventId, "Third");
+
+		expect(
+			await (await reservation(reserveGift, event, first, guest.cookie)).json(),
+		).toEqual({ ok: true, giftId: first });
+		expect(
+			await (
+				await reservation(reserveGift, event, second, guest.cookie)
+			).json(),
+		).toEqual({ ok: true, giftId: second });
+
+		const rejected = await reservation(reserveGift, event, third, guest.cookie);
+		expect(await rejected.json()).toEqual({
+			ok: false,
+			error: { code: "gift_limit_reached", limit: 2 },
+		});
+		expect(
+			(
+				await pool.query(
+					"select id from gift_reservations where guest_id=$1 and cancelled_at is null",
+					[guest.guestId],
+				)
+			).rowCount,
+		).toBe(2);
+	});
+});
+
+test("a cancelled reservation frees a slot for a new one", async () => {
+	await withEvent(async (event) => {
+		const guest = await createGuestSession(pool, event);
+		const first = await insertGift(event.eventId, "First");
+		const second = await insertGift(event.eventId, "Second");
+		const third = await insertGift(event.eventId, "Third");
+
+		await reservation(reserveGift, event, first, guest.cookie);
+		await reservation(reserveGift, event, second, guest.cookie);
+		await reservation(cancelAsGuest, event, first, guest.cookie);
+
+		const response = await reservation(reserveGift, event, third, guest.cookie);
+		expect(await response.json()).toEqual({ ok: true, giftId: third });
+	});
+});
+
 test("cancelReservation rejects a disabled registry without cancelling an active reservation", async () => {
 	await withEvent(async (event) => {
 		const guest = await createGuestSession(pool, event);

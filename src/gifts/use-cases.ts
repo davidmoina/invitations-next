@@ -1,5 +1,6 @@
 import { can } from "#/accounts/authorization";
 import type { Actor } from "#/audit/actor";
+import { MAX_GIFT_RESERVATIONS_PER_GUEST } from "#/gifts/rules";
 import {
 	findEventStatus,
 	insertGiftRow,
@@ -7,6 +8,7 @@ import {
 } from "#/platform/db/admin-mutations";
 import {
 	cancelGiftReservation,
+	countActiveGuestReservations,
 	giftExistsOnEvent,
 	isGiftRegistryEnabled,
 	reserveGiftRow,
@@ -109,6 +111,30 @@ export async function reserveGift(
 			)
 				return {
 					value: { ok: false, error: { code: "invalid_or_expired_link" } },
+					events: [
+						{
+							action: "gift.reserve_rejected",
+							entityType: "gift",
+							entityId: giftId,
+							eventId: actor.eventId,
+						},
+					],
+				};
+			if (
+				(await countActiveGuestReservations(
+					tx,
+					actor.eventId,
+					actor.guestId,
+				)) >= MAX_GIFT_RESERVATIONS_PER_GUEST
+			)
+				return {
+					value: {
+						ok: false,
+						error: {
+							code: "gift_limit_reached",
+							limit: MAX_GIFT_RESERVATIONS_PER_GUEST,
+						},
+					},
 					events: [
 						{
 							action: "gift.reserve_rejected",

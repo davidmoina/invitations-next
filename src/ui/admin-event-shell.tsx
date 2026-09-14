@@ -10,15 +10,12 @@ import {
 	EventSettingsForm,
 	type UpdateEventInput,
 } from "./components/admin/event-settings-form";
-import { GiftForm, type GiftFormInput } from "./components/admin/gift-form";
+import type { GiftFormInput } from "./components/admin/gift-form";
 import {
 	type EditGiftInput,
 	GiftReservations,
 } from "./components/admin/gift-reservations";
-import {
-	GuestIntakeForm,
-	type GuestIntakeInput,
-} from "./components/admin/guest-intake-form";
+import type { GuestIntakeInput } from "./components/admin/guest-intake-form";
 import {
 	answerLabel,
 	type EditGuestInput,
@@ -321,9 +318,8 @@ export function AdminEventShell({
 					onEditGuest={onEditGuest}
 					onRefresh={onRefresh}
 					onIssueGuestLink={onIssueGuestLink}
+					onAddGuests={onAddGuests}
 				/>
-
-				<GuestIntakeForm onAddGuests={onAddGuests} />
 
 				{/* Media Section */}
 				<MediaPanel
@@ -340,9 +336,8 @@ export function AdminEventShell({
 					onCancelReservation={onCancelReservation}
 					onEditGift={onEditGift}
 					onRefresh={onRefresh}
+					onCreateGift={onCreateGift}
 				/>
-
-				<GiftForm onCreateGift={onCreateGift} />
 
 				{/* Collaborators Panel */}
 				<CollaboratorsPanel
@@ -388,11 +383,8 @@ export function AdminEventShell({
 					)}
 				</section>
 
-				{/* Audit Log */}
-				<section
-					aria-label="Auditoría"
-					className="p-6 bg-surface rounded-2xl border border-stone-200/80 shadow-2xs space-y-4"
-				>
+				{/* Audit Log (Ocultado temporalmente) */}
+				<section aria-label="Auditoría" className="hidden">
 					<h2 className="font-serif italic text-2xl font-bold text-primary">
 						Auditoría
 					</h2>

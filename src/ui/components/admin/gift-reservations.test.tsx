@@ -283,4 +283,45 @@ describe("GiftReservations", () => {
 		expect(screen.queryByText("Cena en Roma")).not.toBeInTheDocument();
 		expect(screen.queryByText("Cena en Florencia")).not.toBeInTheDocument();
 	});
+
+	it("opens the modal and creates a gift via onCreateGift", async () => {
+		const user = userEvent.setup();
+		const onCreateGift = vi.fn().mockResolvedValue({ id: "gift-new" });
+		const onRefresh = vi.fn().mockResolvedValue(undefined);
+
+		renderGifts({ onCreateGift, onRefresh });
+
+		const openBtn = screen.getByRole("button", { name: /añadir regalo/i });
+		expect(openBtn).toBeInTheDocument();
+
+		await user.click(openBtn);
+
+		// Modal should be open
+		expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+		await user.type(screen.getByLabelText(/título/i), "Viaje en globo");
+		await user.type(screen.getByLabelText(/descripción/i), "Paseo al amanecer");
+
+		// Submit button inside modal
+		const submitButtons = screen.getAllByRole("button", {
+			name: /añadir regalo/i,
+		});
+		const submitBtn = submitButtons[submitButtons.length - 1];
+		if (!submitBtn) throw new Error("Submit button not found");
+		await user.click(submitBtn);
+
+		await waitFor(() => expect(onCreateGift).toHaveBeenCalledOnce());
+		expect(onCreateGift).toHaveBeenCalledWith(
+			expect.objectContaining({
+				title: "Viaje en globo",
+				description: "Paseo al amanecer",
+			}),
+		);
+		expect(onRefresh).toHaveBeenCalledOnce();
+
+		// Modal should close
+		await waitFor(() => {
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+		});
+	});
 });

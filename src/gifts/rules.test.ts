@@ -1,5 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { toAdminDto, toPublicDto } from "./rules";
+import {
+	MAX_GIFT_RESERVATIONS_PER_GUEST,
+	toAdminDto,
+	toPublicDto,
+} from "./rules";
 
 const reservation = {
 	id: "gift",
@@ -21,5 +25,11 @@ describe("gift DTO visibility", () => {
 			guestId: "guest",
 			displayName: "Ana",
 		});
+	});
+});
+
+describe("gift reservation cap", () => {
+	test("a guest may hold at most two active reservations", () => {
+		expect(MAX_GIFT_RESERVATIONS_PER_GUEST).toBe(2);
 	});
 });

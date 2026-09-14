@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { MAX_GIFT_RESERVATIONS_PER_GUEST } from "#/gifts/rules";
 import type { PublicGift, ReserveGiftResult } from "#/server/contracts/public";
 import { ExternalLinkIcon, GiftIcon } from "./icons";
 
@@ -11,6 +12,10 @@ export type GiftRegistryProps = {
 		giftId: string;
 	}) => Promise<ReserveGiftResult>;
 };
+
+/** The status half of a gift, patched locally after a successful reserve or
+ *  cancel so the card reflects the new state without a page reload. */
+type GiftStatusOverride = Pick<PublicGift, "status" | "reservedByMe">;
 
 /** Two columns, not three. This grid renders inside the guest canvas, which
  *  `design.md` caps at `container-max-guest: 720px`; a third column would
@@ -28,6 +33,30 @@ export function GiftRegistry({
 }: GiftRegistryProps) {
 	const [loadingGiftId, setLoadingGiftId] = useState<string | null>(null);
 	const [errorMap, setErrorMap] = useState<Record<string, string>>({});
+	const [statusOverrides, setStatusOverrides] = useState<
+		Record<string, GiftStatusOverride>
+	>({});
+
+	// Server data is the source of truth. Once a fresh `gifts` prop reflects an
+	// optimistic override, drop that override so the two can never disagree;
+	// keep any override the server has not caught up to yet.
+	useEffect(() => {
+		setStatusOverrides((prev) => {
+			if (Object.keys(prev).length === 0) return prev;
+			const next: Record<string, GiftStatusOverride> = {};
+			for (const gift of gifts) {
+				const override = prev[gift.id];
+				if (
+					override &&
+					(override.status !== gift.status ||
+						override.reservedByMe !== gift.reservedByMe)
+				) {
+					next[gift.id] = override;
+				}
+			}
+			return next;
+		});
+	}, [gifts]);
 
 	if (!giftRegistryEnabled) return null;
 
@@ -43,12 +72,23 @@ export function GiftRegistry({
 						...prev,
 						[giftId]: "Este regalo ya ha sido reservado por otro invitado.",
 					}));
+				} else if (result.error.code === "gift_limit_reached") {
+					const { limit } = result.error;
+					setErrorMap((prev) => ({
+						...prev,
+						[giftId]: `Solo puedes reservar ${limit} regalos. Cancela una reserva para elegir otro.`,
+					}));
 				} else {
 					setErrorMap((prev) => ({
 						...prev,
 						[giftId]: "No se pudo realizar la reserva. Inténtalo de nuevo.",
 					}));
 				}
+			} else {
+				setStatusOverrides((prev) => ({
+					...prev,
+					[giftId]: { status: "reserved", reservedByMe: true },
+				}));
 			}
 		} catch {
 			setErrorMap((prev) => ({
@@ -71,6 +111,11 @@ export function GiftRegistry({
 					...prev,
 					[giftId]: "No se pudo cancelar la reserva.",
 				}));
+			} else {
+				setStatusOverrides((prev) => ({
+					...prev,
+					[giftId]: { status: "available", reservedByMe: false },
+				}));
 			}
 		} catch {
 			setErrorMap((prev) => ({
@@ -81,6 +126,17 @@ export function GiftRegistry({
 			setLoadingGiftId(null);
 		}
 	};
+
+	// Count against the derived state so the cap reacts to an optimistic
+	// reserve/cancel immediately, not only after the next server payload.
+	const reservedByMeCount = gifts.reduce((total, gift) => {
+		const current = { ...gift, ...(statusOverrides[gift.id] ?? {}) };
+		return current.status === "reserved" && current.reservedByMe
+			? total + 1
+			: total;
+	}, 0);
+	const reservationLimitReached =
+		reservedByMeCount >= MAX_GIFT_RESERVATIONS_PER_GUEST;
 
 	return (
 		<section id="registry" className="py-12 px-4 sm:px-6">
@@ -97,6 +153,13 @@ export function GiftRegistry({
 				</p>
 			</div>
 
+			{reservationLimitReached && gifts.length > 0 && (
+				<p className="text-center text-xs text-primary font-medium mb-6 -mt-4">
+					Has reservado el máximo de {MAX_GIFT_RESERVATIONS_PER_GUEST} regalos.
+					Cancela una reserva para elegir otro.
+				</p>
+			)}
+
 			{gifts.length === 0 ? (
 				<div className="p-8 text-center bg-surface-container-lowest rounded-2xl border border-stone-200 text-secondary text-sm">
 					No hay regalos añadidos todavía.
@@ -106,13 +169,17 @@ export function GiftRegistry({
 					{gifts.map((gift) => {
 						const isActionLoading = loadingGiftId === gift.id;
 						const error = errorMap[gift.id];
+						const displayGift = {
+							...gift,
+							...(statusOverrides[gift.id] ?? {}),
+						};
 
 						return (
 							<div
 								key={gift.id}
 								className={`p-5 rounded-2xl border flex flex-col justify-between transition-all bg-surface-container-lowest ${
-									gift.status === "reserved"
-										? gift.reservedByMe
+									displayGift.status === "reserved"
+										? displayGift.reservedByMe
 											? "border-primary-container bg-champagne-50/50 shadow-sm"
 											: "border-stone-200 opacity-75"
 										: "border-stone-200 shadow-sm hover:border-stone-300"
@@ -123,11 +190,11 @@ export function GiftRegistry({
 										<h3 className="font-semibold text-base text-on-surface">
 											{gift.title}
 										</h3>
-										{gift.status === "available" ? (
+										{displayGift.status === "available" ? (
 											<span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-bg text-success-green shrink-0">
 												Disponible
 											</span>
-										) : gift.reservedByMe ? (
+										) : displayGift.reservedByMe ? (
 											<span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-champagne-100 text-champagne-700 shrink-0">
 												Reservado por ti
 											</span>
@@ -164,17 +231,27 @@ export function GiftRegistry({
 								</div>
 
 								<div className="pt-2">
-									{gift.status === "available" ? (
-										<button
-											type="button"
-											aria-label={`Reservar regalo: ${gift.title}`}
-											disabled={isActionLoading}
-											onClick={() => handleReserve(gift.id)}
-											className="w-full py-2.5 px-4 bg-primary text-white rounded-xl text-xs font-medium hover:bg-primary/90 disabled:opacity-50 transition-all shadow-sm flex items-center justify-center gap-1.5"
-										>
-											{isActionLoading ? "Reservando..." : "Reservar regalo"}
-										</button>
-									) : gift.reservedByMe ? (
+									{displayGift.status === "available" ? (
+										reservationLimitReached ? (
+											<button
+												type="button"
+												disabled
+												className="w-full py-2.5 px-4 bg-stone-100 text-secondary rounded-xl text-xs font-medium cursor-not-allowed opacity-75"
+											>
+												Máximo {MAX_GIFT_RESERVATIONS_PER_GUEST} regalos
+											</button>
+										) : (
+											<button
+												type="button"
+												aria-label={`Reservar regalo: ${gift.title}`}
+												disabled={isActionLoading}
+												onClick={() => handleReserve(gift.id)}
+												className="w-full py-2.5 px-4 bg-primary text-white rounded-xl text-xs font-medium hover:bg-primary/90 disabled:opacity-50 transition-all shadow-sm flex items-center justify-center gap-1.5"
+											>
+												{isActionLoading ? "Reservando..." : "Reservar regalo"}
+											</button>
+										)
+									) : displayGift.reservedByMe ? (
 										<button
 											type="button"
 											aria-label={`Cancelar reserva: ${gift.title}`}

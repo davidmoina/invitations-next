@@ -87,7 +87,10 @@ export function PublicEventPage({
 
 				{/* Guest message / Guestbook section */}
 				<div className="px-4 py-8">
-					<GuestMessageForm onSubmitMessage={onSubmitMessage} />
+					<GuestMessageForm
+						onSubmitMessage={onSubmitMessage}
+						storageKey={`guest-message:${event.id}:${currentGuest?.id ?? "guest"}`}
+					/>
 				</div>
 
 				{/* Footer */}

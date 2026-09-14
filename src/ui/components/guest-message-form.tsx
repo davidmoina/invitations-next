@@ -1,16 +1,57 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircleIcon, MessageSquareIcon } from "./icons";
 
 export type GuestMessageFormProps = {
 	onSubmitMessage: (input: { body: string }) => Promise<{ ok: boolean }>;
+	/**
+	 * When set, a submitted dedication is remembered in localStorage under this
+	 * key so a returning guest sees their own message instead of the form. This
+	 * is per-browser by design: clearing storage or opening another browser lets
+	 * the guest submit again, an accepted trade-off to stop repeat spam.
+	 */
+	storageKey?: string;
 };
 
-export function GuestMessageForm({ onSubmitMessage }: GuestMessageFormProps) {
+type StoredMessage = { body: string; at: string };
+
+function readStoredMessage(key: string | undefined): string | null {
+	if (!key || typeof window === "undefined") return null;
+	try {
+		const raw = window.localStorage.getItem(key);
+		if (!raw) return null;
+		const parsed = JSON.parse(raw) as Partial<StoredMessage>;
+		return typeof parsed.body === "string" && parsed.body.trim()
+			? parsed.body
+			: null;
+	} catch {
+		return null;
+	}
+}
+
+function persistStoredMessage(key: string | undefined, body: string): void {
+	if (!key || typeof window === "undefined") return;
+	try {
+		const payload: StoredMessage = { body, at: new Date().toISOString() };
+		window.localStorage.setItem(key, JSON.stringify(payload));
+	} catch {
+		// Non-fatal: the message already reached the server.
+	}
+}
+
+export function GuestMessageForm({
+	onSubmitMessage,
+	storageKey,
+}: GuestMessageFormProps) {
 	const [body, setBody] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [isSubmitted, setIsSubmitted] = useState(false);
+	const [submittedBody, setSubmittedBody] = useState<string | null>(null);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+	useEffect(() => {
+		const stored = readStoredMessage(storageKey);
+		if (stored) setSubmittedBody(stored);
+	}, [storageKey]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -23,7 +64,8 @@ export function GuestMessageForm({ onSubmitMessage }: GuestMessageFormProps) {
 		try {
 			const result = await onSubmitMessage({ body: trimmed });
 			if (result.ok) {
-				setIsSubmitted(true);
+				persistStoredMessage(storageKey, trimmed);
+				setSubmittedBody(trimmed);
 				setBody("");
 			} else {
 				setErrorMessage(
@@ -37,7 +79,7 @@ export function GuestMessageForm({ onSubmitMessage }: GuestMessageFormProps) {
 		}
 	};
 
-	if (isSubmitted) {
+	if (submittedBody !== null) {
 		return (
 			<section
 				id="guestbook"
@@ -49,9 +91,12 @@ export function GuestMessageForm({ onSubmitMessage }: GuestMessageFormProps) {
 				<h3 className="font-serif text-xl text-primary font-semibold mb-1">
 					¡Gracias por tus palabras!
 				</h3>
-				<p className="text-secondary text-sm">
-					Tu dedicatoria ha sido guardada para los anfitriones.
+				<p className="text-secondary text-sm mb-4">
+					Tu dedicatoria ya fue enviada a los anfitriones.
 				</p>
+				<blockquote className="text-sm text-on-surface bg-surface-container-lowest border border-champagne-100 rounded-xl p-4 text-left italic whitespace-pre-line">
+					{submittedBody}
+				</blockquote>
 			</section>
 		);
 	}
