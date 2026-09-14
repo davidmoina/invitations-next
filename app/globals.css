@@ -1,0 +1,106 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+	--color-primary: #725b38;
+	--color-primary-container: #c5a880;
+	--color-primary-fixed: #fedeb2;
+	--color-primary-fixed-dim: #e0c298;
+	--color-surface: #fff8f3;
+	--color-surface-dim: #e0d9d4;
+	--color-surface-bright: #fff8f3;
+	--color-surface-container: #f4ede7;
+	--color-surface-container-high: #eee7e2;
+	--color-surface-container-highest: #e8e1dc;
+	--color-surface-container-low: #faf2ed;
+	--color-surface-container-lowest: #ffffff;
+	--color-surface-variant: #e8e1dc;
+	--color-on-surface: #1e1b18;
+	--color-on-surface-variant: #4d463c;
+	--color-secondary: #625e59;
+	--color-secondary-container: #e5ded8;
+	--color-champagne-50: #fdfbf7;
+	--color-champagne-100: #f7f2e7;
+	--color-champagne-700: #8c6d40;
+	--color-stone-50: #fafaf9;
+	--color-stone-100: #f5f5f4;
+	--color-stone-200: #e7e5e4;
+	--color-stone-300: #d6d3d1;
+	--color-stone-900: #1c1917;
+	--color-success-green: #15803d;
+	--color-success-bg: #dcfce7;
+	--color-warning-amber: #b45309;
+	--color-warning-bg: #fef3c7;
+	--color-error: #ba1a1a;
+	--color-error-container: #ffdad6;
+
+	--font-serif:
+		"Cormorant Garamond", "EB Garamond", "Playfair Display", Georgia, serif;
+	--font-sans:
+		"Plus Jakarta Sans", "Manrope", -apple-system, BlinkMacSystemFont,
+		"Segoe UI", Roboto, sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+	min-height: 100%;
+}
+
+body {
+	margin: 0;
+	font-family: var(--font-sans);
+	background-color: #f8fafc;
+	color: var(--color-on-surface);
+	-webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Google Places autocomplete widget (admin venue field). It is a web
+ * component, so Tailwind utilities do not reach its internals: pin it to the
+ * light scheme (it otherwise follows the OS) and map its theme hooks to the
+ * same look as the plain form inputs.
+ */
+gmp-place-autocomplete {
+	color-scheme: light;
+	display: block;
+	width: 100%;
+	background-color: #ffffff;
+	border: 1px solid var(--color-stone-300);
+	border-radius: var(--radius-xl);
+	font-size: 0.875rem;
+	--gmp-mat-font-family: var(--font-sans);
+	--gmp-mat-color-surface: #ffffff;
+	--gmp-mat-color-on-surface: var(--color-on-surface);
+	--gmp-mat-color-on-surface-variant: var(--color-secondary);
+	--gmp-mat-color-primary: var(--color-primary);
+	--gmp-mat-color-outline-decorative: var(--color-stone-300);
+}
+
+.font-cormorant {
+	font-family: "Cormorant Garamond", "EB Garamond", Georgia, serif;
+}
+
+.glass-hero-badge {
+	background: rgba(30, 42, 34, 0.45);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	border: 1px solid rgba(206, 233, 214, 0.25);
+}
+
+.quote-decoration::before {
+	content: "“";
+	position: absolute;
+	top: -24px;
+	left: 50%;
+	transform: translateX(-50%);
+	font-family: "Cormorant Garamond", Georgia, serif;
+	font-size: 5rem;
+	color: #2c4d6f;
+	opacity: 0.22;
+	line-height: 1;
+}
