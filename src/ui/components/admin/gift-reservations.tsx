@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Alert, Button } from "@heroui/react";
 import { useState } from "react";
 
 import type { AdminGift } from "#/server/contracts/admin";
@@ -308,12 +308,9 @@ export function GiftReservations({
 									</div>
 
 									{editError && (
-										<p
-											role="alert"
-											className="p-3 bg-error-container text-error rounded-xl text-xs font-medium"
-										>
-											{editError}
-										</p>
+										<Alert status="danger" role="alert">
+											<Alert.Description>{editError}</Alert.Description>
+										</Alert>
 									)}
 
 									<div className="flex items-center gap-2">
@@ -349,9 +346,11 @@ export function GiftReservations({
 												: "Disponible"}
 										</p>
 										{isSaved && (
-											<output className="mt-1 text-xs text-primary font-medium block">
-												Regalo actualizado.
-											</output>
+											<Alert status="success" role="status" className="mt-1">
+												<Alert.Description>
+													Regalo actualizado.
+												</Alert.Description>
+											</Alert>
 										)}
 									</div>
 									<div className="flex items-center gap-2 shrink-0">
@@ -386,12 +385,9 @@ export function GiftReservations({
 			</ul>
 
 			{error && (
-				<p
-					role="alert"
-					className="mt-3 p-3 bg-error-container text-error rounded-xl text-xs font-medium"
-				>
-					{error}
-				</p>
+				<Alert status="danger" role="alert" className="mt-3">
+					<Alert.Description>{error}</Alert.Description>
+				</Alert>
 			)}
 
 			{onCreateGift && (

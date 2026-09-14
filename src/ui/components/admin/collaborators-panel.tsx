@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Alert, Button } from "@heroui/react";
 import { useState } from "react";
 
 import type { AdminMembership } from "#/server/contracts/admin";
@@ -160,12 +160,9 @@ export function CollaboratorsPanel({
 			)}
 
 			{error && (
-				<p
-					role="alert"
-					className="mt-3 p-3 bg-error-container text-error rounded-xl text-xs font-medium"
-				>
-					{error}
-				</p>
+				<Alert status="danger" role="alert" className="mt-3">
+					<Alert.Description>{error}</Alert.Description>
+				</Alert>
 			)}
 		</section>
 	);

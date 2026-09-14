@@ -1,5 +1,5 @@
 "use client";
-import { Button, Label, TextArea, TextField } from "@heroui/react";
+import { Alert, Button, Label, TextArea, TextField } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { CheckCircleIcon, MessageSquareIcon } from "./icons";
 
@@ -136,7 +136,9 @@ export function GuestMessageForm({
 				</TextField>
 
 				{errorMessage && (
-					<p className="text-xs text-red-600 font-medium">{errorMessage}</p>
+					<Alert status="danger" role="alert">
+						<Alert.Description>{errorMessage}</Alert.Description>
+					</Alert>
 				)}
 
 				<Button

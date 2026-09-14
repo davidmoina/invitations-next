@@ -1,7 +1,7 @@
 "use client";
-import { Button, Input, Label, TextField } from "@heroui/react";
+import { Button, Input, Label, Spinner, TextField } from "@heroui/react";
 import { type FormEvent, useState } from "react";
-import { ArrowRightIcon, CheckCircleIcon, SpinnerIcon } from "./icons";
+import { ArrowRightIcon, CheckCircleIcon } from "./icons";
 
 export type RequestGuestLinkInput = { contact: string };
 export type RequestGuestLinkResult = { ok: true };
@@ -132,7 +132,7 @@ export function GuestAccessGate({ onRequestGuestLink }: GuestAccessGateProps) {
 					>
 						{isSubmitting ? (
 							<>
-								<SpinnerIcon className="w-4 h-4 animate-spin" />
+								<Spinner size="sm" />
 								<span>Enviando enlace…</span>
 							</>
 						) : (

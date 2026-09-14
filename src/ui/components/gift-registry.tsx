@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@heroui/react";
+import { Alert, Button, Card } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { MAX_GIFT_RESERVATIONS_PER_GUEST } from "#/gifts/rules";
 import type { PublicGift, ReserveGiftResult } from "#/server/contracts/public";
@@ -180,7 +180,7 @@ export function GiftRegistry({
 						};
 
 						return (
-							<div
+							<Card
 								key={gift.id}
 								className={`p-6 rounded-2xl border flex flex-col justify-between transition-all ${
 									displayGift.status === "reserved"
@@ -229,9 +229,9 @@ export function GiftRegistry({
 									)}
 
 									{error && (
-										<p className="text-xs text-red-600 font-medium mb-3">
-											{error}
-										</p>
+										<Alert status="danger" role="alert" className="mb-3">
+											<Alert.Description>{error}</Alert.Description>
+										</Alert>
 									)}
 								</div>
 
@@ -286,7 +286,7 @@ export function GiftRegistry({
 										</Button>
 									)}
 								</div>
-							</div>
+							</Card>
 						);
 					})}
 				</div>

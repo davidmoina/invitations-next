@@ -1,5 +1,6 @@
 "use client";
 import {
+	Alert,
 	Button,
 	Checkbox,
 	Input,
@@ -532,17 +533,14 @@ export function EventSettingsForm({
 				</Checkbox>
 
 				{error && (
-					<p
-						role="alert"
-						className="p-3 bg-error-container text-error rounded-xl text-xs font-medium"
-					>
-						{error}
-					</p>
+					<Alert status="danger" role="alert">
+						<Alert.Description>{error}</Alert.Description>
+					</Alert>
 				)}
 				{saved && (
-					<output className="p-3 bg-champagne-50 text-primary rounded-xl text-xs font-medium block">
-						Cambios guardados.
-					</output>
+					<Alert status="success" role="status">
+						<Alert.Description>Cambios guardados.</Alert.Description>
+					</Alert>
 				)}
 
 				<Button
@@ -617,17 +615,16 @@ export function EventSettingsForm({
 						)}
 					</div>
 					{deleteError && (
-						<p
-							role="alert"
-							className="mt-3 p-3 bg-error-container text-error rounded-xl text-xs font-medium"
-						>
-							{deleteError}
-						</p>
+						<Alert status="danger" role="alert" className="mt-3">
+							<Alert.Description>{deleteError}</Alert.Description>
+						</Alert>
 					)}
 					{deleted && (
-						<output className="mt-3 p-3 bg-champagne-50 text-primary rounded-xl text-xs font-medium block">
-							El evento ha sido archivado correctamente.
-						</output>
+						<Alert status="success" role="status" className="mt-3">
+							<Alert.Description>
+								El evento ha sido archivado correctamente.
+							</Alert.Description>
+						</Alert>
 					)}
 				</div>
 			)}

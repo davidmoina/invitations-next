@@ -1,5 +1,5 @@
 "use client";
-import { Button, Radio, RadioGroup } from "@heroui/react";
+import { Alert, Button, Radio, RadioGroup } from "@heroui/react";
 import { useState } from "react";
 import type { PublicError } from "#/server/contracts/errors";
 import type {
@@ -262,9 +262,9 @@ export function RsvpForm({
 				)}
 
 				{errorMessage && (
-					<div className="p-3 bg-red-50 text-red-700 rounded-xl text-xs font-medium border border-red-200">
-						{errorMessage}
-					</div>
+					<Alert status="danger" role="alert">
+						<Alert.Description>{errorMessage}</Alert.Description>
+					</Alert>
 				)}
 
 				<Button

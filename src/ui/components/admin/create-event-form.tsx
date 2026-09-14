@@ -1,5 +1,6 @@
 "use client";
 import {
+	Alert,
 	Button,
 	Checkbox,
 	Input,
@@ -472,9 +473,9 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 				</div>
 
 				{error ? (
-					<p role="alert" className="text-sm text-red-700">
-						{error}
-					</p>
+					<Alert status="danger" role="alert">
+						<Alert.Description>{error}</Alert.Description>
+					</Alert>
 				) : null}
 
 				<Button

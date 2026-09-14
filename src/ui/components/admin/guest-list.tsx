@@ -1,5 +1,6 @@
 "use client";
 import {
+	Alert,
 	Button,
 	Input,
 	Label,
@@ -507,12 +508,9 @@ export function GuestList({
 													</div>
 
 													{editError && (
-														<p
-															role="alert"
-															className="p-3 bg-error-container text-error rounded-xl text-xs font-medium"
-														>
-															{editError}
-														</p>
+														<Alert status="danger" role="alert">
+															<Alert.Description>{editError}</Alert.Description>
+														</Alert>
 													)}
 
 													<div className="flex items-center gap-2">
@@ -555,9 +553,11 @@ export function GuestList({
 												{guest.phone ? <span> · {guest.phone}</span> : null}
 											</div>
 											{isSaved && (
-												<output className="mt-1 text-xs text-primary font-medium block">
-													Invitado actualizado.
-												</output>
+												<Alert status="success" role="status" className="mt-1">
+													<Alert.Description>
+														Invitado actualizado.
+													</Alert.Description>
+												</Alert>
 											)}
 										</td>
 										<td className="px-6 py-4">
@@ -606,17 +606,18 @@ export function GuestList({
 													</Button>
 												</div>
 												{isCopied && (
-													<output className="text-xs text-success-green font-medium block">
-														Enlace copiado al portapapeles.
-													</output>
+													<Alert status="success" role="status">
+														<Alert.Description>
+															Enlace copiado al portapapeles.
+														</Alert.Description>
+													</Alert>
 												)}
 												{hasIssueError && (
-													<p
-														role="alert"
-														className="text-xs text-error font-medium block"
-													>
-														{issueError.message}
-													</p>
+													<Alert status="danger" role="alert">
+														<Alert.Description>
+															{issueError.message}
+														</Alert.Description>
+													</Alert>
 												)}
 											</div>
 										</td>

@@ -1,5 +1,5 @@
 "use client";
-import { Button, Input, Label, TextField } from "@heroui/react";
+import { Alert, Button, Input, Label, TextField } from "@heroui/react";
 import { useState } from "react";
 
 import { FIELD_CLASS, LABEL_CLASS, orNull } from "./event-form-fields";
@@ -77,9 +77,9 @@ export function GuestIntakeForm({
 	const formContent = (
 		<form onSubmit={addGuest} className="space-y-3">
 			{successNotice && (
-				<output className="block p-3 bg-success-bg text-success-green border border-success-green/20 rounded-xl text-xs font-medium">
-					{successNotice}
-				</output>
+				<Alert status="success" role="status">
+					<Alert.Description>{successNotice}</Alert.Description>
+				</Alert>
 			)}
 
 			<TextField className="space-y-1">
@@ -124,9 +124,9 @@ export function GuestIntakeForm({
 			</TextField>
 
 			{error ? (
-				<p role="alert" className="text-sm text-red-700 font-medium">
-					{error}
-				</p>
+				<Alert status="danger" role="alert">
+					<Alert.Description>{error}</Alert.Description>
+				</Alert>
 			) : null}
 
 			<div className="flex flex-wrap items-center gap-3 pt-2">

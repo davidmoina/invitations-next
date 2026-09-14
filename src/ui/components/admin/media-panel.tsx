@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Alert, Button } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
 import type { AdminMedia } from "#/server/contracts/admin";
 import { ImageIcon, UploadCloudIcon } from "../icons";
@@ -363,9 +363,9 @@ export function MediaPanel({
 				</div>
 
 				{error ? (
-					<p role="alert" className="text-sm text-red-700 font-medium">
-						{error}
-					</p>
+					<Alert status="danger" role="alert">
+						<Alert.Description>{error}</Alert.Description>
+					</Alert>
 				) : null}
 
 				<div className="pt-2">

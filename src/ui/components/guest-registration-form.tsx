@@ -1,8 +1,8 @@
 "use client";
-import { Button, Input, Label, TextField } from "@heroui/react";
+import { Alert, Button, Input, Label, Spinner, TextField } from "@heroui/react";
 import { type FormEvent, useState } from "react";
 
-import { ArrowRightIcon, CheckCircleIcon, SpinnerIcon } from "./icons";
+import { ArrowRightIcon, CheckCircleIcon } from "./icons";
 
 export type RegisterGuestInput = {
 	displayName: string;
@@ -241,12 +241,9 @@ export function GuestRegistrationForm({
 
 				{/* Server/submission error alert */}
 				{errorMessage && (
-					<div
-						role="alert"
-						className="p-3.5 bg-error-container/40 border border-error/20 text-error rounded-xl text-xs font-medium"
-					>
-						{errorMessage}
-					</div>
+					<Alert status="danger" role="alert">
+						<Alert.Description>{errorMessage}</Alert.Description>
+					</Alert>
 				)}
 
 				{/* Submit button */}
@@ -260,7 +257,7 @@ export function GuestRegistrationForm({
 					>
 						{isSubmitting ? (
 							<>
-								<SpinnerIcon className="w-4 h-4 animate-spin" />
+								<Spinner size="sm" />
 								<span>Preparing your invitation...</span>
 							</>
 						) : (

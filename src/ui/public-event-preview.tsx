@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Alert, Button, Spinner } from "@heroui/react";
 import { type FormEvent, useState } from "react";
 import type {
 	PublicEventPreview as PublicEventPreviewData,
@@ -9,11 +9,7 @@ import type {
 	RequestGuestLinkResult,
 } from "#/server/contracts/public";
 import { GUEST_ACCESS_CONFIRMATION_MESSAGE } from "./components/guest-access-gate";
-import {
-	ArrowRightIcon,
-	CheckCircleIcon,
-	SpinnerIcon,
-} from "./components/icons";
+import { ArrowRightIcon, CheckCircleIcon } from "./components/icons";
 
 export { GUEST_ACCESS_CONFIRMATION_MESSAGE };
 export type {
@@ -154,13 +150,9 @@ export function PublicEventPreview({
 							className="w-full bg-stone-50 border border-stone-300 text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-stone-400 disabled:opacity-60"
 						/>
 						{contactError && (
-							<p
-								id="contact-validation-error"
-								role="alert"
-								className="text-xs text-error font-medium"
-							>
-								{contactError}
-							</p>
+							<Alert id="contact-validation-error" status="danger" role="alert">
+								<Alert.Description>{contactError}</Alert.Description>
+							</Alert>
 						)}
 					</div>
 
@@ -174,7 +166,7 @@ export function PublicEventPreview({
 						>
 							{isSubmitting ? (
 								<>
-									<SpinnerIcon className="w-4 h-4 animate-spin" />
+									<Spinner size="sm" />
 									<span>Enviando enlace…</span>
 								</>
 							) : (

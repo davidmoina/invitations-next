@@ -1,5 +1,5 @@
 "use client";
-import { Button, Input, Label, TextField } from "@heroui/react";
+import { Alert, Button, Input, Label, TextField } from "@heroui/react";
 import { type FormEvent, useState } from "react";
 
 export type SignInFormProps = {
@@ -75,12 +75,9 @@ export function SignInForm({ onSignIn }: SignInFormProps) {
 						/>
 					</TextField>
 					{error ? (
-						<p
-							role="alert"
-							className="p-3 rounded-xl bg-error-container text-error text-sm font-medium"
-						>
-							{error}
-						</p>
+						<Alert status="danger" role="alert">
+							<Alert.Description>{error}</Alert.Description>
+						</Alert>
 					) : null}
 					<Button
 						type="submit"
