@@ -48,7 +48,7 @@ export function PublicEventPage({
 	}, [guest]);
 
 	return (
-		<div className="min-h-screen py-6 sm:py-12 px-3 sm:px-6 flex justify-center bg-[#f8fafc] text-slate-800 selection:bg-[#d1e4ff] selection:text-[#113657] pb-24 sm:pb-16 font-sans antialiased">
+		<div className="invitation-theme min-h-screen py-6 sm:py-12 px-3 sm:px-6 flex justify-center bg-[#f8fafc] text-slate-800 selection:bg-[#d1e4ff] selection:text-[#113657] pb-24 sm:pb-16 font-sans antialiased">
 			<main className="w-full max-w-3xl flex flex-col gap-10">
 				{/* Hero section */}
 				<HeroSection

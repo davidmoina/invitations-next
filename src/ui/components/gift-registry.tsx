@@ -242,7 +242,8 @@ export function GiftRegistry({
 												type="button"
 												isDisabled
 												fullWidth
-												size="sm"
+												size="md"
+												className="rounded-xl"
 												variant="secondary"
 											>
 												Máximo {MAX_GIFT_RESERVATIONS_PER_GUEST} regalos
@@ -253,7 +254,8 @@ export function GiftRegistry({
 												aria-label={`Reservar regalo: ${gift.title}`}
 												variant="primary"
 												fullWidth
-												size="sm"
+												size="md"
+												className="rounded-xl"
 												isDisabled={isActionLoading}
 												isPending={isActionLoading}
 												onPress={() => handleReserve(gift.id)}
@@ -267,7 +269,8 @@ export function GiftRegistry({
 											aria-label={`Cancelar reserva: ${gift.title}`}
 											variant="outline"
 											fullWidth
-											size="sm"
+											size="md"
+											className="rounded-xl"
 											isDisabled={isActionLoading}
 											isPending={isActionLoading}
 											onPress={() => handleCancel(gift.id)}
@@ -279,7 +282,8 @@ export function GiftRegistry({
 											type="button"
 											isDisabled
 											fullWidth
-											size="sm"
+											size="md"
+											className="rounded-xl"
 											variant="secondary"
 										>
 											Reservado por otro invitado

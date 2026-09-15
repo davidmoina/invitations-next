@@ -36,6 +36,18 @@
 	--focus: var(--color-primary);
 }
 
+.invitation-theme {
+	--accent: #2c4d6f;
+	--accent-hover: #1f3750;
+	--accent-foreground: #ffffff;
+	--radius: 1rem;
+	--field-radius: 1rem;
+	--border: #e2e8f0;
+	--default: #ffffff;
+	--default-foreground: #274b70;
+	--focus: #2c4d6f;
+}
+
 @theme {
 	--color-primary: #725b38;
 	--color-primary-container: #c5a880;

@@ -271,6 +271,8 @@ export function RsvpForm({
 					type="submit"
 					variant="primary"
 					fullWidth
+					size="lg"
+					className="py-4 text-base rounded-2xl shadow-lg shadow-slate-900/15"
 					isDisabled={attending === null || isSubmitting}
 					isPending={isSubmitting}
 				>
