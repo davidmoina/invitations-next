@@ -2,6 +2,22 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 
+/* HeroUI hardcodes --radius-3xl on most surfaces and buttons; bring them back to the radii the app used before the migration. Utilities still override. */
+@layer components {
+	.button,
+	.tabs__tab,
+	.tabs__indicator,
+	.alert,
+	.toast {
+		border-radius: var(--radius-xl);
+	}
+	.card,
+	.modal__dialog,
+	.select__popover {
+		border-radius: var(--radius-2xl);
+	}
+}
+
 :root {
 	/* HeroUI v3 theme mapping to app palette */
 	--accent: var(--color-primary);
