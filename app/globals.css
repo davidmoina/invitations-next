@@ -41,7 +41,10 @@
 	--field-border: var(--color-stone-300);
 	--border: var(--color-stone-300);
 	--separator: var(--color-stone-200);
-	--radius: 0.75rem;
+	/* HeroUI derives Tailwind's whole --radius-* scale from this token
+	   (xl = 1.5x, 2xl = 2x, 3xl = 3x); 0.5rem is the value that keeps
+	   rounded-xl/2xl/3xl at their Tailwind defaults. */
+	--radius: 0.5rem;
 	--field-radius: 0.75rem;
 	--danger: var(--color-error);
 	--danger-foreground: #ffffff;
@@ -56,8 +59,6 @@
 	--accent: #2c4d6f;
 	--accent-hover: #1f3750;
 	--accent-foreground: #ffffff;
-	--radius: 1rem;
-	--field-radius: 1rem;
 	--border: #e2e8f0;
 	--default: #ffffff;
 	--default-foreground: #274b70;
