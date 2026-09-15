@@ -16,6 +16,12 @@ export const eventInputFields = {
 	venueAddress: z.string().trim().nullable(),
 	venueMapUrl: z.url().nullable(),
 	description: z.string().trim().nullable(),
+	whatsappMessageTemplate: z
+		.string()
+		.trim()
+		.max(1000)
+		.transform((value) => (value === "" ? null : value))
+		.nullable(),
 	maxCompanions: z.number().int().min(0),
 	giftRegistryEnabled: z.boolean(),
 	rsvpDeadline: z.string().datetime().nullable(),
@@ -41,6 +47,7 @@ export const createEventSchema = z
 		venueAddress: eventInputFields.venueAddress,
 		venueMapUrl: eventInputFields.venueMapUrl,
 		description: eventInputFields.description,
+		whatsappMessageTemplate: eventInputFields.whatsappMessageTemplate,
 		maxCompanions: eventInputFields.maxCompanions,
 		giftRegistryEnabled: eventInputFields.giftRegistryEnabled,
 		rsvpDeadline: eventInputFields.rsvpDeadline,

@@ -136,6 +136,7 @@ export type AdminEvent = {
 	venueAddress: string | null;
 	venueMapUrl: string | null;
 	description: string | null;
+	whatsappMessageTemplate: string | null;
 	maxCompanions: number;
 	giftRegistryEnabled: boolean;
 	rsvpDeadline: string | null;

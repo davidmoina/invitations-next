@@ -37,6 +37,7 @@ export type NewEventInput = {
 	venueAddress: string | null;
 	venueMapUrl: string | null;
 	description: string | null;
+	whatsappMessageTemplate: string | null;
 	maxCompanions: number;
 	giftRegistryEnabled: boolean;
 	rsvpDeadline: string | null;
@@ -124,6 +125,7 @@ export async function updateEvent(
 		venueAddress: string | null;
 		venueMapUrl: string | null;
 		description: string | null;
+		whatsappMessageTemplate: string | null;
 		maxCompanions: number;
 		giftRegistryEnabled: boolean;
 		rsvpDeadline: string | null;
