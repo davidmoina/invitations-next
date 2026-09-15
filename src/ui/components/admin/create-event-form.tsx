@@ -187,6 +187,8 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 				venueAddress: orNull(form.venueAddress),
 				venueMapUrl: orNull(form.venueMapUrl),
 				description: orNull(form.description),
+				// No editor for this yet; the settings form will own it.
+				whatsappMessageTemplate: null,
 				maxCompanions: form.maxCompanions,
 				giftRegistryEnabled: form.giftRegistryEnabled,
 				rsvpDeadline: toIso(form.rsvpDeadline, form.timezone),

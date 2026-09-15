@@ -215,6 +215,7 @@ export function EventSettingsForm({
 				venueAddress: orNull(form.venueAddress),
 				venueMapUrl: orNull(form.venueMapUrl),
 				description: orNull(form.description),
+				whatsappMessageTemplate: event.whatsappMessageTemplate,
 				maxCompanions: form.maxCompanions,
 				giftRegistryEnabled: form.giftRegistryEnabled,
 				rsvpDeadline: toIso(form.rsvpDeadline, form.timezone),
