@@ -11,9 +11,13 @@ import {
 	toast,
 } from "@heroui/react";
 import { useMemo, useState } from "react";
-
-import type { AdminGuest } from "#/server/contracts/admin";
-import { PlusIcon, SearchIcon } from "../icons";
+import {
+	buildWhatsappUrl,
+	formatEventDateForMessage,
+	renderWhatsappMessage,
+} from "#/guests/whatsapp";
+import type { AdminEvent, AdminGuest } from "#/server/contracts/admin";
+import { PlusIcon, SearchIcon, WhatsAppIcon } from "../icons";
 import { Modal } from "../modal";
 import { FIELD_CLASS, LABEL_CLASS, orNull } from "./event-form-fields";
 import { GuestIntakeForm, type GuestIntakeInput } from "./guest-intake-form";
@@ -28,6 +32,10 @@ export type EditGuestInput = {
 
 export type GuestListProps = {
 	guests: AdminGuest[];
+	messageContext?: Pick<
+		AdminEvent,
+		"title" | "startsAt" | "timezone" | "venueName" | "whatsappMessageTemplate"
+	>;
 	onEditGuest?: (input: EditGuestInput) => Promise<{ id: string }>;
 	onRefresh?: () => Promise<void> | void;
 	onIssueGuestLink?: (guestId: string) => Promise<{ url: string }>;
@@ -61,6 +69,7 @@ const PAGE_SIZE = 10;
 
 export function GuestList({
 	guests,
+	messageContext,
 	onEditGuest,
 	onRefresh,
 	onIssueGuestLink,
@@ -96,6 +105,9 @@ export function GuestList({
 		guestId: string;
 		message: string;
 	} | null>(null);
+	const [sendingWhatsAppGuestId, setSendingWhatsAppGuestId] = useState<
+		string | null
+	>(null);
 
 	const mergedGuests = useMemo(() => {
 		return guests.map((g) => ({
@@ -227,6 +239,60 @@ export function GuestList({
 			});
 		} finally {
 			setIssuingGuestId(null);
+		}
+	};
+
+	const handleSendWhatsApp = async (guest: AdminGuest) => {
+		if (!onIssueGuestLink || !guest.phone || sendingWhatsAppGuestId) return;
+
+		const popup =
+			typeof window !== "undefined"
+				? window.open("", "_blank", "noopener,noreferrer")
+				: null;
+
+		setSendingWhatsAppGuestId(guest.id);
+
+		try {
+			const { url: guestUrl } = await onIssueGuestLink(guest.id);
+
+			const formattedDate = messageContext?.startsAt
+				? formatEventDateForMessage(
+						messageContext.startsAt,
+						messageContext.timezone ?? "UTC",
+					)
+				: "";
+
+			const message = renderWhatsappMessage(
+				messageContext?.whatsappMessageTemplate ?? null,
+				{
+					nombre: guest.displayName,
+					evento: messageContext?.title ?? "",
+					fecha: formattedDate,
+					lugar: messageContext?.venueName ?? "",
+					enlace: guestUrl,
+				},
+			);
+
+			const whatsappUrl = buildWhatsappUrl(guest.phone, message);
+
+			if (!whatsappUrl || !popup) {
+				popup?.close();
+				toast.danger(
+					!popup
+						? "El navegador bloqueó la ventana emergente de WhatsApp."
+						: "No hemos podido generar el enlace de WhatsApp.",
+				);
+				return;
+			}
+
+			popup.location.href = whatsappUrl;
+		} catch {
+			popup?.close();
+			toast.danger(
+				"No hemos podido generar el enlace de WhatsApp. Inténtalo de nuevo.",
+			);
+		} finally {
+			setSendingWhatsAppGuestId(null);
 		}
 	};
 
@@ -581,6 +647,20 @@ export function GuestList({
 										<td className="px-6 py-4 text-right">
 											<div className="flex flex-col items-end gap-1">
 												<div className="flex items-center justify-end gap-2">
+													{guest.phone && (
+														<Button
+															type="button"
+															aria-label={`Enviar WhatsApp a ${guest.displayName}`}
+															onPress={() => handleSendWhatsApp(guest)}
+															isDisabled={sendingWhatsAppGuestId === guest.id}
+															isPending={sendingWhatsAppGuestId === guest.id}
+															variant="outline"
+															size="sm"
+														>
+															<WhatsAppIcon className="w-4 h-4 text-emerald-600" />
+															<span>WhatsApp</span>
+														</Button>
+													)}
 													<span title="Generar un nuevo enlace invalida el enlace anterior del invitado">
 														<Button
 															type="button"

@@ -12,7 +12,7 @@ import {
 	TextField,
 } from "@heroui/react";
 import { useState } from "react";
-
+import { DEFAULT_WHATSAPP_TEMPLATE } from "#/guests/whatsapp";
 import type { AdminEvent, EventDetails } from "#/server/contracts/admin";
 import {
 	BABY_SEXES,
@@ -84,6 +84,7 @@ export function EventSettingsForm({
 		venueAddress: string;
 		venueMapUrl: string;
 		description: string;
+		whatsappMessageTemplate: string;
 		maxCompanions: number;
 		giftRegistryEnabled: boolean;
 		rsvpDeadline: string;
@@ -107,6 +108,7 @@ export function EventSettingsForm({
 		venueAddress: event.venueAddress ?? "",
 		venueMapUrl: event.venueMapUrl ?? "",
 		description: event.description ?? "",
+		whatsappMessageTemplate: event.whatsappMessageTemplate ?? "",
 		maxCompanions: event.maxCompanions,
 		giftRegistryEnabled: event.giftRegistryEnabled,
 		rsvpDeadline: toLocalInput(event.rsvpDeadline, event.timezone),
@@ -227,7 +229,7 @@ export function EventSettingsForm({
 				venueAddress: orNull(form.venueAddress),
 				venueMapUrl: orNull(form.venueMapUrl),
 				description: orNull(form.description),
-				whatsappMessageTemplate: event.whatsappMessageTemplate,
+				whatsappMessageTemplate: orNull(form.whatsappMessageTemplate),
 				maxCompanions: form.maxCompanions,
 				giftRegistryEnabled: form.giftRegistryEnabled,
 				rsvpDeadline: toIso(form.rsvpDeadline, form.timezone),
@@ -464,6 +466,36 @@ export function EventSettingsForm({
 						onChange={(e) => set("description", e.target.value)}
 						className={FIELD_CLASS}
 					/>
+				</TextField>
+
+				<TextField className="space-y-1">
+					<div className="flex items-center justify-between">
+						<Label htmlFor="event-whatsapp-template" className={LABEL_CLASS}>
+							Plantilla de mensaje para WhatsApp
+						</Label>
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							onPress={() =>
+								set("whatsappMessageTemplate", DEFAULT_WHATSAPP_TEMPLATE)
+							}
+						>
+							Restaurar por defecto
+						</Button>
+					</div>
+					<TextArea
+						id="event-whatsapp-template"
+						rows={3}
+						value={form.whatsappMessageTemplate}
+						onChange={(e) => set("whatsappMessageTemplate", e.target.value)}
+						placeholder={DEFAULT_WHATSAPP_TEMPLATE}
+						className={FIELD_CLASS}
+					/>
+					<p className="text-xs text-secondary">
+						Variables disponibles: {"{nombre}"}, {"{evento}"}, {"{fecha}"},{" "}
+						{"{lugar}"}, {"{enlace}"}.
+					</p>
 				</TextField>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

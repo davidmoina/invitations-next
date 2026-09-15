@@ -319,6 +319,7 @@ export function AdminEventShell({
 				{/* Guest Management */}
 				<GuestList
 					guests={data.guests}
+					messageContext={data.event}
 					onEditGuest={onEditGuest}
 					onRefresh={onRefresh}
 					onIssueGuestLink={onIssueGuestLink}
