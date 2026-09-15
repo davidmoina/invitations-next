@@ -70,9 +70,9 @@ export function HeroSection({ event, guest, coverMediaUrl }: HeroSectionProps) {
 				) : (
 					<div className="w-full h-full bg-gradient-to-br from-slate-950 via-slate-900 to-[#1e344d]" />
 				)}
-				{/* Radial & Linear Vignettes */}
-				<div className="absolute inset-0 bg-gradient-to-b from-stone-950/70 via-stone-900/35 to-stone-950/80" />
-				<div className="absolute inset-0 bg-gradient-to-t from-[#0f1e2f]/80 via-[#1e344d]/30 to-transparent" />
+				{/* Light scrims: legibility at the edges, the photo shows through the middle */}
+				<div className="absolute inset-0 bg-gradient-to-b from-stone-950/40 via-transparent to-stone-950/55" />
+				<div className="absolute inset-0 bg-[#0f1e2f]/10" />
 			</div>
 
 			{/* Hero Text & Content */}
@@ -88,7 +88,7 @@ export function HeroSection({ event, guest, coverMediaUrl }: HeroSectionProps) {
 
 				{/* Main Title & Hosts */}
 				<div className="space-y-3 my-auto max-w-xl py-6">
-					<h1 className="font-serif text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white drop-shadow-md leading-[1.08] capitalize">
+					<h1 className="font-serif text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white drop-shadow-lg leading-[1.08] capitalize">
 						{event.title}
 					</h1>
 					{event.honoreeNames && event.honoreeNames.length > 0 && (
