@@ -51,15 +51,15 @@ export function GuestAccessGate({ onRequestGuestLink }: GuestAccessGateProps) {
 			<section
 				id="rsvp"
 				aria-label="Acceso de invitados"
-				className="w-full max-w-md mx-auto p-8 bg-champagne-50 rounded-2xl border border-champagne-100 shadow-sm text-center"
+				className="w-full max-w-md mx-auto p-8 bg-[#e8f1fa] rounded-2xl border border-[#d1e4ff] shadow-sm text-center"
 			>
 				<div className="w-16 h-16 rounded-full bg-success-bg text-success-green mx-auto mb-4 flex items-center justify-center">
 					<CheckCircleIcon className="w-8 h-8" />
 				</div>
-				<h2 className="font-serif text-2xl text-primary font-semibold mb-2">
+				<h2 className="font-serif text-2xl text-[#2c4d6f] font-semibold mb-2">
 					Enlace solicitado
 				</h2>
-				<p className="text-secondary text-sm leading-relaxed">
+				<p className="text-slate-500 text-sm leading-relaxed">
 					{GUEST_ACCESS_CONFIRMATION_MESSAGE}
 				</p>
 			</section>
@@ -70,13 +70,13 @@ export function GuestAccessGate({ onRequestGuestLink }: GuestAccessGateProps) {
 		<section
 			id="rsvp"
 			aria-label="Acceso de invitados"
-			className="w-full max-w-md mx-auto p-6 sm:p-8 bg-surface-container-lowest rounded-2xl border border-stone-200 shadow-sm"
+			className="w-full max-w-md mx-auto p-6 sm:p-8 bg-white rounded-2xl border border-slate-200 shadow-sm"
 		>
 			<div className="text-center mb-6 sm:mb-8">
-				<h2 className="font-serif text-2xl sm:text-3xl text-primary font-semibold mb-2">
+				<h2 className="font-serif text-2xl sm:text-3xl text-[#2c4d6f] font-semibold mb-2">
 					Acceso al evento
 				</h2>
-				<p className="text-secondary text-sm">
+				<p className="text-slate-500 text-sm">
 					Para acceder indica tu correo o número telefónico.
 				</p>
 			</div>
@@ -85,7 +85,7 @@ export function GuestAccessGate({ onRequestGuestLink }: GuestAccessGateProps) {
 				<TextField isInvalid={Boolean(contactError)} className="space-y-1.5">
 					<Label
 						htmlFor="guest-contact"
-						className="block text-sm font-medium text-on-surface"
+						className="block text-sm font-medium text-slate-800"
 					>
 						Correo o número telefónico{" "}
 						<span className="text-error" aria-hidden="true">
@@ -109,7 +109,7 @@ export function GuestAccessGate({ onRequestGuestLink }: GuestAccessGateProps) {
 						}}
 						placeholder="correo@ejemplo.com o 612345678"
 						disabled={isSubmitting}
-						className="w-full bg-stone-50 border border-stone-300 text-on-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-stone-400 disabled:opacity-60"
+						className="w-full bg-stone-50 border border-slate-300 text-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2c4d6f] focus:border-[#2c4d6f] transition-all duration-200 placeholder:text-stone-400 disabled:opacity-60"
 					/>
 					{contactError && (
 						<p
