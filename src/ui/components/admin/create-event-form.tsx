@@ -139,7 +139,7 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 			setError("Selecciona el tipo de celebración.");
 			return;
 		}
-		const startsAt = toIso(form.startsAt);
+		const startsAt = toIso(form.startsAt, form.timezone);
 		if (startsAt === null) {
 			setError("Indica la fecha y la hora del evento.");
 			return;
@@ -189,7 +189,7 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 				description: orNull(form.description),
 				maxCompanions: form.maxCompanions,
 				giftRegistryEnabled: form.giftRegistryEnabled,
-				rsvpDeadline: toIso(form.rsvpDeadline),
+				rsvpDeadline: toIso(form.rsvpDeadline, form.timezone),
 			});
 		} catch {
 			// Never echo the raw failure: it can carry internal detail.
