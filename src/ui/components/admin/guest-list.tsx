@@ -245,10 +245,13 @@ export function GuestList({
 	const handleSendWhatsApp = async (guest: AdminGuest) => {
 		if (!onIssueGuestLink || !guest.phone || sendingWhatsAppGuestId) return;
 
+		// Opened synchronously so popup blockers allow it, and without the
+		// `noopener` feature: that makes window.open return null and we need the
+		// handle to navigate the tab once the link exists. Cut the opener link
+		// by hand instead so wa.me can never reach this window.
 		const popup =
-			typeof window !== "undefined"
-				? window.open("", "_blank", "noopener,noreferrer")
-				: null;
+			typeof window !== "undefined" ? window.open("", "_blank") : null;
+		if (popup) popup.opener = null;
 
 		setSendingWhatsAppGuestId(guest.id);
 

@@ -462,7 +462,11 @@ describe("GuestList", () => {
 
 	it("synchronously opens a popup, issues link, and navigates popup to wa.me url on WhatsApp button press", async () => {
 		const user = userEvent.setup();
-		const mockPopup = { location: { href: "" }, close: vi.fn() };
+		const mockPopup = {
+			location: { href: "" },
+			opener: window,
+			close: vi.fn(),
+		};
 		const openSpy = vi
 			.spyOn(window, "open")
 			.mockReturnValue(mockPopup as unknown as Window);
@@ -496,7 +500,10 @@ describe("GuestList", () => {
 		const waButton = screen.getByRole("button", { name: /whatsapp/i });
 		await user.click(waButton);
 
-		expect(openSpy).toHaveBeenCalledWith("", "_blank", "noopener,noreferrer");
+		// `noopener` in the features string makes window.open return null in
+		// real browsers, which would leave the tab blank: the handle is required.
+		expect(openSpy).toHaveBeenCalledWith("", "_blank");
+		expect(mockPopup.opener).toBeNull();
 		await waitFor(() => {
 			expect(onIssueGuestLink).toHaveBeenCalledWith("guest-1");
 		});
@@ -542,7 +549,11 @@ describe("GuestList", () => {
 
 	it("shows a toast when wa.me url cannot be built or issuing link rejects", async () => {
 		const user = userEvent.setup();
-		const mockPopup = { location: { href: "" }, close: vi.fn() };
+		const mockPopup = {
+			location: { href: "" },
+			opener: window,
+			close: vi.fn(),
+		};
 		const openSpy = vi
 			.spyOn(window, "open")
 			.mockReturnValue(mockPopup as unknown as Window);
