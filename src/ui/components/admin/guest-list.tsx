@@ -8,6 +8,7 @@ import {
 	NumberField,
 	Select,
 	TextField,
+	toast,
 } from "@heroui/react";
 import { useMemo, useState } from "react";
 
@@ -91,7 +92,6 @@ export function GuestList({
 	const [savedGuestId, setSavedGuestId] = useState<string | null>(null);
 
 	const [issuingGuestId, setIssuingGuestId] = useState<string | null>(null);
-	const [copiedGuestId, setCopiedGuestId] = useState<string | null>(null);
 	const [issueError, setIssueError] = useState<{
 		guestId: string;
 		message: string;
@@ -214,13 +214,12 @@ export function GuestList({
 		if (!onIssueGuestLink || issuingGuestId) return;
 		setIssuingGuestId(guestId);
 		setIssueError(null);
-		setCopiedGuestId(null);
 		try {
 			const { url } = await onIssueGuestLink(guestId);
 			if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
 				await navigator.clipboard.writeText(url);
 			}
-			setCopiedGuestId(guestId);
+			toast.success("Enlace copiado al portapapeles.");
 		} catch {
 			setIssueError({
 				guestId,
@@ -379,7 +378,6 @@ export function GuestList({
 								const isSaving = savingGuestId === guest.id;
 								const isSaved = savedGuestId === guest.id;
 								const isIssuing = issuingGuestId === guest.id;
-								const isCopied = copiedGuestId === guest.id;
 								const hasIssueError = issueError?.guestId === guest.id;
 
 								if (isEditing) {
@@ -605,13 +603,6 @@ export function GuestList({
 														Editar
 													</Button>
 												</div>
-												{isCopied && (
-													<Alert status="success" role="status">
-														<Alert.Description>
-															Enlace copiado al portapapeles.
-														</Alert.Description>
-													</Alert>
-												)}
 												{hasIssueError && (
 													<Alert status="danger" role="alert">
 														<Alert.Description>

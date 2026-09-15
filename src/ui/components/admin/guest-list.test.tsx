@@ -1,3 +1,4 @@
+import { Toast, toast } from "@heroui/react";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -36,7 +37,12 @@ function renderGuestList(
 		onEditGuest: vi.fn().mockResolvedValue({ id: "guest-1" }),
 		...overrides,
 	};
-	render(<GuestList {...props} />);
+	render(
+		<>
+			<Toast.Provider />
+			<GuestList {...props} />
+		</>,
+	);
 	return props;
 }
 
@@ -52,7 +58,10 @@ async function selectOption(
 }
 
 describe("GuestList", () => {
-	afterEach(cleanup);
+	afterEach(() => {
+		cleanup();
+		toast.clear();
+	});
 
 	it("renders the guest list with attendance and companion count", () => {
 		renderGuestList();
@@ -305,9 +314,17 @@ describe("GuestList", () => {
 			expect(onIssueGuestLink).toHaveBeenCalledWith("guest-1");
 		});
 		expect(writeText).toHaveBeenCalledWith("https://example.com/magic/guest-1");
+
+		// Toast appears with role alert/status outside the table cell
+		const toast = await screen.findByRole("alert");
+		expect(toast).toHaveTextContent(/enlace copiado al portapapeles/i);
+
+		// The inline alert inside the table row is gone
 		expect(
-			await screen.findByText(/enlace copiado al portapapeles/i),
-		).toBeInTheDocument();
+			firstCopyButton
+				.closest("td")
+				?.querySelector("[role='status'], [role='alert']"),
+		).toBeNull();
 	});
 
 	it("renders a readable error state when onIssueGuestLink rejects", async () => {
