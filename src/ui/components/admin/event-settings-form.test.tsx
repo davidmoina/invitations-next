@@ -18,6 +18,7 @@ const event: AdminEvent = {
 	venueAddress: null,
 	venueMapUrl: null,
 	description: null,
+	whatsappMessageTemplate: null,
 	maxCompanions: 2,
 	giftRegistryEnabled: true,
 	rsvpDeadline: null,

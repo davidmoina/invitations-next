@@ -24,6 +24,7 @@ const adminEvent: AdminEvent = {
 	venueAddress: null,
 	venueMapUrl: null,
 	description: null,
+	whatsappMessageTemplate: null,
 	maxCompanions: 2,
 	giftRegistryEnabled: true,
 	rsvpDeadline: null,
@@ -131,5 +132,9 @@ describe("the admin surface encodes its guarantees structurally", () => {
 		expect(new Date(adminEvent.startsAt).toISOString()).toBe(
 			adminEvent.startsAt,
 		);
+	});
+
+	it("carries the organizer-only WhatsApp message template", () => {
+		expect(adminEvent.whatsappMessageTemplate).toBeNull();
 	});
 });

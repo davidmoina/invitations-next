@@ -151,7 +151,7 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 			setError("Selecciona el tipo de celebración.");
 			return;
 		}
-		const startsAt = toIso(form.startsAt);
+		const startsAt = toIso(form.startsAt, form.timezone);
 		if (startsAt === null) {
 			setError("Indica la fecha y la hora del evento.");
 			return;
@@ -199,9 +199,11 @@ export function CreateEventForm({ onCreateEvent }: CreateEventFormProps) {
 				venueAddress: orNull(form.venueAddress),
 				venueMapUrl: orNull(form.venueMapUrl),
 				description: orNull(form.description),
+				// No editor for this yet; the settings form will own it.
+				whatsappMessageTemplate: null,
 				maxCompanions: form.maxCompanions,
 				giftRegistryEnabled: form.giftRegistryEnabled,
-				rsvpDeadline: toIso(form.rsvpDeadline),
+				rsvpDeadline: toIso(form.rsvpDeadline, form.timezone),
 			});
 		} catch {
 			// Never echo the raw failure: it can carry internal detail.

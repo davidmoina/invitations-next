@@ -96,6 +96,7 @@ export async function insertEventRow(
 		venueAddress: string | null;
 		venueMapUrl: string | null;
 		description: string | null;
+		whatsappMessageTemplate: string | null;
 		maxCompanions: number;
 		giftRegistryEnabled: boolean;
 		rsvpDeadline: Date | null;
@@ -148,6 +149,7 @@ export async function updateEventRow(
 		venueAddress: string | null;
 		venueMapUrl: string | null;
 		description: string | null;
+		whatsappMessageTemplate: string | null;
 		maxCompanions: number;
 		giftRegistryEnabled: boolean;
 		rsvpDeadline: Date | null;
