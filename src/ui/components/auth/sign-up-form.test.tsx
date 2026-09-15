@@ -42,6 +42,9 @@ describe("SignUpForm", () => {
 		expect(pass.getAttribute("type")).toBe("password");
 		expect(pass.getAttribute("autocomplete")).toBe("new-password");
 		expect(pass.getAttribute("aria-describedby")).toBe("sign-up-password-hint");
+		expect(name).toHaveAttribute("data-slot", "input");
+		expect(email).toHaveAttribute("data-slot", "input");
+		expect(pass).toHaveAttribute("data-slot", "input");
 
 		const q = (s: string) => container.querySelector(s);
 		expect(q('label[for="sign-up-name"]')).toBeInTheDocument();
@@ -54,6 +57,7 @@ describe("SignUpForm", () => {
 
 		const form = q("form");
 		const btn = screen.getByRole("button", { name: "Crear cuenta" });
+		expect(btn).toHaveAttribute("data-slot", "button");
 		expect(form).toHaveAttribute("aria-busy", "false");
 
 		await user.click(btn);

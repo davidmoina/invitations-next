@@ -1,3 +1,4 @@
+import { buttonVariants } from "@heroui/react";
 import type {
 	AdminAuditEntry,
 	AdminEventPageData,
@@ -199,7 +200,10 @@ export function AdminEventShell({
 								href={`/e/${data.event.slug}`}
 								target="_blank"
 								rel="noreferrer"
-								className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-container border border-stone-300 text-on-surface font-semibold text-xs sm:text-sm hover:bg-stone-100 transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-primary"
+								className={buttonVariants({
+									variant: "outline",
+									size: "sm",
+								})}
 							>
 								<span>Ver invitación pública</span>
 								<ExternalLinkIcon className="w-4 h-4" />
@@ -315,6 +319,7 @@ export function AdminEventShell({
 				{/* Guest Management */}
 				<GuestList
 					guests={data.guests}
+					messageContext={data.event}
 					onEditGuest={onEditGuest}
 					onRefresh={onRefresh}
 					onIssueGuestLink={onIssueGuestLink}

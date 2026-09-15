@@ -53,6 +53,7 @@ export const events = pgTable(
 		venueAddress: text("venue_address"),
 		venueMapUrl: text("venue_map_url"),
 		description: text("description"),
+		whatsappMessageTemplate: text("whatsapp_message_template"),
 		maxCompanions: integer("max_companions").notNull().default(0),
 		giftRegistryEnabled: boolean("gift_registry_enabled")
 			.notNull()

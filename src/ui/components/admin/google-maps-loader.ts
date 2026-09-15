@@ -1,7 +1,7 @@
 /**
  * Client-safe loader for the Google Maps JavaScript API's "places" library.
  *
- * The env module under the platform layer is server-only, so the
+ * The platform env module is server-only (`import "server-only"`), so the
  * public key it never carries lives here instead, read straight off
  * `process.env` — Next.js inlines `NEXT_PUBLIC_*` vars into the client
  * bundle at build time, so this is safe to read from a client component.

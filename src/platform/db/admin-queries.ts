@@ -338,6 +338,7 @@ export async function getAdminEventPageData(
 			venueAddress: event.venueAddress,
 			venueMapUrl: event.venueMapUrl,
 			description: event.description,
+			whatsappMessageTemplate: event.whatsappMessageTemplate,
 			maxCompanions: event.maxCompanions,
 			giftRegistryEnabled: event.giftRegistryEnabled,
 			rsvpDeadline: event.rsvpDeadline?.toISOString() ?? null,

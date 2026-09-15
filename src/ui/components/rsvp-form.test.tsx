@@ -31,14 +31,14 @@ describe("RsvpForm", () => {
 		);
 
 		expect(
-			screen.getByRole("button", { name: /^asistiré/i }),
+			screen.getByRole("radio", { name: /^asistiré/i }),
 		).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: /^no podré asistir/i }),
+			screen.getByRole("radio", { name: /^no podré asistir/i }),
 		).toBeInTheDocument();
 
 		// Select attending
-		await user.click(screen.getByRole("button", { name: /^asistiré/i }));
+		await user.click(screen.getByRole("radio", { name: /^asistiré/i }));
 
 		// Submit form
 		await user.click(
@@ -76,7 +76,7 @@ describe("RsvpForm", () => {
 			/>,
 		);
 
-		await user.click(screen.getByRole("button", { name: /^asistiré/i }));
+		await user.click(screen.getByRole("radio", { name: /^asistiré/i }));
 
 		// Increment companions
 		const plusButton = screen.getByRole("button", {
@@ -121,7 +121,7 @@ describe("RsvpForm", () => {
 			/>,
 		);
 
-		await user.click(screen.getByRole("button", { name: /^asistiré/i }));
+		await user.click(screen.getByRole("radio", { name: /^asistiré/i }));
 		await user.click(
 			screen.getByRole("button", { name: /confirmar respuesta/i }),
 		);

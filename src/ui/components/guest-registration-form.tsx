@@ -1,7 +1,8 @@
 "use client";
+import { Alert, Button, Input, Label, Spinner, TextField } from "@heroui/react";
 import { type FormEvent, useState } from "react";
 
-import { ArrowRightIcon, CheckCircleIcon, SpinnerIcon } from "./icons";
+import { ArrowRightIcon, CheckCircleIcon } from "./icons";
 
 export type RegisterGuestInput = {
 	displayName: string;
@@ -151,8 +152,8 @@ export function GuestRegistrationForm({
 
 			<form onSubmit={handleSubmit} className="space-y-5" noValidate>
 				{/* Name input */}
-				<div className="space-y-1.5">
-					<label
+				<TextField isInvalid={Boolean(nameError)} className="space-y-1.5">
+					<Label
 						htmlFor="guest-name"
 						className="block text-sm font-medium text-on-surface"
 					>
@@ -160,9 +161,9 @@ export function GuestRegistrationForm({
 						<span className="text-error" aria-hidden="true">
 							*
 						</span>
-					</label>
+					</Label>
 					<div className="relative">
-						<input
+						<Input
 							id="guest-name"
 							name="displayName"
 							type="text"
@@ -198,11 +199,11 @@ export function GuestRegistrationForm({
 							{nameError}
 						</p>
 					)}
-				</div>
+				</TextField>
 
 				{/* Email input */}
-				<div className="space-y-1.5">
-					<label
+				<TextField isInvalid={Boolean(emailError)} className="space-y-1.5">
+					<Label
 						htmlFor="guest-email"
 						className="block text-sm font-medium text-on-surface"
 					>
@@ -210,8 +211,8 @@ export function GuestRegistrationForm({
 						<span className="text-secondary/70 font-normal text-xs ml-1">
 							(Optional)
 						</span>
-					</label>
-					<input
+					</Label>
+					<Input
 						id="guest-email"
 						name="email"
 						type="email"
@@ -236,28 +237,27 @@ export function GuestRegistrationForm({
 							{emailError}
 						</p>
 					)}
-				</div>
+				</TextField>
 
 				{/* Server/submission error alert */}
 				{errorMessage && (
-					<div
-						role="alert"
-						className="p-3.5 bg-error-container/40 border border-error/20 text-error rounded-xl text-xs font-medium"
-					>
-						{errorMessage}
-					</div>
+					<Alert status="danger" role="alert">
+						<Alert.Description>{errorMessage}</Alert.Description>
+					</Alert>
 				)}
 
 				{/* Submit button */}
 				<div className="pt-2">
-					<button
+					<Button
 						type="submit"
-						disabled={isSubmitting}
-						className="w-full bg-primary text-white font-medium text-sm py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+						variant="primary"
+						fullWidth
+						isDisabled={isSubmitting}
+						isPending={isSubmitting}
 					>
 						{isSubmitting ? (
 							<>
-								<SpinnerIcon className="w-4 h-4 animate-spin" />
+								<Spinner size="sm" />
 								<span>Preparing your invitation...</span>
 							</>
 						) : (
@@ -266,7 +266,7 @@ export function GuestRegistrationForm({
 								<ArrowRightIcon className="w-4 h-4" />
 							</>
 						)}
-					</button>
+					</Button>
 				</div>
 			</form>
 

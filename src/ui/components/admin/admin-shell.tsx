@@ -1,4 +1,5 @@
 "use client";
+import { Button, buttonVariants, Drawer } from "@heroui/react";
 import { useState } from "react";
 import {
 	CalendarIcon,
@@ -92,44 +93,50 @@ export function AdminShell({
 					Invit
 				</a>
 				<div className="flex items-center gap-2">
-					<button
+					<Button
 						type="button"
+						variant="ghost"
+						size="sm"
+						isIconOnly
 						aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
 						aria-expanded={mobileMenuOpen}
-						onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-						className="p-2 rounded-lg text-secondary hover:text-primary hover:bg-surface-variant/40 transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
+						onPress={() => setMobileMenuOpen(!mobileMenuOpen)}
+						className="p-2 rounded-lg text-secondary hover:text-primary hover:bg-surface-variant/40 transition-colors"
 					>
 						{mobileMenuOpen ? (
 							<XCircleIcon className="w-6 h-6" />
 						) : (
 							<MenuIcon className="w-6 h-6" />
 						)}
-					</button>
+					</Button>
 				</div>
 			</nav>
 
 			{/* Mobile Drawer */}
-			{mobileMenuOpen ? (
-				<div
-					role="dialog"
-					aria-modal="true"
-					aria-label="Menú principal"
-					className="fixed inset-0 z-50 md:hidden bg-stone-900/40 backdrop-blur-xs flex flex-col"
+			<Drawer.Backdrop
+				isOpen={mobileMenuOpen}
+				onOpenChange={setMobileMenuOpen}
+				className="fixed inset-0 z-50 md:hidden bg-stone-900/40 backdrop-blur-xs"
+			>
+				<Drawer.Content
+					placement="left"
+					className="fixed inset-y-0 left-0 w-4/5 max-w-sm h-full"
 				>
-					<div className="bg-surface w-4/5 max-w-sm h-full shadow-xl flex flex-col p-6 overflow-y-auto">
-						<div className="flex items-center justify-between pb-4 border-b border-surface-variant/50">
-							<span className="font-serif italic text-xl font-semibold text-primary">
+					<Drawer.Dialog
+						aria-label="Menú principal"
+						className="bg-surface w-full h-full shadow-xl flex flex-col p-6 overflow-y-auto outline-none"
+					>
+						<Drawer.Header className="flex flex-row items-center justify-between pb-4 border-b border-surface-variant/50">
+							<Drawer.Heading className="font-serif italic text-xl font-semibold text-primary">
 								Invit
-							</span>
-							<button
-								type="button"
+							</Drawer.Heading>
+							<Drawer.CloseTrigger
 								aria-label="Cerrar menú"
-								onClick={() => setMobileMenuOpen(false)}
-								className="p-2 rounded-lg text-secondary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
+								className="p-2 rounded-lg text-secondary hover:text-primary transition-colors cursor-pointer"
 							>
 								<XCircleIcon className="w-5 h-5" />
-							</button>
-						</div>
+							</Drawer.CloseTrigger>
+						</Drawer.Header>
 
 						{currentEventTitle ? (
 							<div className="my-4 p-3 bg-surface-container rounded-xl border border-stone-200/60">
@@ -144,77 +151,84 @@ export function AdminShell({
 							</div>
 						) : null}
 
-						<nav
-							aria-label="Navegación móvil principal"
-							className="space-y-1.5 mt-4"
-						>
-							{navItems.map((item) => {
-								const isActive = currentSection === item.id;
-								const Icon = item.icon;
-								if (item.href) {
+						<Drawer.Body className="p-0 flex-1 flex flex-col">
+							<nav
+								aria-label="Navegación móvil principal"
+								className="space-y-1.5 mt-4"
+							>
+								{navItems.map((item) => {
+									const isActive = currentSection === item.id;
+									const Icon = item.icon;
+									if (item.href) {
+										return (
+											<a
+												key={item.id}
+												href={item.href}
+												aria-current={isActive ? "page" : undefined}
+												onClick={() => setMobileMenuOpen(false)}
+												className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
+													isActive
+														? "bg-primary-container text-on-primary-container font-semibold"
+														: "text-on-surface-variant hover:bg-surface-variant/50 hover:text-primary"
+												}`}
+											>
+												<Icon className="w-5 h-5" />
+												<span>{item.label}</span>
+											</a>
+										);
+									}
 									return (
-										<a
+										<span
 											key={item.id}
-											href={item.href}
-											aria-current={isActive ? "page" : undefined}
-											onClick={() => setMobileMenuOpen(false)}
-											className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
+											aria-disabled="true"
+											className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm opacity-60 cursor-not-allowed ${
 												isActive
 													? "bg-primary-container text-on-primary-container font-semibold"
-													: "text-on-surface-variant hover:bg-surface-variant/50 hover:text-primary"
+													: "text-on-surface-variant"
 											}`}
 										>
 											<Icon className="w-5 h-5" />
 											<span>{item.label}</span>
-										</a>
+										</span>
 									);
-								}
-								return (
-									<span
-										key={item.id}
-										aria-disabled="true"
-										className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm opacity-60 cursor-not-allowed ${
-											isActive
-												? "bg-primary-container text-on-primary-container font-semibold"
-												: "text-on-surface-variant"
-										}`}
-									>
-										<Icon className="w-5 h-5" />
-										<span>{item.label}</span>
-									</span>
-								);
-							})}
-						</nav>
+								})}
+							</nav>
 
-						<div className="mt-6 pt-4 border-t border-surface-variant/50">
-							<a
-								href={newEventHref}
-								onClick={() => setMobileMenuOpen(false)}
-								className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white font-medium text-sm shadow-xs hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-primary"
-							>
-								<PlusIcon className="w-4 h-4" />
-								<span>Crear evento</span>
-							</a>
-						</div>
-
-						{onSignOut ? (
-							<div className="mt-auto pt-6 border-t border-surface-variant/50">
-								<button
-									type="button"
-									onClick={() => {
-										setMobileMenuOpen(false);
-										void onSignOut();
-									}}
-									className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-secondary hover:text-error hover:bg-stone-100 transition-colors"
+							<div className="mt-6 pt-4 border-t border-surface-variant/50">
+								<a
+									href={newEventHref}
+									onClick={() => setMobileMenuOpen(false)}
+									className={buttonVariants({
+										variant: "primary",
+										className: "w-full flex items-center justify-center gap-2",
+									})}
 								>
-									<LogOutIcon className="w-5 h-5" />
-									<span>Cerrar sesión</span>
-								</button>
+									<PlusIcon className="w-4 h-4" />
+									<span>Crear evento</span>
+								</a>
 							</div>
-						) : null}
-					</div>
-				</div>
-			) : null}
+
+							{onSignOut ? (
+								<div className="mt-auto pt-6 border-t border-surface-variant/50">
+									<Button
+										type="button"
+										variant="ghost"
+										fullWidth
+										onPress={() => {
+											setMobileMenuOpen(false);
+											void onSignOut();
+										}}
+										className="flex items-center justify-start gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-secondary hover:text-error hover:bg-stone-100 transition-colors"
+									>
+										<LogOutIcon className="w-5 h-5" />
+										<span>Cerrar sesión</span>
+									</Button>
+								</div>
+							) : null}
+						</Drawer.Body>
+					</Drawer.Dialog>
+				</Drawer.Content>
+			</Drawer.Backdrop>
 
 			{/* Desktop Sidebar */}
 			<aside className="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container border-r border-surface-variant/70 z-40">
@@ -289,14 +303,17 @@ export function AdminShell({
 					<div className="mt-6 px-1">
 						<a
 							href={newEventHref}
-							className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white font-medium text-sm shadow-xs hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
+							className={buttonVariants({
+								variant: "primary",
+								className: "w-full flex items-center justify-center gap-2",
+							})}
 						>
 							<PlusIcon className="w-4 h-4" />
 							<span>Crear evento</span>
 						</a>
 					</div>
 
-					<div className="mt-auto pt-4 border-t border-surface-variant/50 space-y-1">
+					<div className="mt-auto pt-6 border-t border-surface-variant/50 space-y-1">
 						<span
 							aria-disabled="true"
 							className="flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-medium text-secondary/60 cursor-not-allowed"
@@ -306,14 +323,16 @@ export function AdminShell({
 						</span>
 
 						{onSignOut ? (
-							<button
+							<Button
 								type="button"
-								onClick={() => void onSignOut()}
-								className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-secondary hover:text-error hover:bg-stone-100 transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
+								variant="ghost"
+								fullWidth
+								onPress={() => void onSignOut()}
+								className="flex items-center justify-start gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-secondary hover:text-error hover:bg-stone-100 transition-colors"
 							>
 								<LogOutIcon className="w-4 h-4" />
 								<span>Cerrar sesión</span>
-							</button>
+							</Button>
 						) : null}
 					</div>
 				</nav>

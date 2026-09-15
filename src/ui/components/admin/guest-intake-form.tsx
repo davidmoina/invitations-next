@@ -1,4 +1,5 @@
 "use client";
+import { Alert, Button, Input, Label, TextField } from "@heroui/react";
 import { useState } from "react";
 
 import { FIELD_CLASS, LABEL_CLASS, orNull } from "./event-form-fields";
@@ -76,29 +77,29 @@ export function GuestIntakeForm({
 	const formContent = (
 		<form onSubmit={addGuest} className="space-y-3">
 			{successNotice && (
-				<output className="block p-3 bg-success-bg text-success-green border border-success-green/20 rounded-xl text-xs font-medium">
-					{successNotice}
-				</output>
+				<Alert status="success" role="status">
+					<Alert.Description>{successNotice}</Alert.Description>
+				</Alert>
 			)}
 
-			<div>
-				<label htmlFor="guest-display-name" className={LABEL_CLASS}>
+			<TextField className="space-y-1">
+				<Label htmlFor="guest-display-name" className={LABEL_CLASS}>
 					Nombre
-				</label>
-				<input
+				</Label>
+				<Input
 					id="guest-display-name"
 					value={displayName}
 					onChange={(event) => setDisplayName(event.target.value)}
 					placeholder="Ej. María García"
 					className={FIELD_CLASS}
 				/>
-			</div>
+			</TextField>
 
-			<div>
-				<label htmlFor="guest-email" className={LABEL_CLASS}>
+			<TextField className="space-y-1">
+				<Label htmlFor="guest-email" className={LABEL_CLASS}>
 					Email
-				</label>
-				<input
+				</Label>
+				<Input
 					id="guest-email"
 					type="email"
 					value={email}
@@ -106,13 +107,13 @@ export function GuestIntakeForm({
 					placeholder="maria@example.com"
 					className={FIELD_CLASS}
 				/>
-			</div>
+			</TextField>
 
-			<div>
-				<label htmlFor="guest-phone" className={LABEL_CLASS}>
+			<TextField className="space-y-1">
+				<Label htmlFor="guest-phone" className={LABEL_CLASS}>
 					Teléfono
-				</label>
-				<input
+				</Label>
+				<Input
 					id="guest-phone"
 					type="tel"
 					value={phone}
@@ -120,33 +121,35 @@ export function GuestIntakeForm({
 					placeholder="+34 600 123 456"
 					className={FIELD_CLASS}
 				/>
-			</div>
+			</TextField>
 
 			{error ? (
-				<p role="alert" className="text-sm text-red-700 font-medium">
-					{error}
-				</p>
+				<Alert status="danger" role="alert">
+					<Alert.Description>{error}</Alert.Description>
+				</Alert>
 			) : null}
 
 			<div className="flex flex-wrap items-center gap-3 pt-2">
-				<button
+				<Button
 					type="submit"
 					name="intent"
 					value={ADD_INTENT}
-					disabled={submitting}
-					className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs focus-visible:ring-2 focus-visible:ring-primary"
+					variant="primary"
+					isDisabled={submitting}
+					isPending={submitting && !isAnother}
 				>
 					{submitting && !isAnother ? "Añadiendo…" : "Añadir invitado"}
-				</button>
-				<button
+				</Button>
+				<Button
 					type="submit"
 					name="intent"
 					value={ADD_ANOTHER_INTENT}
-					disabled={submitting}
-					className="px-4 py-2 rounded-xl border border-stone-300 bg-white text-on-surface text-sm font-medium hover:bg-stone-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-primary"
+					variant="secondary"
+					isDisabled={submitting}
+					isPending={submitting && isAnother}
 				>
 					{submitting && isAnother ? "Añadiendo…" : "Guardar y añadir otro"}
-				</button>
+				</Button>
 			</div>
 		</form>
 	);

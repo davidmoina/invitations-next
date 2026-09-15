@@ -6,6 +6,9 @@ import type { BabySex, EventType } from "./event-types";
 expectTypeOf<NewEventInput["details"]>().toEqualTypeOf<EventDetails>();
 expectTypeOf<NewEventInput["eventType"]>().toEqualTypeOf<EventType>();
 expectTypeOf<NewEventInput["honoreeNames"]>().toEqualTypeOf<string[]>();
+expectTypeOf<NewEventInput["whatsappMessageTemplate"]>().toEqualTypeOf<
+	string | null
+>();
 
 expectTypeOf<
 	Extract<EventDetails, { type: "baby_shower" }>["babySex"]

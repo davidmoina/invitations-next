@@ -1,4 +1,5 @@
 "use client";
+import { Alert, Button, Radio, RadioGroup } from "@heroui/react";
 import { useState } from "react";
 import type { PublicError } from "#/server/contracts/errors";
 import type {
@@ -151,50 +152,69 @@ export function RsvpForm({
 			</div>
 
 			<form onSubmit={handleSubmit} className="space-y-6">
-				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<button
-						type="button"
-						onClick={() => setAttending(true)}
-						className={`p-5 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center text-center h-full ${
-							attending === true
-								? "border-[#2c4d6f] bg-[#f0f6fc] shadow-sm ring-2 ring-[#2c4d6f]/20"
-								: "border-slate-200 hover:border-[#2c4d6f]/40 bg-[#f8fafc]"
-						}`}
-					>
-						<div className="w-11 h-11 rounded-full bg-[#d1e4ff] text-[#113657] flex items-center justify-center mb-3 border border-sky-200">
-							<CheckCircleIcon className="w-6 h-6" />
-						</div>
-						<span className="font-semibold text-slate-800 text-base mb-1">
-							Asistiré
-						</span>
-						<span className="text-xs text-slate-500 leading-snug">
-							¡Con muchas ganas de celebrar!
-						</span>
-					</button>
-
-					<button
-						type="button"
-						onClick={() => {
+				<RadioGroup
+					aria-label="Confirmación de asistencia"
+					value={attending === null ? "" : attending ? "yes" : "no"}
+					onChange={(val) => {
+						if (val === "yes") {
+							setAttending(true);
+						} else if (val === "no") {
 							setAttending(false);
 							setCompanions(0);
-						}}
-						className={`p-5 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center text-center h-full ${
-							attending === false
-								? "border-[#2c4d6f] bg-[#f0f6fc] shadow-sm ring-2 ring-[#2c4d6f]/20"
-								: "border-slate-200 hover:border-[#2c4d6f]/40 bg-[#f8fafc]"
-						}`}
-					>
-						<div className="w-11 h-11 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3 border border-slate-200">
-							<XCircleIcon className="w-6 h-6" />
-						</div>
-						<span className="font-semibold text-slate-800 text-base mb-1">
-							No podré asistir
-						</span>
-						<span className="text-xs text-slate-500 leading-snug">
-							Estaré presente en espíritu
-						</span>
-					</button>
-				</div>
+						}
+					}}
+					className="w-full"
+				>
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<Radio
+							value="yes"
+							className={`p-5 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center text-center h-full cursor-pointer ${
+								attending === true
+									? "border-[#2c4d6f] bg-[#f0f6fc] shadow-sm ring-2 ring-[#2c4d6f]/20"
+									: "border-slate-200 hover:border-[#2c4d6f]/40 bg-[#f8fafc]"
+							}`}
+						>
+							<Radio.Content className="flex flex-col items-center justify-center text-center w-full">
+								<Radio.Control className="sr-only">
+									<Radio.Indicator />
+								</Radio.Control>
+								<div className="w-11 h-11 rounded-full bg-[#d1e4ff] text-[#113657] flex items-center justify-center mb-3 border border-sky-200">
+									<CheckCircleIcon className="w-6 h-6" />
+								</div>
+								<span className="font-semibold text-slate-800 text-base mb-1">
+									Asistiré
+								</span>
+								<span className="text-xs text-slate-500 leading-snug">
+									¡Con muchas ganas de celebrar!
+								</span>
+							</Radio.Content>
+						</Radio>
+
+						<Radio
+							value="no"
+							className={`p-5 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center justify-center text-center h-full cursor-pointer ${
+								attending === false
+									? "border-[#2c4d6f] bg-[#f0f6fc] shadow-sm ring-2 ring-[#2c4d6f]/20"
+									: "border-slate-200 hover:border-[#2c4d6f]/40 bg-[#f8fafc]"
+							}`}
+						>
+							<Radio.Content className="flex flex-col items-center justify-center text-center w-full">
+								<Radio.Control className="sr-only">
+									<Radio.Indicator />
+								</Radio.Control>
+								<div className="w-11 h-11 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3 border border-slate-200">
+									<XCircleIcon className="w-6 h-6" />
+								</div>
+								<span className="font-semibold text-slate-800 text-base mb-1">
+									No podré asistir
+								</span>
+								<span className="text-xs text-slate-500 leading-snug">
+									Estaré presente en espíritu
+								</span>
+							</Radio.Content>
+						</Radio>
+					</div>
+				</RadioGroup>
 
 				{attending === true && maxCompanions > 0 && (
 					<div className="p-4 bg-[#f8fafc] rounded-2xl border border-slate-200 space-y-2">
@@ -206,29 +226,33 @@ export function RsvpForm({
 								</span>
 							</div>
 							<div className="flex items-center gap-3">
-								<button
+								<Button
 									type="button"
 									aria-label="Reducir acompañantes"
-									disabled={companions <= 0}
-									onClick={() => setCompanions((c) => Math.max(0, c - 1))}
-									className="w-8 h-8 rounded-full border border-slate-300 bg-white flex items-center justify-center text-sm font-bold text-slate-700 disabled:opacity-30 hover:bg-slate-100 shadow-2xs"
+									variant="outline"
+									size="sm"
+									isIconOnly
+									isDisabled={companions <= 0}
+									onPress={() => setCompanions((c) => Math.max(0, c - 1))}
 								>
 									-
-								</button>
+								</Button>
 								<span className="font-semibold text-base w-4 text-center text-slate-800">
 									{companions}
 								</span>
-								<button
+								<Button
 									type="button"
 									aria-label="Incrementar acompañantes"
-									disabled={companions >= maxCompanions}
-									onClick={() =>
+									variant="outline"
+									size="sm"
+									isIconOnly
+									isDisabled={companions >= maxCompanions}
+									onPress={() =>
 										setCompanions((c) => Math.min(maxCompanions, c + 1))
 									}
-									className="w-8 h-8 rounded-full border border-slate-300 bg-white flex items-center justify-center text-sm font-bold text-slate-700 disabled:opacity-30 hover:bg-slate-100 shadow-2xs"
 								>
 									+
-								</button>
+								</Button>
 							</div>
 						</div>
 						<p className="text-xs text-slate-500 text-right">
@@ -238,15 +262,19 @@ export function RsvpForm({
 				)}
 
 				{errorMessage && (
-					<div className="p-3 bg-red-50 text-red-700 rounded-xl text-xs font-medium border border-red-200">
-						{errorMessage}
-					</div>
+					<Alert status="danger" role="alert">
+						<Alert.Description>{errorMessage}</Alert.Description>
+					</Alert>
 				)}
 
-				<button
+				<Button
 					type="submit"
-					disabled={attending === null || isSubmitting}
-					className="w-full py-4 px-6 rounded-2xl bg-[#2c4d6f] hover:bg-[#1f3750] text-white font-medium text-base shadow-lg shadow-slate-900/15 hover:shadow-xl active:scale-[0.99] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+					variant="primary"
+					fullWidth
+					size="lg"
+					className="py-4 text-base rounded-2xl shadow-lg shadow-slate-900/15"
+					isDisabled={attending === null || isSubmitting}
+					isPending={isSubmitting}
 				>
 					{isSubmitting ? (
 						<span>
@@ -259,7 +287,7 @@ export function RsvpForm({
 								: "Confirmar respuesta"}
 						</span>
 					)}
-				</button>
+				</Button>
 			</form>
 		</section>
 	);

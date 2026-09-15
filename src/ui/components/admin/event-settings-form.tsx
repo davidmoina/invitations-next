@@ -1,6 +1,18 @@
 "use client";
+import {
+	Alert,
+	Button,
+	Checkbox,
+	Input,
+	Label,
+	ListBox,
+	NumberField,
+	Select,
+	TextArea,
+	TextField,
+} from "@heroui/react";
 import { useState } from "react";
-
+import { DEFAULT_WHATSAPP_TEMPLATE } from "#/guests/whatsapp";
 import type { AdminEvent, EventDetails } from "#/server/contracts/admin";
 import {
 	BABY_SEXES,
@@ -72,6 +84,7 @@ export function EventSettingsForm({
 		venueAddress: string;
 		venueMapUrl: string;
 		description: string;
+		whatsappMessageTemplate: string;
 		maxCompanions: number;
 		giftRegistryEnabled: boolean;
 		rsvpDeadline: string;
@@ -95,6 +108,7 @@ export function EventSettingsForm({
 		venueAddress: event.venueAddress ?? "",
 		venueMapUrl: event.venueMapUrl ?? "",
 		description: event.description ?? "",
+		whatsappMessageTemplate: event.whatsappMessageTemplate ?? "",
 		maxCompanions: event.maxCompanions,
 		giftRegistryEnabled: event.giftRegistryEnabled,
 		rsvpDeadline: toLocalInput(event.rsvpDeadline, event.timezone),
@@ -215,6 +229,7 @@ export function EventSettingsForm({
 				venueAddress: orNull(form.venueAddress),
 				venueMapUrl: orNull(form.venueMapUrl),
 				description: orNull(form.description),
+				whatsappMessageTemplate: orNull(form.whatsappMessageTemplate),
 				maxCompanions: form.maxCompanions,
 				giftRegistryEnabled: form.giftRegistryEnabled,
 				rsvpDeadline: toIso(form.rsvpDeadline, form.timezone),
@@ -239,49 +254,56 @@ export function EventSettingsForm({
 			</h2>
 
 			<form onSubmit={handleSubmit} className="space-y-4">
-				<div>
-					<label htmlFor="event-title" className={LABEL_CLASS}>
+				<TextField className="space-y-1">
+					<Label htmlFor="event-title" className={LABEL_CLASS}>
 						Título
-					</label>
-					<input
+					</Label>
+					<Input
 						id="event-title"
 						value={form.title}
 						onChange={(e) => set("title", e.target.value)}
 						className={FIELD_CLASS}
 					/>
-				</div>
+				</TextField>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-					<div>
-						<label htmlFor="event-type" className={LABEL_CLASS}>
-							Tipo de celebración
-						</label>
-						<select
-							id="event-type"
-							value={form.eventType}
-							onChange={(e) =>
-								handleEventTypeChange(e.target.value as EventType)
-							}
-							className={FIELD_CLASS}
-						>
-							{EVENT_TYPES.map((type) => (
-								<option key={type} value={type}>
-									{EVENT_TYPE_LABELS[type]}
-								</option>
-							))}
-						</select>
-					</div>
-					<div>
-						<label htmlFor="event-timezone" className={LABEL_CLASS}>
+					<Select
+						name="eventType"
+						selectedKey={form.eventType}
+						onSelectionChange={(key) => handleEventTypeChange(key as EventType)}
+						className="w-full"
+					>
+						<Label className={LABEL_CLASS}>Tipo de celebración</Label>
+						<Select.Trigger id="event-type" className="w-full">
+							<Select.Value />
+							<Select.Indicator />
+						</Select.Trigger>
+						<Select.Popover>
+							<ListBox>
+								{EVENT_TYPES.map((type) => (
+									<ListBox.Item
+										key={type}
+										id={type}
+										textValue={EVENT_TYPE_LABELS[type]}
+									>
+										{EVENT_TYPE_LABELS[type]}
+										<ListBox.ItemIndicator />
+									</ListBox.Item>
+								))}
+							</ListBox>
+						</Select.Popover>
+					</Select>
+					<TextField className="space-y-1">
+						<Label htmlFor="event-timezone" className={LABEL_CLASS}>
 							Zona horaria
-						</label>
-						<input
+						</Label>
+						<Input
 							id="event-timezone"
 							value={form.timezone}
 							onChange={(e) => set("timezone", e.target.value)}
 							className={FIELD_CLASS}
 						/>
-					</div>
+					</TextField>
 					<div>
 						<label htmlFor="event-starts-at" className={LABEL_CLASS}>
 							Fecha y hora
@@ -310,65 +332,82 @@ export function EventSettingsForm({
 
 				{form.eventType === "baby_shower" && (
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-stone-50 border border-stone-200/60">
-						<div>
-							<label htmlFor="event-due-date" className={LABEL_CLASS}>
+						<TextField className="space-y-1">
+							<Label htmlFor="event-due-date" className={LABEL_CLASS}>
 								Fecha prevista de parto
-							</label>
-							<input
+							</Label>
+							<Input
 								id="event-due-date"
 								type="date"
 								value={form.dueDate}
 								onChange={(e) => set("dueDate", e.target.value)}
 								className={FIELD_CLASS}
 							/>
-						</div>
-						<div>
-							<label htmlFor="event-baby-sex" className={LABEL_CLASS}>
-								Sexo del bebé
-							</label>
-							<select
-								id="event-baby-sex"
-								value={form.babySex}
-								onChange={(e) => set("babySex", e.target.value as BabySex | "")}
-								className={FIELD_CLASS}
-							>
-								<option value="">Sin especificar</option>
-								{BABY_SEXES.map((sex) => (
-									<option key={sex} value={sex}>
-										{BABY_SEX_LABELS[sex]}
-									</option>
-								))}
-							</select>
-						</div>
+						</TextField>
+						<Select
+							name="babySex"
+							selectedKey={form.babySex || null}
+							onSelectionChange={(key) =>
+								set("babySex", (key as BabySex) || "")
+							}
+							placeholder="Sin especificar"
+							className="w-full"
+						>
+							<Label className={LABEL_CLASS}>Sexo del bebé</Label>
+							<Select.Trigger id="event-baby-sex" className="w-full">
+								<Select.Value />
+								<Select.Indicator />
+							</Select.Trigger>
+							<Select.Popover>
+								<ListBox>
+									{BABY_SEXES.map((sex) => (
+										<ListBox.Item
+											key={sex}
+											id={sex}
+											textValue={BABY_SEX_LABELS[sex]}
+										>
+											{BABY_SEX_LABELS[sex]}
+											<ListBox.ItemIndicator />
+										</ListBox.Item>
+									))}
+								</ListBox>
+							</Select.Popover>
+						</Select>
 					</div>
 				)}
 
 				{form.eventType === "birthday" && (
-					<div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/60">
-						<label htmlFor="event-turning-age" className={LABEL_CLASS}>
+					<NumberField
+						id="event-turning-age"
+						minValue={0}
+						value={form.turningAge === "" ? NaN : Number(form.turningAge)}
+						onChange={(val) =>
+							set("turningAge", Number.isNaN(val) ? "" : String(val))
+						}
+						className="p-4 rounded-2xl bg-stone-50 border border-stone-200/60 space-y-1"
+					>
+						<Label htmlFor="event-turning-age" className={LABEL_CLASS}>
 							Edad que cumple
-						</label>
-						<input
+						</Label>
+						<NumberField.Input
 							id="event-turning-age"
 							type="number"
-							min={0}
-							value={form.turningAge}
-							onChange={(e) => set("turningAge", e.target.value)}
 							className={FIELD_CLASS}
 						/>
-					</div>
+					</NumberField>
 				)}
 
 				<div className="space-y-2">
 					<div className="flex items-center justify-between">
 						<span className={LABEL_CLASS}>Personas homenajeadas</span>
-						<button
+						<Button
 							type="button"
-							onClick={addHonoree}
-							className="text-xs font-medium text-primary hover:underline"
+							variant="ghost"
+							size="sm"
+							onPress={addHonoree}
 						>
 							Añadir persona homenajeada
-						</button>
+						</Button>
 					</div>
 					{form.honorees.map((item, index) => (
 						<div key={item.id} className="flex items-center gap-2">
@@ -381,30 +420,31 @@ export function EventSettingsForm({
 								className={FIELD_CLASS}
 							/>
 							{form.honorees.length > 1 && (
-								<button
+								<Button
 									type="button"
-									onClick={() => removeHonoree(item.id)}
+									variant="danger"
+									size="sm"
 									aria-label={`Eliminar homenajeado ${index + 1}`}
-									className="px-2 py-2 text-xs text-secondary hover:text-red-700"
+									onPress={() => removeHonoree(item.id)}
 								>
 									Eliminar
-								</button>
+								</Button>
 							)}
 						</div>
 					))}
 				</div>
 
-				<div>
-					<label htmlFor="event-venue-name" className={LABEL_CLASS}>
+				<TextField className="space-y-1">
+					<Label htmlFor="event-venue-name" className={LABEL_CLASS}>
 						Lugar
-					</label>
-					<input
+					</Label>
+					<Input
 						id="event-venue-name"
 						value={form.venueName}
 						onChange={(e) => set("venueName", e.target.value)}
 						className={FIELD_CLASS}
 					/>
-				</div>
+				</TextField>
 
 				<VenueAddressField
 					address={form.venueAddress}
@@ -415,92 +455,135 @@ export function EventSettingsForm({
 					}}
 				/>
 
-				<div>
-					<label htmlFor="event-description" className={LABEL_CLASS}>
+				<TextField className="space-y-1">
+					<Label htmlFor="event-description" className={LABEL_CLASS}>
 						Descripción
-					</label>
-					<textarea
+					</Label>
+					<TextArea
 						id="event-description"
 						rows={3}
 						value={form.description}
 						onChange={(e) => set("description", e.target.value)}
 						className={FIELD_CLASS}
 					/>
-				</div>
+				</TextField>
+
+				<TextField className="space-y-1">
+					<div className="flex items-center justify-between">
+						<Label htmlFor="event-whatsapp-template" className={LABEL_CLASS}>
+							Plantilla de mensaje para WhatsApp
+						</Label>
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							onPress={() =>
+								set("whatsappMessageTemplate", DEFAULT_WHATSAPP_TEMPLATE)
+							}
+						>
+							Restaurar por defecto
+						</Button>
+					</div>
+					<TextArea
+						id="event-whatsapp-template"
+						rows={3}
+						value={form.whatsappMessageTemplate}
+						onChange={(e) => set("whatsappMessageTemplate", e.target.value)}
+						placeholder={DEFAULT_WHATSAPP_TEMPLATE}
+						className={FIELD_CLASS}
+					/>
+					<p className="text-xs text-secondary">
+						Variables disponibles: {"{nombre}"}, {"{evento}"}, {"{fecha}"},{" "}
+						{"{lugar}"}, {"{enlace}"}.
+					</p>
+				</TextField>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-					<div>
-						<label htmlFor="event-max-companions" className={LABEL_CLASS}>
+					<NumberField
+						id="event-max-companions"
+						minValue={0}
+						value={form.maxCompanions}
+						onChange={(val) =>
+							set("maxCompanions", Math.max(0, Number.isNaN(val) ? 0 : val))
+						}
+						className="space-y-1"
+					>
+						<Label htmlFor="event-max-companions" className={LABEL_CLASS}>
 							Máximo de acompañantes
-						</label>
-						<input
+						</Label>
+						<NumberField.Input
 							id="event-max-companions"
 							type="number"
-							min={0}
-							value={form.maxCompanions}
-							onChange={(e) =>
-								set("maxCompanions", Math.max(0, Number(e.target.value) || 0))
-							}
 							className={FIELD_CLASS}
 						/>
-					</div>
-					<div>
-						<label htmlFor="event-status" className={LABEL_CLASS}>
-							Estado
-						</label>
-						<select
-							id="event-status"
-							value={form.status}
-							onChange={(e) =>
-								set("status", e.target.value as AdminEvent["status"])
-							}
-							className={FIELD_CLASS}
-						>
-							<option value="draft">Borrador</option>
-							<option value="published">Publicado</option>
-							{event.status === "archived" && (
-								<option value="archived" disabled>
-									Archivado
-								</option>
-							)}
-						</select>
-					</div>
+					</NumberField>
+					<Select
+						name="status"
+						selectedKey={form.status}
+						onSelectionChange={(key) =>
+							set("status", key as AdminEvent["status"])
+						}
+						className="w-full"
+					>
+						<Label className={LABEL_CLASS}>Estado</Label>
+						<Select.Trigger id="event-status" className="w-full">
+							<Select.Value />
+							<Select.Indicator />
+						</Select.Trigger>
+						<Select.Popover>
+							<ListBox>
+								<ListBox.Item id="draft" textValue="Borrador">
+									Borrador
+									<ListBox.ItemIndicator />
+								</ListBox.Item>
+								<ListBox.Item id="published" textValue="Publicado">
+									Publicado
+									<ListBox.ItemIndicator />
+								</ListBox.Item>
+								{event.status === "archived" && (
+									<ListBox.Item id="archived" textValue="Archivado" isDisabled>
+										Archivado
+										<ListBox.ItemIndicator />
+									</ListBox.Item>
+								)}
+							</ListBox>
+						</Select.Popover>
+					</Select>
 				</div>
 
-				<label
-					htmlFor="event-gift-registry"
+				<Checkbox
+					id="event-gift-registry"
+					isSelected={form.giftRegistryEnabled}
+					onChange={(checked) => set("giftRegistryEnabled", checked)}
 					className="flex items-center gap-2 text-sm text-on-surface"
 				>
-					<input
-						id="event-gift-registry"
-						type="checkbox"
-						checked={form.giftRegistryEnabled}
-						onChange={(e) => set("giftRegistryEnabled", e.target.checked)}
-					/>
-					Mostrar la lista de regalos
-				</label>
+					<Checkbox.Content className="flex items-center gap-2 cursor-pointer">
+						<Checkbox.Control className="rounded border-stone-300">
+							<Checkbox.Indicator />
+						</Checkbox.Control>
+						Mostrar la lista de regalos
+					</Checkbox.Content>
+				</Checkbox>
 
 				{error && (
-					<p
-						role="alert"
-						className="p-3 bg-error-container text-error rounded-xl text-xs font-medium"
-					>
-						{error}
-					</p>
+					<Alert status="danger" role="alert">
+						<Alert.Description>{error}</Alert.Description>
+					</Alert>
 				)}
 				{saved && (
-					<output className="p-3 bg-champagne-50 text-primary rounded-xl text-xs font-medium block">
-						Cambios guardados.
-					</output>
+					<Alert status="success" role="status">
+						<Alert.Description>Cambios guardados.</Alert.Description>
+					</Alert>
 				)}
 
-				<button
+				<Button
 					type="submit"
-					disabled={saving}
-					className="px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium disabled:opacity-40"
+					variant="primary"
+					isDisabled={saving}
+					isPending={saving}
 				>
 					{saving ? "Guardando..." : "Guardar cambios"}
-				</button>
+				</Button>
 			</form>
 
 			{isOwner && (
@@ -526,55 +609,55 @@ export function EventSettingsForm({
 									irreversible.
 								</p>
 								<div className="flex items-center gap-2">
-									<button
+									<Button
 										type="button"
-										disabled={deleting}
-										onClick={handleDelete}
-										className="px-4 py-2 bg-error text-white rounded-lg text-sm font-medium hover:bg-error/90 transition-colors disabled:opacity-40"
+										variant="danger"
+										isDisabled={deleting}
+										isPending={deleting}
+										onPress={handleDelete}
 									>
 										{deleting ? "Archivando…" : "Confirmar archivado"}
-									</button>
-									<button
+									</Button>
+									<Button
 										type="button"
-										disabled={deleting}
-										onClick={() => {
+										variant="secondary"
+										isDisabled={deleting}
+										onPress={() => {
 											setConfirmingDelete(false);
 											setDeleteError(null);
 										}}
-										className="px-4 py-2 border border-stone-300 rounded-lg text-sm font-medium text-on-surface hover:bg-stone-50 transition-colors disabled:opacity-40"
 									>
 										Cancelar
-									</button>
+									</Button>
 								</div>
 							</div>
 						) : (
-							<button
+							<Button
 								type="button"
-								disabled={deleting || event.status === "archived" || deleted}
-								onClick={() => {
+								variant="danger"
+								isDisabled={deleting || event.status === "archived" || deleted}
+								onPress={() => {
 									setConfirmingDelete(true);
 									setDeleteError(null);
 								}}
-								className="px-4 py-2 border border-error/30 text-error hover:bg-error-container/50 rounded-lg text-sm font-medium transition-colors shrink-0 disabled:opacity-40"
 							>
 								{event.status === "archived" || deleted
 									? "Evento archivado"
 									: "Archivar evento"}
-							</button>
+							</Button>
 						)}
 					</div>
 					{deleteError && (
-						<p
-							role="alert"
-							className="mt-3 p-3 bg-error-container text-error rounded-xl text-xs font-medium"
-						>
-							{deleteError}
-						</p>
+						<Alert status="danger" role="alert" className="mt-3">
+							<Alert.Description>{deleteError}</Alert.Description>
+						</Alert>
 					)}
 					{deleted && (
-						<output className="mt-3 p-3 bg-champagne-50 text-primary rounded-xl text-xs font-medium block">
-							El evento ha sido archivado correctamente.
-						</output>
+						<Alert status="success" role="status" className="mt-3">
+							<Alert.Description>
+								El evento ha sido archivado correctamente.
+							</Alert.Description>
+						</Alert>
 					)}
 				</div>
 			)}

@@ -74,6 +74,12 @@ describe("PublicEventPage", () => {
 		onRequestGuestLink: vi.fn().mockResolvedValue({ ok: true }),
 	};
 
+	it("renders the root container with the scoped invitation-theme class", () => {
+		const { container } = render(<PublicEventPage {...mockProps} />);
+		const root = container.firstElementChild;
+		expect(root).toHaveClass("invitation-theme");
+	});
+
 	it("renders all public sections when registry and media are enabled", () => {
 		render(<PublicEventPage {...mockProps} />);
 
@@ -97,7 +103,7 @@ describe("PublicEventPage", () => {
 		// RSVP section
 		expect(screen.getByText("¿Nos acompañas?")).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: /^asistiré/i }),
+			screen.getByRole("radio", { name: /^asistiré/i }),
 		).toBeInTheDocument();
 
 		// Gift Registry section
@@ -134,7 +140,7 @@ describe("PublicEventPage", () => {
 
 		expect(screen.getByText("¿Nos acompañas?")).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: /^asistiré/i }),
+			screen.getByRole("radio", { name: /^asistiré/i }),
 		).toBeInTheDocument();
 		expect(container.querySelector("#rsvp")).toBeInTheDocument();
 	});

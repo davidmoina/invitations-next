@@ -1,7 +1,7 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-
+import { DEFAULT_WHATSAPP_TEMPLATE } from "#/guests/whatsapp";
 import type { AdminEvent } from "#/server/contracts/admin";
 import { EventSettingsForm } from "./event-settings-form";
 
@@ -18,6 +18,7 @@ const event: AdminEvent = {
 	venueAddress: null,
 	venueMapUrl: null,
 	description: null,
+	whatsappMessageTemplate: null,
 	maxCompanions: 2,
 	giftRegistryEnabled: true,
 	rsvpDeadline: null,
@@ -248,12 +249,25 @@ describe("EventSettingsForm", () => {
 		);
 	});
 
+	async function selectOption(
+		user: ReturnType<typeof userEvent.setup>,
+		triggerName: RegExp | string,
+		optionName: RegExp | string,
+	) {
+		const trigger = screen.getByRole("button", { name: triggerName });
+		await user.click(trigger);
+		const option = await screen.findByRole("option", { name: optionName });
+		await user.click(option);
+	}
+
 	it("renders event type as a select and prefills honoree names", () => {
 		renderForm();
 
-		const select = screen.getByLabelText(/tipo de celebración/i);
-		expect(select.tagName).toBe("SELECT");
-		expect(select).toHaveValue("wedding");
+		const trigger = screen.getByRole("button", {
+			name: /tipo de celebración/i,
+		});
+		expect(trigger).toHaveAttribute("data-slot", "select-trigger");
+		expect(trigger).toHaveTextContent("Boda");
 
 		const honoreeInputs = screen.getAllByLabelText(/persona homenajeada/i);
 		expect(honoreeInputs).toHaveLength(2);
@@ -275,13 +289,12 @@ describe("EventSettingsForm", () => {
 		const props = renderForm({ event: babyShowerEvent });
 
 		expect(screen.getByLabelText(/fecha prevista/i)).toHaveValue("2030-05-01");
-		expect(screen.getByLabelText(/sexo del bebé/i)).toHaveValue("girl");
+		expect(
+			screen.getByRole("button", { name: /sexo del bebé/i }),
+		).toHaveTextContent("Niña");
 
 		// Change to birthday
-		await user.selectOptions(
-			screen.getByLabelText(/tipo de celebración/i),
-			"birthday",
-		);
+		await selectOption(user, /tipo de celebración/i, /cumpleaños/i);
 
 		// Old inputs must be gone, new input must appear
 		expect(screen.queryByLabelText(/fecha prevista/i)).not.toBeInTheDocument();
@@ -299,6 +312,82 @@ describe("EventSettingsForm", () => {
 			expect.objectContaining({
 				eventType: "birthday",
 				details: { type: "birthday", turningAge: 1 },
+			}),
+		);
+	});
+
+	it("renders the WhatsApp message template field with placeholder and helper text", () => {
+		renderForm();
+
+		const templateInput = screen.getByLabelText(/plantilla.*whatsapp/i);
+		expect(templateInput).toHaveAttribute(
+			"placeholder",
+			DEFAULT_WHATSAPP_TEMPLATE,
+		);
+		expect(
+			screen.getByRole("button", { name: /restaurar por defecto/i }),
+		).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				/variables disponibles.*nombre.*evento.*fecha.*lugar.*enlace/i,
+			),
+		).toBeInTheDocument();
+	});
+
+	it("restores the default template when clicking 'Restaurar por defecto'", async () => {
+		const user = userEvent.setup();
+		renderForm();
+
+		const templateInput = screen.getByLabelText(/plantilla.*whatsapp/i);
+		await user.click(
+			screen.getByRole("button", { name: /restaurar por defecto/i }),
+		);
+		expect(templateInput).toHaveValue(DEFAULT_WHATSAPP_TEMPLATE);
+	});
+
+	it("submits the updated whatsappMessageTemplate or null when cleared", async () => {
+		const user = userEvent.setup();
+		const customTemplateEvent: AdminEvent = {
+			...event,
+			whatsappMessageTemplate: "Hola {nombre}, ven a {evento}",
+		};
+		const props = renderForm({ event: customTemplateEvent });
+
+		const templateInput = screen.getByLabelText(/plantilla.*whatsapp/i);
+		expect(templateInput).toHaveValue("Hola {nombre}, ven a {evento}");
+
+		await user.clear(templateInput);
+		await user.type(templateInput, "¡Hola {{nombre}! Nueva plantilla");
+		await user.click(screen.getByRole("button", { name: /guardar/i }));
+
+		await waitFor(() => {
+			expect(props.onUpdateEvent).toHaveBeenCalledTimes(1);
+		});
+		expect(props.onUpdateEvent).toHaveBeenCalledWith(
+			expect.objectContaining({
+				whatsappMessageTemplate: "¡Hola {nombre}! Nueva plantilla",
+			}),
+		);
+	});
+
+	it("submits null when whatsappMessageTemplate is empty or whitespace only", async () => {
+		const user = userEvent.setup();
+		const customTemplateEvent: AdminEvent = {
+			...event,
+			whatsappMessageTemplate: "Hola {nombre}",
+		};
+		const props = renderForm({ event: customTemplateEvent });
+
+		const templateInput = screen.getByLabelText(/plantilla.*whatsapp/i);
+		await user.clear(templateInput);
+		await user.click(screen.getByRole("button", { name: /guardar/i }));
+
+		await waitFor(() => {
+			expect(props.onUpdateEvent).toHaveBeenCalledTimes(1);
+		});
+		expect(props.onUpdateEvent).toHaveBeenCalledWith(
+			expect.objectContaining({
+				whatsappMessageTemplate: null,
 			}),
 		);
 	});
