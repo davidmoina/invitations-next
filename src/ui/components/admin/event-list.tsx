@@ -1,4 +1,5 @@
 "use client";
+import { buttonVariants } from "@heroui/react";
 import { useMemo, useState } from "react";
 import type { AdminEventListItem } from "#/server/contracts/admin";
 import { ArrowRightIcon, CalendarIcon, PlusIcon } from "../icons";
@@ -109,7 +110,10 @@ export function EventList({
 
 					<a
 						href={newEventHref}
-						className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white font-medium text-sm shadow-xs hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-primary self-start sm:self-auto"
+						className={buttonVariants({
+							variant: "primary",
+							className: "self-start sm:self-auto",
+						})}
 					>
 						<PlusIcon className="w-4 h-4" />
 						<span>Crear evento</span>

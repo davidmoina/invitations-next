@@ -1,4 +1,12 @@
 "use client";
+import {
+	Alert,
+	Button,
+	Description,
+	Input,
+	Label,
+	TextField,
+} from "@heroui/react";
 import { type FormEvent, useState } from "react";
 
 export type SignUpFormProps = {
@@ -44,11 +52,11 @@ export function SignUpForm({ onSignUp }: SignUpFormProps) {
 					</p>
 				</header>
 				<form onSubmit={submit} aria-busy={submitting} className="space-y-5">
-					<div className="space-y-1.5">
-						<label htmlFor="sign-up-name" className={labelCls}>
+					<TextField className="space-y-1.5 w-full">
+						<Label htmlFor="sign-up-name" className={labelCls}>
 							Nombre
-						</label>
-						<input
+						</Label>
+						<Input
 							id="sign-up-name"
 							type="text"
 							value={name}
@@ -58,12 +66,12 @@ export function SignUpForm({ onSignUp }: SignUpFormProps) {
 							disabled={submitting}
 							className={inputCls}
 						/>
-					</div>
-					<div className="space-y-1.5">
-						<label htmlFor="sign-up-email" className={labelCls}>
+					</TextField>
+					<TextField className="space-y-1.5 w-full">
+						<Label htmlFor="sign-up-email" className={labelCls}>
 							Correo electrónico
-						</label>
-						<input
+						</Label>
+						<Input
 							id="sign-up-email"
 							type="email"
 							value={email}
@@ -73,12 +81,12 @@ export function SignUpForm({ onSignUp }: SignUpFormProps) {
 							disabled={submitting}
 							className={inputCls}
 						/>
-					</div>
-					<div className="space-y-1.5">
-						<label htmlFor="sign-up-password" className={labelCls}>
+					</TextField>
+					<TextField className="space-y-1.5 w-full">
+						<Label htmlFor="sign-up-password" className={labelCls}>
 							Contraseña
-						</label>
-						<input
+						</Label>
+						<Input
 							id="sign-up-password"
 							type="password"
 							value={password}
@@ -90,25 +98,27 @@ export function SignUpForm({ onSignUp }: SignUpFormProps) {
 							disabled={submitting}
 							className={inputCls}
 						/>
-						<p id="sign-up-password-hint" className="text-xs text-secondary">
-							Mínimo 8 caracteres
-						</p>
-					</div>
-					{error ? (
-						<p
-							role="alert"
-							className="p-3 rounded-xl bg-error-container text-error text-sm font-medium"
+						<Description
+							id="sign-up-password-hint"
+							className="text-xs text-secondary"
 						>
-							{error}
-						</p>
+							Mínimo 8 caracteres
+						</Description>
+					</TextField>
+					{error ? (
+						<Alert status="danger" role="alert">
+							<Alert.Description>{error}</Alert.Description>
+						</Alert>
 					) : null}
-					<button
+					<Button
 						type="submit"
-						disabled={submitting}
-						className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl bg-primary text-white text-sm sm:text-base font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 motion-reduce:transition-none disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+						variant="primary"
+						fullWidth
+						isDisabled={submitting}
+						isPending={submitting}
 					>
 						{submitting ? "Creando cuenta…" : "Crear cuenta"}
-					</button>
+					</Button>
 				</form>
 			</div>
 		</div>

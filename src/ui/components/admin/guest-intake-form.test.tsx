@@ -19,9 +19,11 @@ describe("GuestIntakeForm", () => {
 		await user.type(screen.getByLabelText(/nombre/i), " Ana Ruiz ");
 		await user.type(screen.getByLabelText(/email/i), "ana@example.test");
 		await user.type(screen.getByLabelText(/teléfono/i), " 612345678 ");
-		await user.click(
-			screen.getByRole("button", { name: /guardar y añadir otro/i }),
-		);
+		const addAnotherBtn = screen.getByRole("button", {
+			name: /guardar y añadir otro/i,
+		});
+		expect(addAnotherBtn).toHaveAttribute("data-slot", "button");
+		await user.click(addAnotherBtn);
 
 		await waitFor(() => expect(onAddGuests).toHaveBeenCalledOnce());
 		expect(onAddGuests).toHaveBeenCalledWith([

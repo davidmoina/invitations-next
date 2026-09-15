@@ -1,5 +1,68 @@
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
+@import "@heroui/styles";
+
+/* HeroUI hardcodes --radius-3xl on most surfaces and buttons; bring them back to the radii the app used before the migration. Utilities still override. */
+@layer components {
+	.button,
+	.tabs__tab,
+	.tabs__indicator,
+	.alert,
+	.toast {
+		border-radius: var(--radius-xl);
+	}
+	.card,
+	.modal__dialog,
+	.select__popover {
+		border-radius: var(--radius-2xl);
+	}
+}
+
+:root {
+	/* HeroUI v3 theme mapping to app palette */
+	--accent: var(--color-primary);
+	--accent-foreground: #ffffff;
+	--background: var(--color-surface);
+	--foreground: var(--color-on-surface);
+	--surface: var(--color-surface);
+	--surface-foreground: var(--color-on-surface);
+	--surface-secondary: var(--color-surface-container);
+	--surface-secondary-foreground: var(--color-on-surface);
+	--surface-tertiary: var(--color-surface-container-high);
+	--surface-tertiary-foreground: var(--color-on-surface);
+	--overlay: #ffffff;
+	--overlay-foreground: var(--color-on-surface);
+	--muted: var(--color-secondary);
+	--default: var(--color-surface-container);
+	--default-foreground: var(--color-on-surface);
+	--field-background: #ffffff;
+	--field-foreground: var(--color-on-surface);
+	--field-placeholder: var(--color-secondary);
+	--field-border: var(--color-stone-300);
+	--border: var(--color-stone-300);
+	--separator: var(--color-stone-200);
+	--radius: 0.75rem;
+	--field-radius: 0.75rem;
+	--danger: var(--color-error);
+	--danger-foreground: #ffffff;
+	--success: var(--color-success-green);
+	--success-foreground: #ffffff;
+	--warning: var(--color-warning-amber);
+	--warning-foreground: var(--color-on-surface);
+	--focus: var(--color-primary);
+}
+
+.invitation-theme {
+	--accent: #2c4d6f;
+	--accent-hover: #1f3750;
+	--accent-foreground: #ffffff;
+	--radius: 1rem;
+	--field-radius: 1rem;
+	--border: #e2e8f0;
+	--default: #ffffff;
+	--default-foreground: #274b70;
+	--focus: #2c4d6f;
+}
 
 @theme {
 	--color-primary: #725b38;

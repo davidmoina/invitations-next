@@ -84,4 +84,34 @@ describe("AdminShell", () => {
 
 		expect(screen.queryByText(/lumina/i)).not.toBeInTheDocument();
 	});
+
+	it("opens and closes the mobile drawer with accessible dialog attributes", async () => {
+		const user = userEvent.setup();
+
+		render(
+			<AdminShell
+				currentSection="events"
+				eventsHref="/admin"
+				newEventHref="/admin/new"
+			>
+				<div>Content</div>
+			</AdminShell>,
+		);
+
+		const openBtn = screen.getByRole("button", { name: "Abrir menú" });
+		expect(openBtn).toBeInTheDocument();
+
+		await user.click(openBtn);
+
+		const dialog = screen.getByRole("dialog", { name: /menú principal/i });
+		expect(dialog).toBeInTheDocument();
+		expect(dialog).toHaveAttribute("data-slot", "drawer-dialog");
+
+		const closeBtn = screen.getByRole("button", { name: "Cerrar menú" });
+		await user.click(closeBtn);
+
+		expect(
+			screen.queryByRole("dialog", { name: /menú principal/i }),
+		).not.toBeInTheDocument();
+	});
 });

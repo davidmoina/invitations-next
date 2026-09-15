@@ -1,4 +1,7 @@
 "use client";
+
+import { Button } from "@heroui/react";
+
 export type AppHeaderProps = {
 	title: string;
 	subtitle?: string;
@@ -27,13 +30,14 @@ export function AppHeader({
 				<div className="flex items-center gap-2">
 					{actions}
 					{onSignOut ? (
-						<button
+						<Button
 							type="button"
-							onClick={() => void onSignOut()}
-							className="text-xs sm:text-sm font-medium px-3 py-1.5 rounded-lg border border-stone-300 text-secondary hover:text-on-surface hover:bg-stone-100 transition-colors"
+							variant="outline"
+							size="sm"
+							onPress={() => void onSignOut()}
 						>
 							Cerrar sesión
-						</button>
+						</Button>
 					) : null}
 				</div>
 			</div>

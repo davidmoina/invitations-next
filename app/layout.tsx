@@ -1,3 +1,4 @@
+import { Toast } from "@heroui/react";
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -12,7 +13,10 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="es">
-			<body>{children}</body>
+			<body>
+				<Toast.Provider />
+				{children}
+			</body>
 		</html>
 	);
 }

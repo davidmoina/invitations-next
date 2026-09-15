@@ -24,6 +24,8 @@
     "db:migrate:production": "DATABASE_MIGRATION_TARGET=production node --env-file=.env ./node_modules/drizzle-kit/bin.cjs migrate"
   },
   "dependencies": {
+    "@heroui/react": "^3.2.5",
+    "@heroui/styles": "^3.2.5",
     "@neondatabase/serverless": "^1.1.0",
     "better-auth": "^1.7.2",
     "cloudinary": "^2.11.0",

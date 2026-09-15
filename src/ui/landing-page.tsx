@@ -1,3 +1,4 @@
+import { buttonVariants } from "@heroui/react";
 import {
 	ArrowRightIcon,
 	CalendarIcon,
@@ -42,13 +43,20 @@ export function LandingPage({ signUpHref, signInHref }: LandingPageProps) {
 					<div className="flex items-center gap-3">
 						<a
 							href={signInHref}
-							className="text-xs sm:text-sm font-medium px-4 py-2 rounded-xl text-primary hover:bg-stone-100 transition-colors focus-visible:ring-2 focus-visible:ring-primary"
+							className={buttonVariants({
+								variant: "ghost",
+								size: "sm",
+							})}
 						>
 							Iniciar sesión
 						</a>
 						<a
 							href={signUpHref}
-							className="hidden sm:inline-flex text-xs sm:text-sm font-medium px-4 py-2 rounded-xl bg-primary text-white hover:opacity-90 transition-opacity shadow-2xs focus-visible:ring-2 focus-visible:ring-primary"
+							className={buttonVariants({
+								variant: "primary",
+								size: "sm",
+								className: "hidden sm:inline-flex",
+							})}
 						>
 							Empezar gratis
 						</a>
@@ -79,14 +87,22 @@ export function LandingPage({ signUpHref, signInHref }: LandingPageProps) {
 						<div className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start pt-2">
 							<a
 								href={signUpHref}
-								className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-white font-semibold text-sm sm:text-base hover:opacity-90 transition-opacity shadow-sm active:scale-98 duration-150 focus-visible:ring-2 focus-visible:ring-primary"
+								className={buttonVariants({
+									variant: "primary",
+									size: "lg",
+									className: "w-full sm:w-auto",
+								})}
 							>
 								<span>Crear invitación</span>
 								<ArrowRightIcon className="w-4 h-4" />
 							</a>
 							<a
 								href={signInHref}
-								className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-xl bg-surface border border-stone-300 text-on-surface font-medium text-sm sm:text-base hover:bg-stone-100 transition-colors active:scale-98 duration-150 focus-visible:ring-2 focus-visible:ring-primary"
+								className={buttonVariants({
+									variant: "outline",
+									size: "lg",
+									className: "w-full sm:w-auto",
+								})}
 							>
 								Ir a mi cuenta
 							</a>

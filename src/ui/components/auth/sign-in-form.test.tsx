@@ -36,6 +36,8 @@ describe("SignInForm", () => {
 		expect(pass.id).toBe("sign-in-password");
 		expect(pass.getAttribute("type")).toBe("password");
 		expect(pass.getAttribute("autocomplete")).toBe("current-password");
+		expect(email).toHaveAttribute("data-slot", "input");
+		expect(pass).toHaveAttribute("data-slot", "input");
 
 		const q = (s: string) => container.querySelector(s);
 		expect(q('label[for="sign-in-email"]')).toBeInTheDocument();
@@ -46,6 +48,7 @@ describe("SignInForm", () => {
 
 		const form = q("form");
 		const btn = screen.getByRole("button", { name: "Iniciar sesión" });
+		expect(btn).toHaveAttribute("data-slot", "button");
 		expect(form).toHaveAttribute("aria-busy", "false");
 
 		await user.click(btn);

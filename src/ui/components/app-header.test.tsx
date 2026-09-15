@@ -54,7 +54,7 @@ describe("AppHeader", () => {
 			name: /cerrar sesi[oó]n/i,
 		});
 		expect(signOutButton).toBeInTheDocument();
-		expect(signOutButton).toHaveClass("rounded-lg", "border");
+		expect(signOutButton).toHaveAttribute("data-slot", "button");
 
 		await user.click(signOutButton);
 		expect(onSignOut).toHaveBeenCalledOnce();

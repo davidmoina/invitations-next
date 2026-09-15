@@ -1,8 +1,23 @@
 "use client";
+import {
+	Alert,
+	Button,
+	Input,
+	Label,
+	ListBox,
+	NumberField,
+	Select,
+	TextField,
+	toast,
+} from "@heroui/react";
 import { useMemo, useState } from "react";
-
-import type { AdminGuest } from "#/server/contracts/admin";
-import { PlusIcon, SearchIcon } from "../icons";
+import {
+	buildWhatsappUrl,
+	formatEventDateForMessage,
+	renderWhatsappMessage,
+} from "#/guests/whatsapp";
+import type { AdminEvent, AdminGuest } from "#/server/contracts/admin";
+import { PlusIcon, SearchIcon, WhatsAppIcon } from "../icons";
 import { Modal } from "../modal";
 import { FIELD_CLASS, LABEL_CLASS, orNull } from "./event-form-fields";
 import { GuestIntakeForm, type GuestIntakeInput } from "./guest-intake-form";
@@ -17,6 +32,10 @@ export type EditGuestInput = {
 
 export type GuestListProps = {
 	guests: AdminGuest[];
+	messageContext?: Pick<
+		AdminEvent,
+		"title" | "startsAt" | "timezone" | "venueName" | "whatsappMessageTemplate"
+	>;
 	onEditGuest?: (input: EditGuestInput) => Promise<{ id: string }>;
 	onRefresh?: () => Promise<void> | void;
 	onIssueGuestLink?: (guestId: string) => Promise<{ url: string }>;
@@ -50,6 +69,7 @@ const PAGE_SIZE = 10;
 
 export function GuestList({
 	guests,
+	messageContext,
 	onEditGuest,
 	onRefresh,
 	onIssueGuestLink,
@@ -81,11 +101,13 @@ export function GuestList({
 	const [savedGuestId, setSavedGuestId] = useState<string | null>(null);
 
 	const [issuingGuestId, setIssuingGuestId] = useState<string | null>(null);
-	const [copiedGuestId, setCopiedGuestId] = useState<string | null>(null);
 	const [issueError, setIssueError] = useState<{
 		guestId: string;
 		message: string;
 	} | null>(null);
+	const [sendingWhatsAppGuestId, setSendingWhatsAppGuestId] = useState<
+		string | null
+	>(null);
 
 	const mergedGuests = useMemo(() => {
 		return guests.map((g) => ({
@@ -204,13 +226,12 @@ export function GuestList({
 		if (!onIssueGuestLink || issuingGuestId) return;
 		setIssuingGuestId(guestId);
 		setIssueError(null);
-		setCopiedGuestId(null);
 		try {
 			const { url } = await onIssueGuestLink(guestId);
 			if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
 				await navigator.clipboard.writeText(url);
 			}
-			setCopiedGuestId(guestId);
+			toast.success("Enlace copiado al portapapeles.");
 		} catch {
 			setIssueError({
 				guestId,
@@ -218,6 +239,60 @@ export function GuestList({
 			});
 		} finally {
 			setIssuingGuestId(null);
+		}
+	};
+
+	const handleSendWhatsApp = async (guest: AdminGuest) => {
+		if (!onIssueGuestLink || !guest.phone || sendingWhatsAppGuestId) return;
+
+		const popup =
+			typeof window !== "undefined"
+				? window.open("", "_blank", "noopener,noreferrer")
+				: null;
+
+		setSendingWhatsAppGuestId(guest.id);
+
+		try {
+			const { url: guestUrl } = await onIssueGuestLink(guest.id);
+
+			const formattedDate = messageContext?.startsAt
+				? formatEventDateForMessage(
+						messageContext.startsAt,
+						messageContext.timezone ?? "UTC",
+					)
+				: "";
+
+			const message = renderWhatsappMessage(
+				messageContext?.whatsappMessageTemplate ?? null,
+				{
+					nombre: guest.displayName,
+					evento: messageContext?.title ?? "",
+					fecha: formattedDate,
+					lugar: messageContext?.venueName ?? "",
+					enlace: guestUrl,
+				},
+			);
+
+			const whatsappUrl = buildWhatsappUrl(guest.phone, message);
+
+			if (!whatsappUrl || !popup) {
+				popup?.close();
+				toast.danger(
+					!popup
+						? "El navegador bloqueó la ventana emergente de WhatsApp."
+						: "No hemos podido generar el enlace de WhatsApp.",
+				);
+				return;
+			}
+
+			popup.location.href = whatsappUrl;
+		} catch {
+			popup?.close();
+			toast.danger(
+				"No hemos podido generar el enlace de WhatsApp. Inténtalo de nuevo.",
+			);
+		} finally {
+			setSendingWhatsAppGuestId(null);
 		}
 	};
 
@@ -242,14 +317,15 @@ export function GuestList({
 				</div>
 				{onAddGuests && (
 					<div className="shrink-0 self-start sm:self-center">
-						<button
+						<Button
 							type="button"
-							onClick={() => setIsAddModalOpen(true)}
-							className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors shadow-2xs focus-visible:ring-2 focus-visible:ring-primary"
+							variant="primary"
+							size="sm"
+							onPress={() => setIsAddModalOpen(true)}
 						>
 							<PlusIcon className="w-4 h-4" />
 							<span>Añadir invitado</span>
-						</button>
+						</Button>
 					</div>
 				)}
 			</div>
@@ -258,7 +334,7 @@ export function GuestList({
 			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 				<div className="relative flex-1 max-w-md">
 					<SearchIcon className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary" />
-					<input
+					<Input
 						type="text"
 						value={search}
 						onChange={(e) => {
@@ -368,7 +444,6 @@ export function GuestList({
 								const isSaving = savingGuestId === guest.id;
 								const isSaved = savedGuestId === guest.id;
 								const isIssuing = issuingGuestId === guest.id;
-								const isCopied = copiedGuestId === guest.id;
 								const hasIssueError = issueError?.guestId === guest.id;
 
 								if (isEditing) {
@@ -380,14 +455,14 @@ export function GuestList({
 													className="space-y-4"
 												>
 													<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-														<div>
-															<label
+														<TextField className="space-y-1">
+															<Label
 																htmlFor={`edit-guest-name-${guest.id}`}
 																className={LABEL_CLASS}
 															>
 																Nombre
-															</label>
-															<input
+															</Label>
+															<Input
 																id={`edit-guest-name-${guest.id}`}
 																value={editForm.displayName}
 																onChange={(e) =>
@@ -398,15 +473,15 @@ export function GuestList({
 																}
 																className={FIELD_CLASS}
 															/>
-														</div>
-														<div>
-															<label
+														</TextField>
+														<TextField className="space-y-1">
+															<Label
 																htmlFor={`edit-guest-email-${guest.id}`}
 																className={LABEL_CLASS}
 															>
 																Email
-															</label>
-															<input
+															</Label>
+															<Input
 																id={`edit-guest-email-${guest.id}`}
 																type="email"
 																value={editForm.email}
@@ -418,86 +493,109 @@ export function GuestList({
 																}
 																className={FIELD_CLASS}
 															/>
-														</div>
-														<div>
-															<label
-																htmlFor={`edit-guest-attending-${guest.id}`}
-																className={LABEL_CLASS}
-															>
-																Asistencia
-															</label>
-															<select
+														</TextField>
+														<Select
+															name="attending"
+															selectedKey={editForm.attending}
+															onSelectionChange={(key) =>
+																setEditForm((c) => ({
+																	...c,
+																	attending: key as
+																		| "attending"
+																		| "declined"
+																		| "unanswered",
+																}))
+															}
+															className="w-full"
+														>
+															<Label className={LABEL_CLASS}>Asistencia</Label>
+															<Select.Trigger
 																id={`edit-guest-attending-${guest.id}`}
-																value={editForm.attending}
-																onChange={(e) =>
-																	setEditForm((c) => ({
-																		...c,
-																		attending: e.target.value as
-																			| "attending"
-																			| "declined"
-																			| "unanswered",
-																	}))
-																}
-																className={FIELD_CLASS}
+																className="w-full"
 															>
-																<option value="attending">Asistirá</option>
-																<option value="declined">No asistirá</option>
-																<option value="unanswered">
-																	Sin respuesta
-																</option>
-															</select>
-														</div>
-														<div>
-															<label
+																<Select.Value />
+																<Select.Indicator />
+															</Select.Trigger>
+															<Select.Popover>
+																<ListBox>
+																	<ListBox.Item
+																		id="attending"
+																		textValue="Asistirá"
+																	>
+																		Asistirá
+																		<ListBox.ItemIndicator />
+																	</ListBox.Item>
+																	<ListBox.Item
+																		id="declined"
+																		textValue="No asistirá"
+																	>
+																		No asistirá
+																		<ListBox.ItemIndicator />
+																	</ListBox.Item>
+																	<ListBox.Item
+																		id="unanswered"
+																		textValue="Sin respuesta"
+																	>
+																		Sin respuesta
+																		<ListBox.ItemIndicator />
+																	</ListBox.Item>
+																</ListBox>
+															</Select.Popover>
+														</Select>
+														<NumberField
+															id={`edit-guest-companions-${guest.id}`}
+															minValue={0}
+															value={editForm.companions}
+															onChange={(val) =>
+																setEditForm((c) => ({
+																	...c,
+																	companions: Math.max(
+																		0,
+																		Number.isNaN(val) ? 0 : val,
+																	),
+																}))
+															}
+															className="space-y-1"
+														>
+															<Label
 																htmlFor={`edit-guest-companions-${guest.id}`}
 																className={LABEL_CLASS}
 															>
 																Acompañantes
-															</label>
-															<input
+															</Label>
+															<NumberField.Input
 																id={`edit-guest-companions-${guest.id}`}
 																type="number"
-																min={0}
-																value={editForm.companions}
-																onChange={(e) =>
-																	setEditForm((c) => ({
-																		...c,
-																		companions: Math.max(
-																			0,
-																			Number(e.target.value) || 0,
-																		),
-																	}))
-																}
 																className={FIELD_CLASS}
 															/>
-														</div>
+														</NumberField>
 													</div>
 
 													{editError && (
-														<p
-															role="alert"
-															className="p-3 bg-error-container text-error rounded-xl text-xs font-medium"
-														>
-															{editError}
-														</p>
+														<Alert status="danger" role="alert">
+															<Alert.Description>{editError}</Alert.Description>
+														</Alert>
 													)}
 
 													<div className="flex items-center gap-2">
-														<button
+														<Button
 															type="submit"
-															disabled={isSaving}
-															className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-medium shadow-xs disabled:opacity-40"
+															variant="primary"
+															size="sm"
+															isDisabled={isSaving}
+															isPending={isSaving}
 														>
 															{isSaving ? "Guardando…" : "Guardar cambios"}
-														</button>
-														<button
+														</Button>
+														<Button
 															type="button"
-															disabled={isSaving}
-															onClick={cancelEdit}
-															className="px-4 py-2 rounded-xl border border-stone-300 text-on-surface text-xs font-medium hover:bg-stone-100 disabled:opacity-40"
+															variant="secondary"
+															size="sm"
+															isDisabled={isSaving}
+															onPress={cancelEdit}
 														>
 															Cancelar
-														</button>
+														</Button>
 													</div>
 												</form>
 											</td>
@@ -519,9 +617,11 @@ export function GuestList({
 												{guest.phone ? <span> · {guest.phone}</span> : null}
 											</div>
 											{isSaved && (
-												<output className="mt-1 text-xs text-primary font-medium block">
-													Invitado actualizado.
-												</output>
+												<Alert status="success" role="status" className="mt-1">
+													<Alert.Description>
+														Invitado actualizado.
+													</Alert.Description>
+												</Alert>
 											)}
 										</td>
 										<td className="px-6 py-4">
@@ -547,36 +647,48 @@ export function GuestList({
 										<td className="px-6 py-4 text-right">
 											<div className="flex flex-col items-end gap-1">
 												<div className="flex items-center justify-end gap-2">
-													<button
-														type="button"
-														onClick={() => handleIssueGuestLink(guest.id)}
-														disabled={isIssuing}
-														title="Generar un nuevo enlace invalida el enlace anterior del invitado"
-														className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-on-surface hover:bg-stone-100 transition-colors focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-40"
-													>
-														{isIssuing ? "Copiando…" : "Copiar enlace"}
-													</button>
-													<button
+													{guest.phone && (
+														<Button
+															type="button"
+															aria-label={`Enviar WhatsApp a ${guest.displayName}`}
+															onPress={() => handleSendWhatsApp(guest)}
+															isDisabled={sendingWhatsAppGuestId === guest.id}
+															isPending={sendingWhatsAppGuestId === guest.id}
+															variant="outline"
+															size="sm"
+														>
+															<WhatsAppIcon className="w-4 h-4 text-emerald-600" />
+															<span>WhatsApp</span>
+														</Button>
+													)}
+													<span title="Generar un nuevo enlace invalida el enlace anterior del invitado">
+														<Button
+															type="button"
+															onPress={() => handleIssueGuestLink(guest.id)}
+															isDisabled={isIssuing}
+															isPending={isIssuing}
+															variant="outline"
+															size="sm"
+														>
+															{isIssuing ? "Copiando…" : "Copiar enlace"}
+														</Button>
+													</span>
+													<Button
 														type="button"
 														aria-label={`Editar ${guest.displayName}`}
-														onClick={() => startEdit(guest)}
-														className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-medium text-on-surface hover:bg-stone-100 transition-colors focus-visible:ring-2 focus-visible:ring-primary"
+														onPress={() => startEdit(guest)}
+														variant="outline"
+														size="sm"
 													>
 														Editar
-													</button>
+													</Button>
 												</div>
-												{isCopied && (
-													<output className="text-xs text-success-green font-medium block">
-														Enlace copiado al portapapeles.
-													</output>
-												)}
 												{hasIssueError && (
-													<p
-														role="alert"
-														className="text-xs text-error font-medium block"
-													>
-														{issueError.message}
-													</p>
+													<Alert status="danger" role="alert">
+														<Alert.Description>
+															{issueError.message}
+														</Alert.Description>
+													</Alert>
 												)}
 											</div>
 										</td>
@@ -595,25 +707,27 @@ export function GuestList({
 					invitados
 				</p>
 				<div className="flex items-center gap-2">
-					<button
+					<Button
 						type="button"
-						disabled={currentPage <= 1}
-						onClick={() => setPage((p) => Math.max(1, p - 1))}
-						className="px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+						variant="outline"
+						size="sm"
+						isDisabled={currentPage <= 1}
+						onPress={() => setPage((p) => Math.max(1, p - 1))}
 					>
 						Anterior
-					</button>
+					</Button>
 					<span className="font-medium px-2">
 						Página {currentPage} de {totalPages}
 					</span>
-					<button
+					<Button
 						type="button"
-						disabled={currentPage >= totalPages}
-						onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-						className="px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+						variant="outline"
+						size="sm"
+						isDisabled={currentPage >= totalPages}
+						onPress={() => setPage((p) => Math.min(totalPages, p + 1))}
 					>
 						Siguiente
-					</button>
+					</Button>
 				</div>
 			</div>
 

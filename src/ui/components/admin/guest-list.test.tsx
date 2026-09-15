@@ -1,3 +1,4 @@
+import { Toast, toast } from "@heroui/react";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -36,13 +37,30 @@ function renderGuestList(
 		onEditGuest: vi.fn().mockResolvedValue({ id: "guest-1" }),
 		...overrides,
 	};
-	render(<GuestList {...props} />);
+	render(
+		<>
+			<Toast.Provider />
+			<GuestList {...props} />
+		</>,
+	);
 	return props;
+}
+
+async function selectOption(
+	user: ReturnType<typeof userEvent.setup>,
+	triggerName: RegExp | string,
+	optionName: RegExp | string,
+) {
+	const trigger = screen.getByRole("button", { name: triggerName });
+	await user.click(trigger);
+	const option = await screen.findByRole("option", { name: optionName });
+	await user.click(option);
 }
 
 describe("GuestList", () => {
 	afterEach(() => {
 		cleanup();
+		toast.clear();
 	});
 
 	it("renders the guest list with attendance and companion count", () => {
@@ -165,10 +183,7 @@ describe("GuestList", () => {
 		renderGuestList({ onEditGuest });
 
 		await user.click(screen.getByRole("button", { name: /editar ana ruiz/i }));
-		await user.selectOptions(
-			screen.getByLabelText(/^asistencia/i),
-			"unanswered",
-		);
+		await selectOption(user, /asistencia/i, /sin respuesta/i);
 		await user.click(screen.getByRole("button", { name: /guardar cambios/i }));
 
 		await waitFor(() => {
@@ -190,10 +205,7 @@ describe("GuestList", () => {
 		await user.click(screen.getByRole("button", { name: /editar ana ruiz/i }));
 		await user.clear(screen.getByLabelText(/^nombre/i));
 		await user.type(screen.getByLabelText(/^nombre/i), "Ana Ruiz de Mendoza");
-		await user.selectOptions(
-			screen.getByLabelText(/^asistencia/i),
-			"unanswered",
-		);
+		await selectOption(user, /asistencia/i, /sin respuesta/i);
 		await user.clear(screen.getByLabelText(/^acompañantes/i));
 		await user.type(screen.getByLabelText(/^acompañantes/i), "0");
 		await user.click(screen.getByRole("button", { name: /guardar cambios/i }));
@@ -302,9 +314,17 @@ describe("GuestList", () => {
 			expect(onIssueGuestLink).toHaveBeenCalledWith("guest-1");
 		});
 		expect(writeText).toHaveBeenCalledWith("https://example.com/magic/guest-1");
+
+		// Toast appears with role alert/status outside the table cell
+		const toast = await screen.findByRole("alert");
+		expect(toast).toHaveTextContent(/enlace copiado al portapapeles/i);
+
+		// The inline alert inside the table row is gone
 		expect(
-			await screen.findByText(/enlace copiado al portapapeles/i),
-		).toBeInTheDocument();
+			firstCopyButton
+				.closest("td")
+				?.querySelector("[role='status'], [role='alert']"),
+		).toBeNull();
 	});
 
 	it("renders a readable error state when onIssueGuestLink rejects", async () => {
@@ -423,5 +443,132 @@ describe("GuestList", () => {
 		expect(
 			screen.getByText(/«Elena Morales» añadido con éxito/i),
 		).toBeInTheDocument();
+	});
+
+	it("renders WhatsApp button only for guests with phone", () => {
+		const [firstGuest, secondGuest] = guests;
+		if (!firstGuest || !secondGuest) throw new Error("Missing fixtures");
+
+		const guestsList: AdminGuest[] = [
+			{ ...firstGuest, phone: "+34 600 123 456" },
+			{ ...secondGuest, phone: null },
+		];
+
+		renderGuestList({ guests: guestsList });
+
+		const waButtons = screen.getAllByRole("button", { name: /whatsapp/i });
+		expect(waButtons).toHaveLength(1);
+	});
+
+	it("synchronously opens a popup, issues link, and navigates popup to wa.me url on WhatsApp button press", async () => {
+		const user = userEvent.setup();
+		const mockPopup = { location: { href: "" }, close: vi.fn() };
+		const openSpy = vi
+			.spyOn(window, "open")
+			.mockReturnValue(mockPopup as unknown as Window);
+
+		const [firstGuest] = guests;
+		if (!firstGuest) throw new Error("Missing fixture");
+		const guestWithPhone: AdminGuest = {
+			...firstGuest,
+			displayName: "Ana Ruiz",
+			phone: "+34 600 123 456",
+		};
+
+		const onIssueGuestLink = vi
+			.fn()
+			.mockResolvedValue({ url: "https://example.com/magic/guest-1" });
+
+		const messageContext = {
+			title: "Boda de Julián & Sarah",
+			startsAt: "2026-10-24T15:00:00.000Z",
+			timezone: "Europe/Madrid",
+			venueName: "Villa La Pietra",
+			whatsappMessageTemplate: null,
+		};
+
+		renderGuestList({
+			guests: [guestWithPhone],
+			onIssueGuestLink,
+			messageContext,
+		});
+
+		const waButton = screen.getByRole("button", { name: /whatsapp/i });
+		await user.click(waButton);
+
+		expect(openSpy).toHaveBeenCalledWith("", "_blank", "noopener,noreferrer");
+		await waitFor(() => {
+			expect(onIssueGuestLink).toHaveBeenCalledWith("guest-1");
+		});
+
+		await waitFor(() => {
+			expect(mockPopup.location.href).toContain("https://wa.me/34600123456");
+		});
+		expect(mockPopup.location.href).toContain(
+			encodeURIComponent("https://example.com/magic/guest-1"),
+		);
+		expect(mockPopup.location.href).toContain(encodeURIComponent("Ana Ruiz"));
+		openSpy.mockRestore();
+	});
+
+	it("shows a toast when window.open returns null (popup blocked)", async () => {
+		const user = userEvent.setup();
+		const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+
+		const [firstGuest] = guests;
+		if (!firstGuest) throw new Error("Missing fixture");
+		const guestWithPhone: AdminGuest = {
+			...firstGuest,
+			phone: "+34 600 123 456",
+		};
+
+		const onIssueGuestLink = vi
+			.fn()
+			.mockResolvedValue({ url: "https://example.com/magic/guest-1" });
+
+		renderGuestList({
+			guests: [guestWithPhone],
+			onIssueGuestLink,
+		});
+
+		const waButton = screen.getByRole("button", { name: /whatsapp/i });
+		await user.click(waButton);
+
+		const toastEl = await screen.findByRole("alert");
+		expect(toastEl).toBeInTheDocument();
+		expect(toastEl.textContent).toMatch(/bloque|whatsapp/i);
+		openSpy.mockRestore();
+	});
+
+	it("shows a toast when wa.me url cannot be built or issuing link rejects", async () => {
+		const user = userEvent.setup();
+		const mockPopup = { location: { href: "" }, close: vi.fn() };
+		const openSpy = vi
+			.spyOn(window, "open")
+			.mockReturnValue(mockPopup as unknown as Window);
+
+		const [firstGuest] = guests;
+		if (!firstGuest) throw new Error("Missing fixture");
+		const guestWithPhone: AdminGuest = {
+			...firstGuest,
+			phone: "123", // invalid phone for whatsapp url
+		};
+
+		const onIssueGuestLink = vi
+			.fn()
+			.mockResolvedValue({ url: "https://example.com/magic/guest-1" });
+
+		renderGuestList({
+			guests: [guestWithPhone],
+			onIssueGuestLink,
+		});
+
+		const waButton = screen.getByRole("button", { name: /whatsapp/i });
+		await user.click(waButton);
+
+		const toastEl = await screen.findByRole("alert");
+		expect(toastEl).toBeInTheDocument();
+		expect(mockPopup.close).toHaveBeenCalled();
+		openSpy.mockRestore();
 	});
 });
