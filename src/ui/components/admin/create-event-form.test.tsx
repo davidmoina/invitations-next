@@ -38,7 +38,10 @@ describe("CreateEventForm", () => {
 			"wedding",
 		);
 		// `datetime-local` yields "2030-06-12T17:00": no seconds, no zone. The
-		// validator rejects exactly that string, so the form must convert it.
+		// validator rejects exactly that string, so the form must convert it —
+		// reading it as the wall-clock time of the event's timezone (CEST here).
+		await user.clear(screen.getByLabelText(/zona horaria/i));
+		await user.type(screen.getByLabelText(/zona horaria/i), "Europe/Madrid");
 		await user.type(screen.getByLabelText(/fecha y hora/i), "2030-06-12T17:00");
 		await user.type(screen.getByLabelText(/lugar/i), "Finca El Olivar");
 		await user.click(screen.getByRole("button", { name: /crear/i }));
@@ -49,7 +52,8 @@ describe("CreateEventForm", () => {
 		expect(payload.eventType).toBe("wedding");
 		expect(payload.details).toEqual({ type: "wedding" });
 		expect(payload.honoreeNames).toEqual([]);
-		expect(payload.startsAt).toBe("2030-06-12T17:00:00.000Z");
+		expect(payload.timezone).toBe("Europe/Madrid");
+		expect(payload.startsAt).toBe("2030-06-12T15:00:00.000Z");
 		expect(payload.venueName).toBe("Finca El Olivar");
 		// Untouched optional fields are absent values, which the contract
 		// spells `null` — never an empty string that would overwrite later.

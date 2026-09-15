@@ -89,7 +89,7 @@ export function EventSettingsForm({
 		dueDate: initialDueDate,
 		babySex: initialBabySex,
 		turningAge: initialTurningAge,
-		startsAt: toLocalInput(event.startsAt),
+		startsAt: toLocalInput(event.startsAt, event.timezone),
 		timezone: event.timezone,
 		venueName: event.venueName ?? "",
 		venueAddress: event.venueAddress ?? "",
@@ -97,7 +97,7 @@ export function EventSettingsForm({
 		description: event.description ?? "",
 		maxCompanions: event.maxCompanions,
 		giftRegistryEnabled: event.giftRegistryEnabled,
-		rsvpDeadline: toLocalInput(event.rsvpDeadline),
+		rsvpDeadline: toLocalInput(event.rsvpDeadline, event.timezone),
 		status: event.status,
 	});
 	const [saving, setSaving] = useState(false);
@@ -209,7 +209,7 @@ export function EventSettingsForm({
 				eventType: form.eventType,
 				honoreeNames,
 				details,
-				startsAt: toIso(form.startsAt) ?? event.startsAt,
+				startsAt: toIso(form.startsAt, form.timezone) ?? event.startsAt,
 				timezone: form.timezone.trim(),
 				venueName: orNull(form.venueName),
 				venueAddress: orNull(form.venueAddress),
@@ -217,7 +217,7 @@ export function EventSettingsForm({
 				description: orNull(form.description),
 				maxCompanions: form.maxCompanions,
 				giftRegistryEnabled: form.giftRegistryEnabled,
-				rsvpDeadline: toIso(form.rsvpDeadline),
+				rsvpDeadline: toIso(form.rsvpDeadline, form.timezone),
 				status: form.status,
 			});
 			setSaved(true);
